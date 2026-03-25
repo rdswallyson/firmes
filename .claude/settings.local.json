@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Cliente/Desktop/**)",
+      "Bash(npx create-turbo@latest firmes --package-manager npm)",
+      "Bash(npx create-turbo@latest firmes_tmp --package-manager npm)",
+      "Bash(cp -r /c/Users/Cliente/Desktop/firmes_tmp/. /c/Users/Cliente/Desktop/firmes/)",
+      "Bash(rm -rf /c/Users/Cliente/Desktop/firmes_tmp)",
+      "Bash(cp /c/Users/Cliente/Desktop/firmes_tmp/package.json /c/Users/Cliente/Desktop/firmes/)",
+      "Bash(cp /c/Users/Cliente/Desktop/firmes_tmp/package-lock.json /c/Users/Cliente/Desktop/firmes/)",
+      "Bash(cp /c/Users/Cliente/Desktop/firmes_tmp/.gitignore /c/Users/Cliente/Desktop/firmes/)",
+      "Bash(cp /c/Users/Cliente/Desktop/firmes_tmp/.npmrc /c/Users/Cliente/Desktop/firmes/)",
+      "Bash(cp /c/Users/Cliente/Desktop/firmes_tmp/README.md /c/Users/Cliente/Desktop/firmes/)",
+      "Bash(npm install:*)",
+      "Bash(npm audit:*)",
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(openssl rand:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(./node_modules/.bin/ts-node --project packages/db/tsconfig.json packages/db/prisma/seed.ts 2>&1)",
+      "Bash(./packages/db/node_modules/.bin/ts-node --project packages/db/tsconfig.json packages/db/prisma/seed.ts 2>&1)"
+    ]
+  }
+}
