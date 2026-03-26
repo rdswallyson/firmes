@@ -13,6 +13,7 @@
   "dependencies": {
     "@firmes/db": "*",
     "@hookform/resolvers": "^5.2.2",
+    "@react-pdf/renderer": "^4.3.2",
     "@repo/ui": "*",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.3",

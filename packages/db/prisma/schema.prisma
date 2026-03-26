@@ -20,24 +20,26 @@ enum Plan {
 }
 
 model Tenant {
-  id             String    @id @default(cuid())
+  id             String           @id @default(cuid())
   name           String
-  slug           String    @unique
+  slug           String           @unique
   logo           String?
-  primaryColor   String    @default("#1A3C6E")
-  secondaryColor String    @default("#C8922A")
+  primaryColor   String           @default("#1A3C6E")
+  secondaryColor String           @default("#C8922A")
   domain         String?
-  plan           Plan      @default(FREE)
-  isWhiteLabel   Boolean   @default(false)
-  maxChurches    Int       @default(1)
+  plan           Plan             @default(FREE)
+  isWhiteLabel   Boolean          @default(false)
+  maxChurches    Int              @default(1)
   resellerId     String?
-  isActive       Boolean   @default(true)
-  createdAt      DateTime  @default(now())
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
   users          User[]
   members        Member[]
   groups         Group[]
   events         Event[]
   finances       Finance[]
+  contas         ContaBancaria[]
+  metas          Meta[]
 }
 
 model User {
@@ -107,15 +109,51 @@ model Event {
 }
 
 model Finance {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  tenant      Tenant         @relation(fields: [tenantId], references: [id])
   type        String
   category    String
   amount      Float
   description String?
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
+  date        DateTime       @default(now())
+  memberId    String?
+  memberName  String?
+  contaId     String?
+  conta       ContaBancaria? @relation(fields: [contaId], references: [id])
+  metaId      String?
+  meta        Meta?          @relation(fields: [metaId], references: [id])
+  reciboNum   String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+}
+
+model ContaBancaria {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  nome      String
+  banco     String?
+  agencia   String?
+  numeroConta String?
+  saldo     Float     @default(0)
+  isAtiva   Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  finances  Finance[]
+}
+
+model Meta {
+  id          String    @id @default(cuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  titulo      String
+  descricao   String?
+  valorMeta   Float
+  valorAtual  Float     @default(0)
+  dataFim     DateTime?
+  isAtiva     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  finances    Finance[]
 }
 
 model AuditLog {
