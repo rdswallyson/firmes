@@ -55,20 +55,30 @@ model User {
 }
 
 model Member {
-  id          String    @id @default(cuid())
-  tenantId    String
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
-  name        String
-  email       String?
-  phone       String?
-  birthDate   DateTime?
-  address     String?
-  photo       String?
-  memberSince DateTime  @default(now())
-  status      String    @default("ACTIVE")
-  role        String?
-  groupId     String?
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  name          String
+  email         String?
+  phone         String?
+  birthDate     DateTime?
+  baptismDate   DateTime?
+  address       String?
+  cep           String?
+  city          String?
+  state         String?
+  neighborhood  String?
+  number        String?
+  complement    String?
+  photo         String?
+  memberSince   DateTime  @default(now())
+  status        String    @default("ACTIVE")
+  role          String?
+  groupId       String?
+  notes         String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 model Group {

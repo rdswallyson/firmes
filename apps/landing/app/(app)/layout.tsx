@@ -3,7 +3,7 @@ import { getSession } from "../../lib/auth";
 import { prisma } from "@firmes/db";
 import { Sidebar } from "../components/Sidebar";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
 
   if (!session) {
