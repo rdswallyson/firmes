@@ -14,7 +14,7 @@ function getSecret(): Uint8Array {
   return _secret;
 }
 
-const PUBLIC_PATHS = ["/", "/api/auth", "/login"];
+const PUBLIC_PATHS = ["/", "/api", "/login"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
