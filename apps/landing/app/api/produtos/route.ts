@@ -8,7 +8,7 @@ export async function GET() {
     const tenant = await prisma.tenant.findFirst();
     if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
     const produtos = await prisma.produto.findMany({
-      where: { tenantId: tenant.id },
+      where: { tenantId: tenant.id, ativo: true },
       include: { variacoes: true },
       orderBy: { createdAt: "desc" },
     });

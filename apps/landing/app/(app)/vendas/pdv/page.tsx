@@ -34,7 +34,8 @@ export default function PDVPage() {
 
   useEffect(() => {
     fetch("/api/produtos").then(r => r.json()).then((d) => {
-      setProdutos(Array.isArray(d) ? d.filter((p: any) => p.ativo) : []);
+      const lista = d.produtos ?? (Array.isArray(d) ? d : []);
+      setProdutos(lista.filter((p: any) => p.ativo !== false));
     }).finally(() => setLoading(false));
   }, []);
 
