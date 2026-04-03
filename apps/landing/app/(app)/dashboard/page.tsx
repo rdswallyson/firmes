@@ -118,10 +118,10 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
 
 function DefaultBanner({ title, date, type = "evento" }: { title: string; date?: string; type?: string }) {
   return (
-    <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #1A3C6E 0%, #0D2545 100%)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "1rem", borderRadius: "8px" }}>
-      <div style={{ color: "#E8B84B", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 600, marginBottom: 4 }}>{type}</div>
-      <div style={{ color: "white", fontSize: "0.9rem", fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>{title}</div>
-      {date && <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.72rem", marginTop: 4 }}>{date}</div>}
+    <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #1A3C6E 0%, #0D2545 100%)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "0.5rem", borderRadius: "8px" }}>
+      <div style={{ color: "#E8B84B", fontSize: "0.5rem", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 2 }}>{type}</div>
+      <div style={{ color: "white", fontSize: "0.7rem", fontWeight: 700, textAlign: "center", lineHeight: 1.2, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{title}</div>
+      {date && <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.6rem", marginTop: 2 }}>{date}</div>}
     </div>
   );
 }
@@ -151,14 +151,14 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const e = s.data;
       const dateStr = new Date(e.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
       return (
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", height: "100%" }}>
-          <div style={{ width: 90, height: 65, borderRadius: 8, overflow: "hidden", flexShrink: 0 }}>
-            {e.banner ? <img src={e.banner} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={e.title} date={dateStr} />}
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85 }}>
+          <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
+            {e.banner ? <img src={e.banner} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={e.title.slice(0,15)} date={dateStr} />}
           </div>
-          <div>
-            <div style={{ color: "#E8B84B", fontSize: "0.6rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.1em" }}>Evento</div>
-            <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 700, lineHeight: 1.2 }}>{e.title}</div>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.72rem", marginTop: 2 }}>{dateStr} {e.location ? `- ${e.location}` : ""}</div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 2 }}>EVENTO</div>
+            <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{e.title}</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.65rem", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{dateStr} {e.location ? `• ${e.location.slice(0,25)}` : ""}</div>
           </div>
         </div>
       );
@@ -167,46 +167,46 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const a = s.data;
       const initials = a.name.split(" ").map(w => w[0]).slice(0, 2).join("");
       return (
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", height: "100%" }}>
-          <div style={{ width: 50, height: 50, borderRadius: "50%", background: "rgba(232,184,75,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#E8B84B", flexShrink: 0 }}>{initials}</div>
-          <div>
-            <div style={{ color: "#E8B84B", fontSize: "0.6rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.1em" }}>Aniversariante</div>
-            <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 700 }}>{a.name}</div>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.72rem", marginTop: 2 }}>{a.date} - em {a.daysLeft} dia(s)</div>
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85 }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(232,184,75,0.15)", border: "2px solid rgba(232,184,75,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", fontWeight: 700, color: "#E8B84B", flexShrink: 0 }}>{initials}</div>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 2 }}>ANIVERSARIANTE</div>
+            <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{a.name}</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.7rem", marginTop: 2 }}>{a.date} • em {a.daysLeft} dia(s)</div>
           </div>
         </div>
       );
     }
     const p = s.data as ProdutoSlide;
     return (
-      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", height: "100%" }}>
-        <div style={{ width: 65, height: 65, borderRadius: 8, overflow: "hidden", flexShrink: 0 }}>
-          {p.foto ? <img src={p.foto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={p.nome} type="produto" />}
+      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85 }}>
+        <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
+          {p.foto ? <img src={p.foto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={p.nome.slice(0,12)} type="produto" />}
         </div>
-        <div>
-          <div style={{ color: "#E8B84B", fontSize: "0.6rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.1em" }}>Produto</div>
-          <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 700 }}>{p.nome}</div>
-          <div style={{ color: "#E8B84B", fontSize: "0.8rem", fontWeight: 600, marginTop: 2 }}>R$ {p.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 2 }}>PRODUTO</div>
+          <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{p.nome}</div>
+          <div style={{ color: "#E8B84B", fontSize: "0.9rem", fontWeight: 700, marginTop: 4 }}>R$ {p.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ position: "relative", height: "100%" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div style={{ position: "relative", height: 90, maxHeight: 90 }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <AnimatePresence mode="wait">
         <motion.div key={idx} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}
-          style={{ height: "100%", display: "flex", alignItems: "center" }}>
+          style={{ height: 85, maxHeight: 85, display: "flex", alignItems: "center" }}>
           {renderSlide(slide)}
         </motion.div>
       </AnimatePresence>
       {slides.length > 1 && (
         <>
-          <button onClick={() => setIdx(p => (p - 1 + slides.length) % slides.length)} style={{ position: "absolute", left: -8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}><ChevronLeft size={14} /></button>
-          <button onClick={() => setIdx(p => (p + 1) % slides.length)} style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}><ChevronRight size={14} /></button>
-          <div style={{ position: "absolute", bottom: -2, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4 }}>
+          <button onClick={() => setIdx(p => (p - 1 + slides.length) % slides.length)} style={{ position: "absolute", left: -10, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}><ChevronLeft size={12} /></button>
+          <button onClick={() => setIdx(p => (p + 1) % slides.length)} style={{ position: "absolute", right: -10, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}><ChevronRight size={12} /></button>
+          <div style={{ position: "absolute", bottom: -8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4 }}>
             {slides.map((_, i) => (
-              <div key={i} onClick={() => setIdx(i)} style={{ width: i === idx % slides.length ? 14 : 6, height: 6, borderRadius: 3, background: i === idx % slides.length ? "#E8B84B" : "rgba(255,255,255,0.3)", cursor: "pointer", transition: "all 0.2s" }} />
+              <div key={i} onClick={() => setIdx(i)} style={{ width: i === idx % slides.length ? 12 : 5, height: 5, borderRadius: 3, background: i === idx % slides.length ? "#E8B84B" : "rgba(255,255,255,0.3)", cursor: "pointer", transition: "all 0.2s" }} />
             ))}
           </div>
         </>
