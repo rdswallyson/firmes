@@ -254,12 +254,14 @@ export default function DashboardPage() {
         const upcoming = evts.filter((e: any) => e.status === "ABERTO" && new Date(e.date) > new Date()).slice(0, 5);
         setEventos(upcoming);
         const origin = typeof window !== "undefined" ? window.location.origin : "";
-        const links: { label: string; url: string; icon: React.ReactNode }[] = upcoming.filter((e: any) => e.slug).map((e: any) => ({
-          label: e.title,
-          url: `${origin}/inscricao/${e.slug}`,
-          icon: <Calendar size={14} strokeWidth={1.5} color="#1A3C6E" />,
-        }));
-        links.push({ label: "Formulario de visitante", url: `${origin}/cadastro/igreja`, icon: <UserPlus size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+        const links: { label: string; url: string; icon: React.ReactNode }[] = [];
+        // Eventos abertos
+        upcoming.filter((e: any) => e.slug).forEach((e: any) => {
+          links.push({ label: e.title, url: `${origin}/inscricao/${e.slug}`, icon: <Calendar size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+        });
+        // Cadastro de membro
+        links.push({ label: "Cadastro de Membro", url: `${origin}/cadastro/membro`, icon: <UserPlus size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+        // Loja publica
         links.push({ label: "Loja publica", url: `${origin}/loja`, icon: <ShoppingBag size={14} strokeWidth={1.5} color="#1A3C6E" /> });
         setPublicLinks(links);
       }
