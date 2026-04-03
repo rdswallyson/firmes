@@ -154,14 +154,26 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
 
   function openModal() { setForm({}); setShowModal(true); }
 
+  // Mapeamento de tab para action da API
+  const tabToAction: Record<TabKey, string> = {
+    fases: "fase",
+    equipes: "equipe",
+    checklist: "checklist",
+    marcos: "marco",
+    recursos: "recurso",
+    refeicoes: "refeicao",
+    pontos: "ponto",
+  };
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     try {
+      const action = tabToAction[tab];
       const res = await fetch(`/api/eventos/${id}/avancado`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: tab, ...form }),
+        body: JSON.stringify({ action, ...form }),
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
