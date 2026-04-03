@@ -272,7 +272,7 @@ const MENU: SectionGroup[] = [
     items: [
       {
         id: "whitelabel",
-        label: "White Label Rubi",
+        label: "White Label Esmeralda",
         icon: <Crown size={18} strokeWidth={1.5} />,
         isGold: true,
         children: [
@@ -280,7 +280,7 @@ const MENU: SectionGroup[] = [
           { label: "Criar nova igreja", href: "/white-label/nova" },
           { label: "Editor de marca ao vivo", href: "/white-label/editor" },
           { label: "Domínio personalizado", href: "/white-label/dominio" },
-          { label: "Faturamento Rubi", href: "/white-label/faturamento" },
+          { label: "Faturamento Esmeralda", href: "/white-label/faturamento" },
           { label: "Material de vendas", href: "/white-label/material" },
         ],
       },
@@ -362,18 +362,20 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0,
             }}>
-              <svg width="20" height="20" viewBox="0 0 44 44" fill="none">
-                <path d="M22 6 C14 6 8 12 8 20 C8 27 12 33 18 36 L18 38 C18 39.1 18.9 40 20 39.5 C21 39 22 37 22 35 C22 37 23 39 24 39.5 C25.1 40 26 39.1 26 38 L26 36 C32 33 36 27 36 20 C36 12 30 6 22 6Z" fill="#C8922A" opacity="0.9"/>
-                <circle cx="17.5" cy="19" r="2.5" fill="white" opacity="0.9"/>
-                <circle cx="26.5" cy="19" r="2.5" fill="white" opacity="0.9"/>
+              <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+                <rect x="4" y="4" width="40" height="6" rx="3" fill="white"/>
+                <rect x="6" y="12" width="10" height="24" rx="5" fill="#B0B8C8"/>
+                <rect x="19" y="10" width="10" height="28" rx="5" fill="#C8922A"/>
+                <rect x="32" y="12" width="10" height="24" rx="5" fill="#B0B8C8"/>
+                <rect x="4" y="38" width="40" height="6" rx="3" fill="white"/>
               </svg>
             </div>
             <div style={{ overflow: "hidden" }}>
-              <div style={{ color: "white", fontWeight: 700, fontSize: "0.875rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ color: "white", fontWeight: 900, fontSize: "0.95rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "var(--font-nunito), sans-serif" }}>
                 {tenantName}
               </div>
-              <div style={{ color: "rgba(200,146,42,0.8)", fontSize: "0.7rem", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                Firmes
+              <div style={{ color: "#C8922A", fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
+                GESTÃO PARA IGREJAS
               </div>
             </div>
           </motion.div>
@@ -385,10 +387,12 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
             border: "1px solid rgba(200,146,42,0.4)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <svg width="20" height="20" viewBox="0 0 44 44" fill="none">
-              <path d="M22 6 C14 6 8 12 8 20 C8 27 12 33 18 36 L18 38 C18 39.1 18.9 40 20 39.5 C21 39 22 37 22 35 C22 37 23 39 24 39.5 C25.1 40 26 39.1 26 38 L26 36 C32 33 36 27 36 20 C36 12 30 6 22 6Z" fill="#C8922A" opacity="0.9"/>
-              <circle cx="17.5" cy="19" r="2.5" fill="white" opacity="0.9"/>
-              <circle cx="26.5" cy="19" r="2.5" fill="white" opacity="0.9"/>
+            <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
+              <rect x="4" y="4" width="40" height="6" rx="3" fill="white"/>
+              <rect x="6" y="12" width="10" height="24" rx="5" fill="#B0B8C8"/>
+              <rect x="19" y="10" width="10" height="28" rx="5" fill="#C8922A"/>
+              <rect x="32" y="12" width="10" height="24" rx="5" fill="#B0B8C8"/>
+              <rect x="4" y="38" width="40" height="6" rx="3" fill="white"/>
             </svg>
           </div>
         )}

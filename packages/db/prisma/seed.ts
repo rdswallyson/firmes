@@ -13,7 +13,7 @@ async function main() {
     create: {
       name: "Revendedor Demo",
       slug: "revendedor-demo",
-      plan: "RUBI_STARTER",
+      plan: "ESMERALDA_STARTER",
       isWhiteLabel: true,
       maxChurches: 5,
       primaryColor: "#1A3C6E",

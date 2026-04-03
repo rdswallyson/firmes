@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { compare } from "bcryptjs";
 import { prisma } from "@firmes/db";
 import { createSession } from "../../../../lib/auth";
-import { isRubiPlan } from "../../../../lib/plans";
+import { isEsmeraldaPlan } from "../../../../lib/plans";
 import { Plan } from "@firmes/db";
 
 export async function POST(req: NextRequest) {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     tenantId: user.tenantId,
     role: user.role,
     plan: user.tenant.plan,
-    isWhiteLabel: isRubiPlan(user.tenant.plan as Plan),
+    isWhiteLabel: isEsmeraldaPlan(user.tenant.plan as Plan),
   });
 
   const cookieStore = await cookies();

@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import { WatermarkDove } from "./components/WatermarkDove";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-nunito",
 });
 
 export const metadata: Metadata = {
-  title: "Firmes — Sistema de Gestão",
+  title: "Firmes — Gestão para Igrejas",
   description: "Plataforma de gestão para igrejas",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-180.png",
+  },
 };
 
 export default function RootLayout({
@@ -25,8 +26,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
-        style={{ background: "#F5F0EB", margin: 0, padding: 0, minHeight: "100vh" }}
+        className={nunito.variable}
+        style={{
+          background: "#F0EBE1",
+          margin: 0,
+          padding: 0,
+          minHeight: "100vh",
+          fontFamily: "var(--font-nunito), sans-serif",
+        }}
       >
         <WatermarkDove />
         {children}

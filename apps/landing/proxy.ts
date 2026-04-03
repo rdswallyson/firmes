@@ -55,7 +55,7 @@ export async function proxy(req: NextRequest) {
   if (pathname.startsWith("/white-label")) {
     if (!payload.isWhiteLabel) {
       return new NextResponse(
-        JSON.stringify({ error: "Plano Rubi necessário para acessar esta área" }),
+        JSON.stringify({ error: "Plano Esmeralda necessário para acessar esta área" }),
         { status: 403, headers: { "Content-Type": "application/json" } }
       );
     }

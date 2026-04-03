@@ -13,10 +13,10 @@ enum Plan {
   PRATA
   OURO
   DIAMANTE
-  RUBI_STARTER
-  RUBI_PRO
-  RUBI_PLUS
-  RUBI_ULTRA
+  ESMERALDA_STARTER
+  ESMERALDA_PRO
+  ESMERALDA_PLUS
+  ESMERALDA_ULTRA
 }
 
 model Tenant {
@@ -37,6 +37,7 @@ model Tenant {
   members        Member[]
   groups         Group[]
   events         Event[]
+  inscricoes     Inscricao[]
   finances       Finance[]
   contas         ContaBancaria[]
   metas          Meta[]
@@ -97,15 +98,41 @@ model Group {
 }
 
 model Event {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
   title       String
+  slug        String?     @unique
   description String?
   date        DateTime
   location    String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  banner      String?
+  maxVagas    Int?
+  isGratuito  Boolean     @default(true)
+  valor       Float?
+  linkExterno String?
+  status      String      @default("ABERTO")
+  recorrente  Boolean     @default(false)
+  isPublic    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  inscricoes  Inscricao[]
+}
+
+model Inscricao {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  eventId   String
+  event     Event     @relation(fields: [eventId], references: [id])
+  nome      String
+  email     String
+  telefone  String?
+  tipo      String    @default("MEMBRO")
+  memberId  String?
+  status    String    @default("CONFIRMADO")
+  qrCode    String    @unique
+  checkinAt DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model Finance {
