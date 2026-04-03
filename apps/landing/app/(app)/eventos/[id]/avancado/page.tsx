@@ -40,6 +40,17 @@ const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }>
 
 const DIAS_SEMANA = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
+// ─── Sugestões por aba ───────────────────────────────────────────────────────
+const SUGESTOES: Record<TabKey, string[]> = {
+  fases: ["Planejamento", "Pré-evento", "Execução", "Pós-evento"],
+  equipes: ["Louvor", "Mídia", "Recepção", "Segurança", "Logística", "Alimentação"],
+  checklist: ["Confirmar local", "Notificar equipes", "Preparar materiais", "Divulgar evento"],
+  marcos: ["Reunião de Planejamento", "Abertura de Inscrições", "Ensaio Geral", "Dia do Evento", "Relatório Final"],
+  recursos: ["Sistema de Som", "Cadeiras", "Câmeras", "Datashow", "Transporte", "Coffee Break"],
+  refeicoes: ["Café da Manhã ☕", "Almoço 🍽", "Lanche da Tarde 🍎", "Jantar 🌙"],
+  pontos: ["Entrada Principal", "Entrada VIP", "Almoço", "Culto", "Lanche"],
+};
+
 // ─── Shared Styles ───────────────────────────────────────────────────────────
 
 const inputStyle: React.CSSProperties = {
@@ -377,13 +388,32 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
 
   // ─── Modal Forms ──────────────────────────────────────────────────────────
 
+  function renderSugestoes() {
+    const sugs = SUGESTOES[tab];
+    if (!sugs || sugs.length === 0) return null;
+    return (
+      <div style={{ marginBottom: "1rem" }}>
+        <label style={labelStyle}>Sugestões</label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+          {sugs.map(s => (
+            <button key={s} type="button" onClick={() => set("nome", s)}
+              style={{ padding: "0.35rem 0.7rem", borderRadius: "999px", border: "1.5px solid #E5E7EB", background: "white", fontSize: "0.75rem", cursor: "pointer", fontFamily: "var(--font-nunito), sans-serif" }}>
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   function renderModalForm() {
     const f = form;
     const s = (key: string) => (String(f[key] ?? ""));
 
     if (tab === "fases") return (
       <>
-        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} /></div>
+        {renderSugestoes()}
+        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} placeholder="Ex: Planejamento" /></div>
         <div><label style={labelStyle}>Ordem</label><input type="number" style={inputStyle} value={s("ordem")} onChange={e => set("ordem", e.target.value)} /></div>
         <div><label style={labelStyle}>Data Início</label><input type="date" style={inputStyle} value={s("dataInicio")} onChange={e => set("dataInicio", e.target.value)} /></div>
         <div><label style={labelStyle}>Data Fim</label><input type="date" style={inputStyle} value={s("dataFim")} onChange={e => set("dataFim", e.target.value)} /></div>
@@ -392,21 +422,24 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
 
     if (tab === "equipes") return (
       <>
-        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} /></div>
+        {renderSugestoes()}
+        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} placeholder="Ex: Louvor" /></div>
         <div><label style={labelStyle}>Função *</label><input required style={inputStyle} value={s("funcao")} onChange={e => set("funcao", e.target.value)} /></div>
       </>
     );
 
     if (tab === "checklist") return (
       <>
-        <div><label style={labelStyle}>Descrição *</label><input required style={inputStyle} value={s("descricao")} onChange={e => set("descricao", e.target.value)} /></div>
+        {renderSugestoes()}
+        <div><label style={labelStyle}>Descrição *</label><input required style={inputStyle} value={s("descricao")} onChange={e => set("descricao", e.target.value)} placeholder="Ex: Confirmar local" /></div>
         <div><label style={labelStyle}>Prazo</label><input type="date" style={inputStyle} value={s("prazo")} onChange={e => set("prazo", e.target.value)} /></div>
       </>
     );
 
     if (tab === "marcos") return (
       <>
-        <div><label style={labelStyle}>Título *</label><input required style={inputStyle} value={s("titulo")} onChange={e => set("titulo", e.target.value)} /></div>
+        {renderSugestoes()}
+        <div><label style={labelStyle}>Título *</label><input required style={inputStyle} value={s("titulo")} onChange={e => set("titulo", e.target.value)} placeholder="Ex: Reunião de Planejamento" /></div>
         <div><label style={labelStyle}>Data *</label><input required type="date" style={inputStyle} value={s("data")} onChange={e => set("data", e.target.value)} /></div>
         <div><label style={labelStyle}>Observação</label><textarea style={{ ...inputStyle, minHeight: "70px", resize: "vertical" }} value={s("obs")} onChange={e => set("obs", e.target.value)} /></div>
       </>
@@ -414,7 +447,8 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
 
     if (tab === "recursos") return (
       <>
-        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} /></div>
+        {renderSugestoes()}
+        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} placeholder="Ex: Sistema de Som" /></div>
         <div><label style={labelStyle}>Quantidade *</label><input required type="number" min={1} style={inputStyle} value={s("quantidade")} onChange={e => set("quantidade", e.target.value)} /></div>
       </>
     );
@@ -422,12 +456,17 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
     if (tab === "refeicoes") {
       const dias: string[] = Array.isArray(f["dias"]) ? (f["dias"] as string[]) : [];
       const toggleDia = (d: string) => {
-        set("dias", dias.includes(d) ? dias.filter(x => x !== d) : [...dias, d]);
+        const newDias = dias.includes(d) ? dias.filter(x => x !== d) : [...dias, d];
+        set("dias", JSON.stringify(newDias));
       };
+      // Parse dias para renderizar os botões
+      const parsedDias = Array.isArray(f["dias"]) ? (f["dias"] as string[]) : 
+                        (typeof f["dias"] === "string" && (f["dias"] as string).startsWith("[") ? JSON.parse(f["dias"] as string) : []);
       return (
         <>
-          <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} /></div>
-          <div><label style={labelStyle}>Emoji</label><input style={inputStyle} value={s("emoji")} onChange={e => set("emoji", e.target.value)} placeholder="🍽️" /></div>
+          {renderSugestoes()}
+          <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} placeholder="Ex: Café da Manhã ☕" /></div>
+          <div><label style={labelStyle}>Emoji</label><input style={inputStyle} value={s("emoji")} onChange={e => set("emoji", e.target.value)} placeholder="☕" /></div>
           <div>
             <label style={labelStyle}>Modelo *</label>
             <select required style={inputStyle} value={s("modelo")} onChange={e => set("modelo", e.target.value)}>
@@ -443,7 +482,7 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
               {DIAS_SEMANA.map(d => (
                 <button key={d} type="button" onClick={() => toggleDia(d)}
                   style={{ padding: "0.3rem 0.7rem", borderRadius: "999px", border: "1.5px solid", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-nunito), sans-serif",
-                    borderColor: dias.includes(d) ? "#1A3C6E" : "#E5E7EB", background: dias.includes(d) ? "#1A3C6E" : "white", color: dias.includes(d) ? "white" : "#374151" }}>
+                    borderColor: parsedDias.includes(d) ? "#1A3C6E" : "#E5E7EB", background: parsedDias.includes(d) ? "#1A3C6E" : "white", color: parsedDias.includes(d) ? "white" : "#374151" }}>
                   {d}
                 </button>
               ))}
@@ -455,7 +494,8 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
 
     if (tab === "pontos") return (
       <>
-        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} /></div>
+        {renderSugestoes()}
+        <div><label style={labelStyle}>Nome *</label><input required style={inputStyle} value={s("nome")} onChange={e => set("nome", e.target.value)} placeholder="Ex: Entrada Principal" /></div>
         <div>
           <label style={labelStyle}>Tipo *</label>
           <select required style={inputStyle} value={s("tipo")} onChange={e => set("tipo", e.target.value)}>
@@ -473,7 +513,7 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
   }
 
   const tabLabel: Record<TabKey, string> = {
-    fases: "Etapa", equipes: "Equipe", checklist: "Item", marcos: "Marco",
+    fases: "Etapa", equipes: "Equipe", checklist: "Item", marcos: "Cronograma",
     recursos: "Recurso", refeicoes: "Refeição", pontos: "Ponto de Check-in",
   };
 
