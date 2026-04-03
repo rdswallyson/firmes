@@ -151,7 +151,7 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const e = s.data;
       const dateStr = new Date(e.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
       return (
-        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85, width: "100%" }}>
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85, width: "100%" }}>
           <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
             {e.banner ? <img src={e.banner} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={e.title.slice(0,15)} date={dateStr} />}
           </div>
@@ -167,19 +167,18 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const a = s.data;
       const initials = a.name.split(" ").map(w => w[0]).slice(0, 2).join("");
       return (
-        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85 }}>
-          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(232,184,75,0.15)", border: "2px solid rgba(232,184,75,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", fontWeight: 700, color: "#E8B84B", flexShrink: 0 }}>{initials}</div>
-          <div style={{ textAlign: "left" }}>
-            <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 2 }}>ANIVERSARIANTE</div>
-            <div style={{ color: "white", fontSize: "0.85rem", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{a.name}</div>
-            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.7rem", marginTop: 2 }}>{a.date} • em {a.daysLeft} dia(s)</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85, width: "100%" }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(232,184,75,0.15)", border: "2px solid rgba(232,184,75,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#E8B84B", flexShrink: 0 }}>{initials}</div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{a.name}</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.65rem", marginTop: 1 }}>{a.date} • {a.daysLeft}d</div>
           </div>
         </div>
       );
     }
     const p = s.data as ProdutoSlide;
     return (
-      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85, width: "100%" }}>
+      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85, width: "100%" }}>
         <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
           {p.foto ? <img src={p.foto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={p.nome.slice(0,12)} type="produto" />}
         </div>
@@ -204,7 +203,7 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
         <>
           <button onClick={() => setIdx(p => (p - 1 + slides.length) % slides.length)} style={{ position: "absolute", left: -10, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}><ChevronLeft size={12} /></button>
           <button onClick={() => setIdx(p => (p + 1) % slides.length)} style={{ position: "absolute", right: -10, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 22, height: 22, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}><ChevronRight size={12} /></button>
-          <div style={{ position: "absolute", bottom: -8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4 }}>
+          <div style={{ position: "absolute", bottom: 2, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 4 }}>
             {slides.map((_, i) => (
               <div key={i} onClick={() => setIdx(i)} style={{ width: i === idx % slides.length ? 12 : 5, height: 5, borderRadius: 3, background: i === idx % slides.length ? "#E8B84B" : "rgba(255,255,255,0.3)", cursor: "pointer", transition: "all 0.2s" }} />
             ))}
