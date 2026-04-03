@@ -166,13 +166,27 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         console.error("[handleSubmit] POST failed:", res.status, errData);
+        alert("Erro ao salvar: " + (errData.error || "Verifique os campos obrigatórios"));
         return;
       }
+      const created = await res.json();
+      console.log("[handleSubmit] created:", created);
+      
+      // Atualização otimista - adiciona o item na lista localmente
+      setData(prev => {
+        const key = tab as keyof AvancadoData;
+        const current = (prev[key] as any[]) || [];
+        return { ...prev, [key]: [...current, created] };
+      });
+      
       setShowModal(false);
       setForm({});
+      
+      // Refetch para garantir sincronização com o servidor
       await fetchData();
     } catch (err) {
       console.error("[handleSubmit] error:", err);
+      alert("Erro ao salvar. Tente novamente.");
     } finally {
       setSaving(false);
     }
@@ -447,7 +461,7 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
   }
 
   const tabLabel: Record<TabKey, string> = {
-    fases: "Fase", equipes: "Equipe", checklist: "Item", marcos: "Marco",
+    fases: "Etapa", equipes: "Equipe", checklist: "Item", marcos: "Marco",
     recursos: "Recurso", refeicoes: "Refeição", pontos: "Ponto de Check-in",
   };
 
