@@ -121,6 +121,8 @@ model Event {
   avancado            Boolean     @default(false)
   alimentacaoAtiva    Boolean     @default(false)
   alimentacaoModelo   String?
+  endereco            String?
+  googleMapsLink      String?
   cidadeExterna       String?
   enderecoRetirada    String?
   instrucaoRetirada   String?

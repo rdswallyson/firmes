@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
 
     const body = await request.json();
-    const { title, description, date, location, maxVagas, isGratuito, valor, banner, linkExterno, recorrente } = body;
+    const { title, description, date, location, maxVagas, isGratuito, valor, banner, linkExterno, recorrente, avancado, endereco, googleMapsLink } = body;
 
     if (!title || !date) {
       return NextResponse.json({ error: "Campos obrigatórios: title, date" }, { status: 400 });
@@ -75,6 +75,9 @@ export async function POST(request: NextRequest) {
         banner: banner ?? null,
         linkExterno: linkExterno ?? null,
         recorrente: recorrente ?? false,
+        avancado: avancado ?? false,
+        endereco: endereco ?? null,
+        googleMapsLink: googleMapsLink ?? null,
         status: "ABERTO",
       },
     });

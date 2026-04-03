@@ -3,15 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CalendarPlus, ArrowLeft } from "lucide-react";
+import { CalendarPlus, ArrowLeft, Upload, Link as LinkIcon, MapPin } from "lucide-react";
 
 export default function NovoEventoPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [bannerMode, setBannerMode] = useState<"url" | "upload">("url");
   const [form, setForm] = useState({
     title: "", description: "", date: "", location: "",
     maxVagas: "", isGratuito: true, valor: "", banner: "",
-    linkExterno: "", avancado: false,
+    linkExterno: "", avancado: false, endereco: "", googleMapsLink: "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -28,8 +29,18 @@ export default function NovoEventoPage() {
         }),
       });
       if (res.ok) router.push("/eventos");
-    } catch { /* ignore */ }
+      else alert("Erro ao criar evento");
+    } catch { alert("Erro de conexão"); }
     setSaving(false);
+  }
+
+  async function handleBannerUpload(file: File) {
+    // For now, convert to base64 data URL as a simple approach
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm({ ...form, banner: reader.result as string });
+    };
+    reader.readAsDataURL(file);
   }
 
   const inputStyle: React.CSSProperties = { width: "100%", padding: "0.65rem 0.75rem", border: "1.5px solid #E5E7EB", borderRadius: "8px", fontSize: "0.875rem", outline: "none", boxSizing: "border-box", color: "#111827" };
@@ -51,12 +62,12 @@ export default function NovoEventoPage() {
         <form onSubmit={handleSubmit}>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div>
-              <label style={labelStyle}>Título *</label>
-              <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inputStyle} placeholder="Ex: Conferência de Jovens 2026" />
+              <label style={labelStyle}>Titulo *</label>
+              <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inputStyle} placeholder="Ex: Conferencia de Jovens 2026" />
             </div>
 
             <div>
-              <label style={labelStyle}>Descrição</label>
+              <label style={labelStyle}>Descricao</label>
               <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="Detalhes do evento..." />
             </div>
 
@@ -66,24 +77,64 @@ export default function NovoEventoPage() {
                 <input type="datetime-local" required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Local</label>
+                <label style={labelStyle}>Local (nome)</label>
                 <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={inputStyle} placeholder="Ex: Templo Principal" />
               </div>
             </div>
 
+            {/* Endereco completo */}
+            <div>
+              <label style={labelStyle}><MapPin size={13} strokeWidth={1.5} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Endereco completo</label>
+              <input value={form.endereco} onChange={e => setForm({ ...form, endereco: e.target.value })} style={inputStyle} placeholder="Rua, numero, bairro, cidade - estado" />
+            </div>
+            <div>
+              <label style={labelStyle}>Link do Google Maps (opcional)</label>
+              <input value={form.googleMapsLink} onChange={e => setForm({ ...form, googleMapsLink: e.target.value })} style={inputStyle} placeholder="https://maps.google.com/..." />
+            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <div>
-                <label style={labelStyle}>Máximo de Vagas</label>
+                <label style={labelStyle}>Maximo de Vagas</label>
                 <input type="number" min="0" value={form.maxVagas} onChange={e => setForm({ ...form, maxVagas: e.target.value })} style={inputStyle} placeholder="Ilimitado" />
               </div>
               <div>
-                <label style={labelStyle}>Banner (URL da imagem)</label>
-                <input value={form.banner} onChange={e => setForm({ ...form, banner: e.target.value })} style={inputStyle} placeholder="https://..." />
+                <label style={labelStyle}>Banner do Evento</label>
+                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.4rem" }}>
+                  <button type="button" onClick={() => setBannerMode("url")} style={{ padding: "0.3rem 0.7rem", borderRadius: "6px", border: "1px solid #E5E7EB", background: bannerMode === "url" ? "#1A3C6E" : "white", color: bannerMode === "url" ? "white" : "#374151", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    <LinkIcon size={12} /> URL
+                  </button>
+                  <button type="button" onClick={() => setBannerMode("upload")} style={{ padding: "0.3rem 0.7rem", borderRadius: "6px", border: "1px solid #E5E7EB", background: bannerMode === "upload" ? "#1A3C6E" : "white", color: bannerMode === "upload" ? "white" : "#374151", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    <Upload size={12} /> Upload
+                  </button>
+                </div>
+                {bannerMode === "url" ? (
+                  <input value={form.banner} onChange={e => setForm({ ...form, banner: e.target.value })} style={inputStyle} placeholder="https://..." />
+                ) : (
+                  <div style={{ border: "2px dashed #D1D5DB", borderRadius: "8px", padding: "0.75rem", textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}
+                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#1A3C6E"; }}
+                    onDragLeave={e => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
+                    onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#D1D5DB"; if (e.dataTransfer.files[0]) handleBannerUpload(e.dataTransfer.files[0]); }}
+                    onClick={() => { const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = () => { if (inp.files?.[0]) handleBannerUpload(inp.files[0]); }; inp.click(); }}
+                  >
+                    {form.banner ? (
+                      <img src={form.banner} alt="banner" style={{ maxWidth: "100%", maxHeight: "100px", borderRadius: "6px" }} />
+                    ) : (
+                      <span style={{ fontSize: "0.8rem", color: "#9CA3AF" }}>Arraste ou clique para enviar</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Banner preview */}
+            {form.banner && (
+              <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid #E5E7EB" }}>
+                <img src={form.banner} alt="Preview" style={{ width: "100%", maxHeight: "180px", objectFit: "cover" }} />
+              </div>
+            )}
+
             <div>
-              <label style={labelStyle}>Link Externo (transmissão)</label>
+              <label style={labelStyle}>Link Externo (transmissao)</label>
               <input value={form.linkExterno} onChange={e => setForm({ ...form, linkExterno: e.target.value })} style={inputStyle} placeholder="https://youtube.com/..." />
             </div>
 
@@ -94,7 +145,7 @@ export default function NovoEventoPage() {
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", fontSize: "0.85rem", color: "#374151" }}>
                 <input type="checkbox" checked={form.avancado} onChange={e => setForm({ ...form, avancado: e.target.checked })} />
-                Modo avançado (fases, equipes, checklist)
+                Modo avancado (etapas, equipes, checklist)
               </label>
             </div>
 

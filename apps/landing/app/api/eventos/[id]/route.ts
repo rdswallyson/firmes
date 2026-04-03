@@ -39,6 +39,11 @@ export async function PUT(
         ...(body.isGratuito !== undefined && { isGratuito: body.isGratuito }),
         ...(body.valor !== undefined && { valor: body.valor }),
         ...(body.status !== undefined && { status: body.status }),
+        ...(body.banner !== undefined && { banner: body.banner }),
+        ...(body.avancado !== undefined && { avancado: body.avancado }),
+        ...(body.endereco !== undefined && { endereco: body.endereco }),
+        ...(body.googleMapsLink !== undefined && { googleMapsLink: body.googleMapsLink }),
+        ...(body.linkExterno !== undefined && { linkExterno: body.linkExterno }),
       },
     });
     return NextResponse.json(evento);
