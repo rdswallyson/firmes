@@ -173,6 +173,16 @@ const MENU: SectionGroup[] = [
           { label: "Histórico de manutenção", href: "/patrimonio/manutencao" },
         ],
       },
+      {
+        id: "vendas",
+        label: "Vendas",
+        icon: <ShoppingBag size={18} strokeWidth={1.5} />,
+        children: [
+          { label: "Produtos", href: "/produtos" },
+          { label: "Pedidos", href: "/pedidos" },
+          { label: "Cupons", href: "/cupons" },
+        ],
+      },
     ],
   },
   {
