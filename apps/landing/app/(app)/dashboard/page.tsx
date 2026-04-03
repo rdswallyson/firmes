@@ -151,14 +151,14 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const e = s.data;
       const dateStr = new Date(e.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
       return (
-        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85, width: "100%" }}>
-          <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
-            {e.banner ? <img src={e.banner} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={e.title.slice(0,15)} date={dateStr} />}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", padding: "0.5rem", boxSizing: "border-box" }}>
+          <div style={{ width: 60, height: 60, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E", marginBottom: 6 }}>
+            {e.banner ? <img src={e.banner} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={e.title.slice(0,12)} date={dateStr} />}
           </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 2 }}>EVENTO</div>
-            <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{e.title}</div>
-            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.65rem", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{dateStr} {e.location ? `• ${e.location.slice(0,25)}` : ""}</div>
+          <div style={{ textAlign: "center", width: "100%" }}>
+            <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 3 }}>EVENTO</div>
+            <div style={{ color: "white", fontSize: "0.75rem", fontWeight: 700, lineHeight: 1.2, textAlign: "center", wordBreak: "break-word", maxWidth: "100%", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>{e.title}</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.65rem", marginTop: 3, textAlign: "center", wordBreak: "break-word" }}>{dateStr}{e.location ? ` • ${e.location.slice(0,20)}` : ""}</div>
           </div>
         </div>
       );
@@ -167,25 +167,26 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const a = s.data;
       const initials = a.name.split(" ").map(w => w[0]).slice(0, 2).join("");
       return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85, width: "100%" }}>
-          <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(232,184,75,0.15)", border: "2px solid rgba(232,184,75,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#E8B84B", flexShrink: 0 }}>{initials}</div>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{a.name}</div>
-            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.65rem", marginTop: 1 }}>{a.date} • {a.daysLeft}d</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", padding: "0.5rem", boxSizing: "border-box" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(232,184,75,0.15)", border: "2px solid rgba(232,184,75,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 700, color: "#E8B84B", flexShrink: 0, marginBottom: 6 }}>{initials}</div>
+          <div style={{ textAlign: "center", width: "100%" }}>
+            <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 3 }}>ANIVERSARIANTE</div>
+            <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, textAlign: "center", wordBreak: "break-word", maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{a.name}</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.65rem", marginTop: 2, textAlign: "center" }}>{a.date} • {a.daysLeft}d</div>
           </div>
         </div>
       );
     }
     const p = s.data as ProdutoSlide;
     return (
-      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", justifyContent: "center", height: 85, maxHeight: 85, width: "100%" }}>
-        <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", padding: "0.5rem", boxSizing: "border-box" }}>
+        <div style={{ width: 60, height: 60, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E", marginBottom: 6 }}>
           {p.foto ? <img src={p.foto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={p.nome.slice(0,12)} type="produto" />}
         </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 2 }}>PRODUTO</div>
-          <div style={{ color: "white", fontSize: "0.8rem", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{p.nome}</div>
-          <div style={{ color: "#E8B84B", fontSize: "0.9rem", fontWeight: 700, marginTop: 4 }}>R$ {p.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
+        <div style={{ textAlign: "center", width: "100%" }}>
+          <div style={{ color: "#E8B84B", fontSize: "0.55rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 3 }}>PRODUTO</div>
+          <div style={{ color: "white", fontSize: "0.75rem", fontWeight: 700, textAlign: "center", wordBreak: "break-word", maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.nome}</div>
+          <div style={{ color: "#E8B84B", fontSize: "0.85rem", fontWeight: 700, marginTop: 3, textAlign: "center" }}>R$ {p.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
         </div>
       </div>
     );
