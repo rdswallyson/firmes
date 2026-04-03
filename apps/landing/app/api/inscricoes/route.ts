@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     // Create Finance record if total > 0
     if (totalFinal && totalFinal > 0) {
-      await prisma.finance.create({
+      const lancamento = await prisma.finance.create({
         data: {
           tenantId: evento.tenantId,
           amount: totalFinal,
@@ -92,8 +92,14 @@ export async function POST(request: NextRequest) {
           category: "Eventos",
           description: `Inscricao: ${evento.title}`,
           date: new Date(),
-          status: "PENDENTE",
+          status: formaPagamento === "PIX" ? "PENDENTE" : "PENDENTE",
+          paymentMethod: formaPagamento ?? null,
         },
+      });
+      // Link lancamento to inscricao
+      await prisma.inscricao.update({
+        where: { id: inscricao.id },
+        data: { lancamentoId: lancamento.id },
       });
     }
 

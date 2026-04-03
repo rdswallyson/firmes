@@ -161,11 +161,20 @@ export default function PedidosPage() {
 
   async function updateStatus(id: string, status: "PAGO" | "ENTREGUE" | "CANCELADO") {
     try {
-      await fetch(`/api/pedidos/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
+      if (status === "PAGO") {
+        // Use confirmar-pagamento API to create Finance record
+        await fetch(`/api/pedidos/${id}/confirmar-pagamento`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formaPagamento: "DINHEIRO" }),
+        });
+      } else {
+        await fetch(`/api/pedidos/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+      }
       fetchPedidos();
     } catch { /* ignore */ }
   }

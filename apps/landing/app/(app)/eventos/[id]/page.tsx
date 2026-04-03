@@ -21,7 +21,7 @@ interface Evento {
   banner?: string; slug?: string; alimentacaoAtiva: boolean; alimentacaoModelo?: string;
   endereco?: string; googleMapsLink?: string; instrucaoRetirada?: string; enderecoRetirada?: string;
   _count?: { inscricoes: number };
-  inscricoes: { id: string; nome: string; email: string; status: string; checkinAt: string | null; }[];
+  inscricoes: { id: string; nome: string; email: string; status: string; checkinAt: string | null; pagamentoStatus?: string; formaPagamento?: string; }[];
   checkinPontos: { id: string; nome: string; tipo: string; qrToken: string; }[];
   refeicoes: { id: string; nome: string; emoji: string | null; }[];
 }
@@ -282,7 +282,7 @@ export default function EventoDetalhePage() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <thead>
                 <tr style={{ background: "#F9FAFB" }}>
-                  {["Nome", "Email", "Status", "Check-in", "Acoes"].map(h => (
+                  {["Nome", "Email", "Status", "Pagamento", "Check-in", "Acoes"].map(h => (
                     <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 700, color: "#6B7280", textTransform: "uppercase" }}>{h}</th>
                   ))}
                 </tr>
@@ -296,6 +296,26 @@ export default function EventoDetalhePage() {
                       <span style={{ background: i.status === "CONFIRMADO" ? "#DCFCE7" : "#FEF3C7", color: i.status === "CONFIRMADO" ? "#16A34A" : "#CA8A04", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 999 }}>
                         {i.status}
                       </span>
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      {i.pagamentoStatus === "CONFIRMADO" ? (
+                        <span style={{ color: "#16A34A", fontWeight: 600, fontSize: 12 }}>✓ {i.formaPagamento || "Pago"}</span>
+                      ) : evento.isGratuito ? (
+                        <span style={{ color: "#9CA3AF", fontSize: 12 }}>Gratuito</span>
+                      ) : (
+                        <button onClick={async () => {
+                          if (!confirm(`Confirmar pagamento em dinheiro de ${i.nome}?`)) return;
+                          try {
+                            const res = await fetch(`/api/inscricoes/${i.id}/confirmar-pagamento`, {
+                              method: "POST", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ formaPagamento: "DINHEIRO" }),
+                            });
+                            if (res.ok) { fetchEvento(); } else { const d = await res.json(); alert(d.error || "Erro"); }
+                          } catch { alert("Erro de conexao"); }
+                        }} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "#FEF3C7", border: "1px solid #F59E0B", borderRadius: 6, fontSize: 11, fontWeight: 700, color: "#92400E", cursor: "pointer" }}>
+                          <DollarSign size={12} /> Confirmar Dinheiro
+                        </button>
+                      )}
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       {i.checkinAt ? <span style={{ color: "#16A34A", fontWeight: 600 }}>✓ {formatDate(i.checkinAt)}</span> : <span style={{ color: "#9CA3AF" }}>Pendente</span>}

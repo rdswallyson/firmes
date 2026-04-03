@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "../../../lib/auth";
 import { prisma } from "@firmes/db";
 
+export async function GET() {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
+  try {
+    const pedidos = await prisma.pedido.findMany({
+      where: { tenantId: session.tenantId },
+      include: { itens: { include: { produto: true } }, _count: { select: { itens: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json({ pedidos });
+  } catch (error) {
+    console.error("[GET /api/pedidos]", error);
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
@@ -37,7 +53,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Finance record
-    await prisma.finance.create({
+    const lancamento = await prisma.finance.create({
       data: {
         tenantId: session.tenantId,
         amount: total,
@@ -48,6 +64,12 @@ export async function POST(request: NextRequest) {
         status: "CONFIRMADO",
         date: new Date(),
       },
+    });
+
+    // Link lancamento to pedido
+    await prisma.pedido.update({
+      where: { id: pedido.id },
+      data: { lancamentoId: lancamento.id },
     });
 
     return NextResponse.json({ id: pedido.id, total }, { status: 201 });
