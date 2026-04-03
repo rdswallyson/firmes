@@ -11,7 +11,20 @@ export async function GET(
   try {
     const evento = await prisma.event.findUnique({
       where: { id },
-      include: { inscricoes: { orderBy: { createdAt: "desc" } }, _count: { select: { inscricoes: true } } },
+      include: {
+        inscricoes: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            itensPedido: true,
+            scans: { include: { ponto: true } },
+            refeicoesUsadas: { include: { refeicao: true } },
+          },
+        },
+        checkinPontos: { where: { ativo: true }, orderBy: { nome: "asc" } },
+        refeicoes: { where: { ativo: true } },
+        produtos: { include: { produto: { include: { variacoes: true } } } },
+        _count: { select: { inscricoes: true } },
+      },
     });
     if (!evento) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
     return NextResponse.json(evento);
