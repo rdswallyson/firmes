@@ -32,6 +32,15 @@ model Tenant {
   maxChurches    Int              @default(1)
   resellerId     String?
   isActive       Boolean          @default(true)
+  // Stripe fields
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  stripePriceId        String?
+  trialEndsAt          DateTime?
+  subscriptionStatus   String? // active, past_due, canceled, trialing
+  // Branding
+  customName           String? // Nome personalizado do sistema
+  customDomain         String? // subdominio.firmes.app
   createdAt      DateTime         @default(now())
   users          User[]
   members        Member[]
@@ -45,6 +54,8 @@ model Tenant {
   pedidos        Pedido[]
   cupons         Cupom[]
   midias         Midia[]
+  churches      Tenant[]          @relation("ResellerChurches")
+  reseller      Tenant?           @relation("ResellerChurches", fields: [resellerId], references: [id])
 }
 
 model User {
