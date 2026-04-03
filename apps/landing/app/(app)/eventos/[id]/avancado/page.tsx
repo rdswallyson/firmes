@@ -127,10 +127,10 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
   const [form, setForm] = useState<Record<string, string | boolean | string[]>>({});
 
   const tabs: { key: TabKey; label: string }[] = [
-    { key: "fases",     label: "Fases" },
+    { key: "fases",     label: "Etapas" },
     { key: "equipes",   label: "Equipes" },
     { key: "checklist", label: "Checklist" },
-    { key: "marcos",    label: "Marcos" },
+    { key: "marcos",    label: "Cronograma" },
     { key: "recursos",  label: "Recursos" },
     { key: "refeicoes", label: "Refeições" },
     { key: "pontos",    label: "Pontos de Check-in" },

@@ -19,7 +19,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     ]);
     return NextResponse.json({ refeicoes, pontos, fases, equipes, checklist, marcos, recursos });
   } catch (error) {
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    console.error("[GET /api/eventos/id/avancado] error:", error);
+    return NextResponse.json({ error: "Erro interno", details: String(error) }, { status: 500 });
   }
 }
 

@@ -44,6 +44,7 @@ model Tenant {
   produtos       Produto[]
   pedidos        Pedido[]
   cupons         Cupom[]
+  midias         Midia[]
 }
 
 model User {
@@ -414,4 +415,21 @@ model EventoRecurso {
   quantidade String?
   status     String @default("PENDENTE")
   event      Event  @relation(fields: [eventId], references: [id])
+}
+
+// ── Mídias ───────────────────────────────────────────────
+
+model Midia {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  titulo       String
+  tipo         String   // AUDIO | VIDEO
+  categoria    String   // SERMAO | LOUVOR | ESTUDO | OUTROS
+  url          String
+  pregador     String?
+  data         DateTime?
+  duracao      String?
+  reproducoes  Int      @default(0)
+  createdAt    DateTime @default(now())
 }

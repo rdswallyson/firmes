@@ -243,6 +243,7 @@ const MENU: SectionGroup[] = [
         children: [
           { label: "Mural de avisos", href: "/avisos" },
           { label: "Novo aviso", href: "/avisos/novo" },
+          { label: "Biblioteca de mídias", href: "/midias" },
           { label: "Galeria de fotos", href: "/midias/fotos" },
           { label: "Álbuns de vídeo", href: "/midias/videos" },
           { label: "Documentos / PDFs", href: "/midias/documentos" },
