@@ -25,7 +25,11 @@ export async function GET(request: NextRequest) {
     if (slugParam) {
       const evento = await prisma.event.findFirst({
         where: { slug: slugParam, tenantId: tenant.id },
-        include: { inscricoes: true },
+        include: {
+          inscricoes: true,
+          refeicoes: { where: { ativo: true } },
+          produtos: { include: { produto: { include: { variacoes: true } } } },
+        },
       });
       if (!evento) return NextResponse.json({ error: "Evento não encontrado" }, { status: 404 });
       return NextResponse.json(evento);
