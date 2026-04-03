@@ -306,7 +306,7 @@ export default function DashboardPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.75rem" }}>
             <CountdownTimer targetDate={nextCulto} />
-            <button style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <button onClick={() => window.location.href = "/eventos/checkin"} style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
               <ScanLine size={15} strokeWidth={1.5} /> Abrir check-in
             </button>
           </div>
@@ -325,13 +325,13 @@ export default function DashboardPage() {
             <LinkIcon size={15} strokeWidth={1.5} color="#1A3C6E" />
             <h3 style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Links para Compartilhar</h3>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <div style={{ display: "flex", flexDirection: "row", gap: "0.75rem", overflowX: "auto", paddingBottom: "0.25rem" }}>
             {publicLinks.map((link, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.4rem 0.5rem", borderRadius: 8, background: "#FAFAFA" }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.5rem 0.75rem", borderRadius: 8, background: "#FAFAFA", border: "1px solid #F3F4F6", flexShrink: 0, minWidth: 280 }}>
                 {link.icon}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#111827" }}>{link.label}</div>
-                  <div style={{ fontSize: "0.7rem", color: "#9CA3AF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.url}</div>
+                  <div style={{ fontSize: "0.7rem", color: "#9CA3AF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{link.url}</div>
                 </div>
                 <CopyButton text={link.url} />
               </div>

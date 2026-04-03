@@ -176,9 +176,11 @@ model Finance {
   conta       ContaBancaria? @relation(fields: [contaId], references: [id])
   metaId      String?
   meta        Meta?          @relation(fields: [metaId], references: [id])
-  reciboNum   String?
-  isActive    Boolean        @default(true)
-  createdAt   DateTime       @default(now())
+  reciboNum     String?
+  paymentMethod String?
+  status        String         @default("CONFIRMADO")
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
 }
 
 model ContaBancaria {

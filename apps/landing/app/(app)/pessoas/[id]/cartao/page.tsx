@@ -29,9 +29,18 @@ export default function CartaoDigitalPage() {
   const [loading, setLoading] = useState(true);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
+  const memberId = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] : "";
+
   useEffect(() => {
-    fetch(`/api/members/${params.id}`)
-      .then((r) => r.json())
+    if (!memberId) {
+      setLoading(false);
+      return;
+    }
+    fetch(`/api/members/${memberId}`)
+      .then((r) => {
+        if (!r.ok) throw new Error("Not found");
+        return r.json();
+      })
       .then(async (d: { member?: MemberData }) => {
         setMember(d.member ?? null);
         if (d.member) {
@@ -41,9 +50,9 @@ export default function CartaoDigitalPage() {
           setQrDataUrl(dataUrl);
         }
       })
-      .catch(() => null)
+      .catch(() => setMember(null))
       .finally(() => setLoading(false));
-  }, [params.id]);
+  }, [memberId]);
 
   function handlePrint() {
     window.print();
