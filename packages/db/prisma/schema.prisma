@@ -41,6 +41,9 @@ model Tenant {
   finances       Finance[]
   contas         ContaBancaria[]
   metas          Meta[]
+  produtos       Produto[]
+  pedidos        Pedido[]
+  cupons         Cupom[]
 }
 
 model User {
@@ -98,41 +101,61 @@ model Group {
 }
 
 model Event {
-  id          String      @id @default(cuid())
-  tenantId    String
-  tenant      Tenant      @relation(fields: [tenantId], references: [id])
-  title       String
-  slug        String?     @unique
-  description String?
-  date        DateTime
-  location    String?
-  banner      String?
-  maxVagas    Int?
-  isGratuito  Boolean     @default(true)
-  valor       Float?
-  linkExterno String?
-  status      String      @default("ABERTO")
-  recorrente  Boolean     @default(false)
-  isPublic    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  inscricoes  Inscricao[]
+  id                  String      @id @default(cuid())
+  tenantId            String
+  tenant              Tenant      @relation(fields: [tenantId], references: [id])
+  title               String
+  slug                String?     @unique
+  description         String?
+  date                DateTime
+  location            String?
+  banner              String?
+  maxVagas            Int?
+  isGratuito          Boolean     @default(true)
+  valor               Float?
+  linkExterno         String?
+  status              String      @default("ABERTO")
+  recorrente          Boolean     @default(false)
+  isPublic            Boolean     @default(true)
+  avancado            Boolean     @default(false)
+  alimentacaoAtiva    Boolean     @default(false)
+  alimentacaoModelo   String?
+  cidadeExterna       String?
+  enderecoRetirada    String?
+  instrucaoRetirada   String?
+  createdAt           DateTime    @default(now())
+  inscricoes          Inscricao[]
+  produtos            EventoProduto[]
+  refeicoes           EventoRefeicao[]
+  checkinPontos       EventoCheckinPonto[]
+  fases               EventoFase[]
+  equipes             EventoEquipe[]
+  checklist           EventoChecklist[]
+  marcos              EventoMarco[]
+  recursos            EventoRecurso[]
 }
 
 model Inscricao {
-  id        String    @id @default(cuid())
-  tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-  eventId   String
-  event     Event     @relation(fields: [eventId], references: [id])
-  nome      String
-  email     String
-  telefone  String?
-  tipo      String    @default("MEMBRO")
-  memberId  String?
-  status    String    @default("CONFIRMADO")
-  qrCode    String    @unique
-  checkinAt DateTime?
-  createdAt DateTime  @default(now())
+  id              String    @id @default(cuid())
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  eventId         String
+  event           Event     @relation(fields: [eventId], references: [id])
+  nome            String
+  email           String
+  telefone        String?
+  tipo            String    @default("MEMBRO")
+  memberId        String?
+  status          String    @default("CONFIRMADO")
+  qrCode          String    @unique
+  checkinAt       DateTime?
+  formaPagamento  String?
+  pagamentoStatus String    @default("PENDENTE")
+  lancamentoId    String?
+  createdAt       DateTime  @default(now())
+  itensPedido     InscricaoPedidoItem[]
+  scans           EventoCheckinScan[]
+  refeicoesUsadas InscricaoRefeicao[]
 }
 
 model Finance {
@@ -156,17 +179,17 @@ model Finance {
 }
 
 model ContaBancaria {
-  id        String    @id @default(cuid())
-  tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-  nome      String
-  banco     String?
-  agencia   String?
+  id          String    @id @default(cuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  nome        String
+  banco       String?
+  agencia     String?
   numeroConta String?
-  saldo     Float     @default(0)
-  isAtiva   Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  finances  Finance[]
+  saldo       Float     @default(0)
+  isAtiva     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  finances    Finance[]
 }
 
 model Meta {
@@ -189,4 +212,206 @@ model AuditLog {
   targetId  String
   details   String
   createdAt DateTime @default(now())
+}
+
+// ── Alimentação ──────────────────────────────────────────
+
+model EventoRefeicao {
+  id       String   @id @default(cuid())
+  eventId  String
+  nome     String
+  emoji    String?
+  modelo   String
+  valor    Float?
+  dias     String
+  ativo    Boolean  @default(true)
+  event    Event    @relation(fields: [eventId], references: [id])
+  usadas   InscricaoRefeicao[]
+}
+
+model InscricaoRefeicao {
+  id          String         @id @default(cuid())
+  inscricaoId String
+  refeicaoId  String
+  dia         String
+  usadoEm     DateTime       @default(now())
+  inscricao   Inscricao      @relation(fields: [inscricaoId], references: [id])
+  refeicao    EventoRefeicao @relation(fields: [refeicaoId], references: [id])
+
+  @@unique([inscricaoId, refeicaoId, dia])
+}
+
+// ── Check-in Múltiplo por Pontos ─────────────────────────
+
+model EventoCheckinPonto {
+  id       String   @id @default(cuid())
+  eventId  String
+  nome     String
+  tipo     String
+  qrToken  String   @unique
+  ativo    Boolean  @default(true)
+  scans    EventoCheckinScan[]
+  event    Event    @relation(fields: [eventId], references: [id])
+}
+
+model EventoCheckinScan {
+  id          String             @id @default(cuid())
+  pontoId     String
+  inscricaoId String
+  dataHora    DateTime           @default(now())
+  valido      Boolean            @default(true)
+  ponto       EventoCheckinPonto @relation(fields: [pontoId], references: [id])
+  inscricao   Inscricao          @relation(fields: [inscricaoId], references: [id])
+}
+
+// ── Módulo Vendas ────────────────────────────────────────
+
+model Produto {
+  id             String            @id @default(cuid())
+  tenantId       String
+  nome           String
+  descricao      String?
+  foto           String?
+  preco          Float
+  categoria      String
+  estoque        Int               @default(0)
+  ativo          Boolean           @default(true)
+  variacoes      ProdutoVariacao[]
+  pedidoItens    PedidoItem[]
+  eventoProdutos EventoProduto[]
+  tenant         Tenant            @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime          @default(now())
+}
+
+model ProdutoVariacao {
+  id        String  @id @default(cuid())
+  produtoId String
+  tipo      String
+  opcao     String
+  estoque   Int     @default(0)
+  produto   Produto @relation(fields: [produtoId], references: [id])
+}
+
+model Pedido {
+  id             String       @id @default(cuid())
+  tenantId       String
+  memberId       String?
+  nomeComprador  String
+  telefone       String?
+  email          String?
+  status         String       @default("PENDENTE")
+  formaPagamento String?
+  total          Float
+  lancamentoId   String?
+  eventId        String?
+  itens          PedidoItem[]
+  tenant         Tenant       @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime     @default(now())
+}
+
+model PedidoItem {
+  id         String    @id @default(cuid())
+  pedidoId   String
+  produtoId  String
+  variacaoId String?
+  quantidade Int
+  preco      Float
+  entregue   Boolean   @default(false)
+  entregueEm DateTime?
+  pedido     Pedido    @relation(fields: [pedidoId], references: [id])
+  produto    Produto   @relation(fields: [produtoId], references: [id])
+}
+
+model InscricaoPedidoItem {
+  id          String    @id @default(cuid())
+  inscricaoId String
+  produtoId   String
+  variacaoId  String?
+  quantidade  Int
+  preco       Float
+  entregue    Boolean   @default(false)
+  entregueEm  DateTime?
+  inscricao   Inscricao @relation(fields: [inscricaoId], references: [id])
+}
+
+model EventoProduto {
+  id        String  @id @default(cuid())
+  eventId   String
+  produtoId String
+  event     Event   @relation(fields: [eventId], references: [id])
+  produto   Produto @relation(fields: [produtoId], references: [id])
+}
+
+model Cupom {
+  id        String    @id @default(cuid())
+  tenantId  String
+  codigo    String    @unique
+  desconto  Float
+  tipo      String
+  maxUsos   Int?
+  usosAtual Int       @default(0)
+  validade  DateTime?
+  ativo     Boolean   @default(true)
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+}
+
+// ── Evento Avançado ──────────────────────────────────────
+
+model EventoFase {
+  id         String    @id @default(cuid())
+  eventId    String
+  nome       String
+  ordem      Int
+  status     String    @default("PENDENTE")
+  dataInicio DateTime?
+  dataFim    DateTime?
+  event      Event     @relation(fields: [eventId], references: [id])
+}
+
+model EventoEquipe {
+  id            String         @id @default(cuid())
+  eventId       String
+  nome          String
+  funcao        String
+  responsavelId String?
+  membros       EventoMembro[]
+  event         Event          @relation(fields: [eventId], references: [id])
+}
+
+model EventoMembro {
+  id         String       @id @default(cuid())
+  equipeId   String
+  pessoaId   String
+  funcaoSpec String?
+  equipe     EventoEquipe @relation(fields: [equipeId], references: [id])
+}
+
+model EventoChecklist {
+  id            String    @id @default(cuid())
+  eventId       String
+  faseId        String?
+  descricao     String
+  responsavelId String?
+  status        String    @default("PENDENTE")
+  prazo         DateTime?
+  event         Event     @relation(fields: [eventId], references: [id])
+}
+
+model EventoMarco {
+  id      String   @id @default(cuid())
+  eventId String
+  titulo  String
+  data    DateTime
+  status  String   @default("FUTURO")
+  obs     String?
+  event   Event    @relation(fields: [eventId], references: [id])
+}
+
+model EventoRecurso {
+  id         String @id @default(cuid())
+  eventId    String
+  nome       String
+  quantidade String?
+  status     String @default("PENDENTE")
+  event      Event  @relation(fields: [eventId], references: [id])
 }
