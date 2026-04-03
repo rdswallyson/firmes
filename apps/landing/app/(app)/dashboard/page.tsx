@@ -151,7 +151,7 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
       const e = s.data;
       const dateStr = new Date(e.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
       return (
-        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85 }}>
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85, width: "100%" }}>
           <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
             {e.banner ? <img src={e.banner} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={e.title.slice(0,15)} date={dateStr} />}
           </div>
@@ -179,7 +179,7 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
     }
     const p = s.data as ProdutoSlide;
     return (
-      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85 }}>
+      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", height: 85, maxHeight: 85, width: "100%" }}>
         <div style={{ width: 70, height: 70, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#1A3C6E" }}>
           {p.foto ? <img src={p.foto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <DefaultBanner title={p.nome.slice(0,12)} type="produto" />}
         </div>
@@ -193,10 +193,10 @@ function Carousel({ eventos, aniversariantes, produtos }: { eventos: EventoSlide
   }
 
   return (
-    <div style={{ position: "relative", height: 90, maxHeight: 90 }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div style={{ position: "relative", height: 90, maxHeight: 90, width: "100%" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <AnimatePresence mode="wait">
         <motion.div key={idx} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}
-          style={{ height: 85, maxHeight: 85, display: "flex", alignItems: "center" }}>
+          style={{ height: 85, maxHeight: 85, width: "100%", display: "flex", alignItems: "center" }}>
           {renderSlide(slide)}
         </motion.div>
       </AnimatePresence>
@@ -312,7 +312,7 @@ export default function DashboardPage() {
           </div>
         </div>
         {/* Carrossel */}
-        <div style={{ flex: 1, minWidth: 280, maxWidth: "none", paddingLeft: "0.75rem", marginLeft: "-0.5rem", borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
+        <div style={{ flex: 1, minWidth: 0, width: "100%", paddingLeft: "0.75rem", marginLeft: "-0.5rem", borderLeft: "1px solid rgba(255,255,255,0.15)", background: "transparent" }}>
           <Carousel eventos={eventos} aniversariantes={BIRTHDAYS} produtos={produtos} />
         </div>
       </motion.div>
