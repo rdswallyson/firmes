@@ -1,56 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-export async function GET() {
-  try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
-    const pedidos = await prisma.pedido.findMany({
-      where: { tenantId: tenant.id },
-      include: { itens: { include: { produto: true } } },
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ pedidos });
-  } catch (error) {
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
-  }
-}
+import { getSession } from "../../../lib/auth";
+import { prisma } from "@firmes/db";
 
 export async function POST(request: NextRequest) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
+
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
     const body = await request.json();
-    const { nomeComprador, telefone, email, formaPagamento, eventId, itens } = body;
-    if (!nomeComprador || !itens?.length) {
-      return NextResponse.json({ error: "Campos obrigatórios: nomeComprador, itens" }, { status: 400 });
+    const { itens, formaPagamento, total } = body;
+
+    if (!itens || !Array.isArray(itens) || itens.length === 0) {
+      return NextResponse.json({ error: "Carrinho vazio" }, { status: 400 });
     }
-    let total = 0;
-    const itensData = [];
-    for (const item of itens) {
-      const produto = await prisma.produto.findUnique({ where: { id: item.produtoId } });
-      if (!produto) return NextResponse.json({ error: `Produto ${item.produtoId} não encontrado` }, { status: 404 });
-      const preco = produto.preco;
-      const qty = item.quantidade ?? 1;
-      total += preco * qty;
-      itensData.push({ produtoId: item.produtoId, variacaoId: item.variacaoId ?? null, quantidade: qty, preco });
-    }
+
+    // Create Pedido
     const pedido = await prisma.pedido.create({
       data: {
-        tenantId: tenant.id,
-        nomeComprador,
-        telefone: telefone ?? null,
-        email: email ?? null,
-        formaPagamento: formaPagamento ?? null,
-        eventId: eventId ?? null,
+        tenantId: session.tenantId,
+        nomeComprador: "Cliente PDV",
+        status: "PAGO",
+        formaPagamento,
         total,
-        itens: { create: itensData },
+        itens: {
+          create: itens.map((item: { produtoId: string; variacaoId?: string; quantidade: number; preco: number }) => ({
+            produtoId: item.produtoId,
+            variacaoId: item.variacaoId || null,
+            quantidade: item.quantidade,
+            preco: item.preco,
+            entregue: true,
+            entregueEm: new Date(),
+          })),
+        },
       },
-      include: { itens: { include: { produto: true } } },
+      include: { itens: true },
     });
-    return NextResponse.json(pedido, { status: 201 });
+
+    // Create Finance record
+    await prisma.finance.create({
+      data: {
+        tenantId: session.tenantId,
+        amount: total,
+        type: "INCOME",
+        category: "Vendas",
+        description: `Venda PDV #${pedido.id.slice(-6)}`,
+        paymentMethod: formaPagamento,
+        status: "CONFIRMADO",
+        date: new Date(),
+      },
+    });
+
+    return NextResponse.json({ id: pedido.id, total }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/pedidos]", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });

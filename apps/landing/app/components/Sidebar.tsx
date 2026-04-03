@@ -178,6 +178,7 @@ const MENU: SectionGroup[] = [
         label: "Vendas",
         icon: <ShoppingBag size={18} strokeWidth={1.5} />,
         children: [
+          { label: "PDV", href: "/vendas/pdv" },
           { label: "Produtos", href: "/produtos" },
           { label: "Pedidos", href: "/pedidos" },
           { label: "Cupons", href: "/cupons" },
