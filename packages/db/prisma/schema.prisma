@@ -437,3 +437,53 @@ model Midia {
   reproducoes  Int      @default(0)
   createdAt    DateTime @default(now())
 }
+
+// ── ENSINO & DISCIPULADO ──────────────────────────────
+model Curso {
+  id          String        @id @default(cuid())
+  tenantId    String
+  titulo      String
+  descricao   String?
+  banner      String?
+  categoria   String        @default("ESTUDO") // ESTUDO | DISCIPULADO | ESCOLA | OUTROS
+  nivel       String        @default("INICIANTE") // INICIANTE | INTERMEDIARIO | AVANCADO
+  publicado   Boolean       @default(false)
+  cargaHoraria Int?
+  instrutor   String?
+  modulos     CursoModulo[]
+  progressos  CursoProgresso[]
+  createdAt   DateTime      @default(now())
+}
+
+model CursoModulo {
+  id       String      @id @default(cuid())
+  cursoId  String
+  titulo   String
+  ordem    Int         @default(0)
+  curso    Curso       @relation(fields: [cursoId], references: [id])
+  aulas    CursoAula[]
+}
+
+model CursoAula {
+  id          String   @id @default(cuid())
+  moduloId    String
+  titulo      String
+  tipo        String   @default("VIDEO") // VIDEO | PDF | TEXTO
+  conteudo    String?  // URL do video ou PDF, ou texto
+  duracao     String?
+  ordem       Int      @default(0)
+  modulo      CursoModulo @relation(fields: [moduloId], references: [id])
+  progressos  CursoProgresso[]
+}
+
+model CursoProgresso {
+  id        String   @id @default(cuid())
+  cursoId   String
+  aulaId    String
+  memberId  String
+  concluido Boolean  @default(false)
+  dataHora  DateTime @default(now())
+  curso     Curso      @relation(fields: [cursoId], references: [id])
+  aula      CursoAula  @relation(fields: [aulaId], references: [id])
+  @@unique([cursoId, aulaId, memberId])
+}
