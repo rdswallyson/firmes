@@ -352,7 +352,7 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
                 </span>
               </td>
               <td style={tdStyle}>{r.valor != null ? `R$ ${Number(r.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}</td>
-              <td style={tdStyle}>{r.dias?.join(", ") ?? "—"}</td>
+              <td style={tdStyle}>{(() => { try { const d = typeof r.dias === "string" ? JSON.parse(r.dias) : r.dias; return Array.isArray(d) ? d.join(", ") : "—"; } catch { return "—"; } })()}</td>
             </tr>
           ))}
         </tbody>
