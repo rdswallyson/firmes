@@ -142,10 +142,14 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
     setLoading(true);
     try {
       const res = await fetch(`/api/eventos/${id}/avancado`);
+      if (!res.ok) throw new Error("Failed to fetch");
       const d = await res.json();
       setData(d);
-    } catch { /* ignore */ }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error("[fetchData] error:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function openModal() { setForm({}); setShowModal(true); }
@@ -154,15 +158,24 @@ export default function AvancadoPage({ params }: { params: Promise<{ id: string 
     e.preventDefault();
     setSaving(true);
     try {
-      await fetch(`/api/eventos/${id}/avancado`, {
+      const res = await fetch(`/api/eventos/${id}/avancado`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: tab, ...form }),
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error("[handleSubmit] POST failed:", res.status, errData);
+        return;
+      }
       setShowModal(false);
-      fetchData();
-    } catch { /* ignore */ }
-    finally { setSaving(false); }
+      setForm({});
+      await fetchData();
+    } catch (err) {
+      console.error("[handleSubmit] error:", err);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function set(key: string, value: string | boolean | string[]) {
