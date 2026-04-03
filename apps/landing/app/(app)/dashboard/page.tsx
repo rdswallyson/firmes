@@ -298,7 +298,7 @@ export default function DashboardPage() {
       {/* Banner: Proximo Culto + Carrossel */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}
         style={{ background: "linear-gradient(135deg, #0D2545 0%, #1A3C6E 60%, #1E4A84 100%)", borderRadius: 12, padding: "1.5rem 2rem", boxShadow: "0 4px 16px rgba(26,60,110,0.2)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", color: "white", marginBottom: "1.5rem", flexWrap: "wrap", minHeight: 120 }}>
-        <div style={{ flex: "0 0 auto" }}>
+        <div style={{ flex: "0 0 auto", marginRight: "0.5rem" }}>
           <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 4, fontWeight: 600 }}>Proximo Culto</div>
           <div style={{ fontSize: "1.2rem", fontWeight: 700 }}>Culto de Domingo</div>
           <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 2 }}>
@@ -312,7 +312,7 @@ export default function DashboardPage() {
           </div>
         </div>
         {/* Carrossel */}
-        <div style={{ flex: 1, minWidth: 280, maxWidth: 420, paddingLeft: "1rem", borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
+        <div style={{ flex: 1, minWidth: 280, maxWidth: "none", paddingLeft: "0.75rem", marginLeft: "-0.5rem", borderLeft: "1px solid rgba(255,255,255,0.15)" }}>
           <Carousel eventos={eventos} aniversariantes={BIRTHDAYS} produtos={produtos} />
         </div>
       </motion.div>
