@@ -108,7 +108,7 @@ export default function InscricaoPage({ params }: { params: Promise<{ slug: stri
 
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [result, setResult] = useState<{ id: string; qrCode: string; status: string } | null>(null);
+  const [result, setResult] = useState<{ id: string; qrCode: string; status: string; pagamentoStatus?: string } | null>(null);
 
   useEffect(() => {
     fetch(`/api/eventos?slug=${resolvedParams.slug}`)
@@ -256,10 +256,28 @@ export default function InscricaoPage({ params }: { params: Promise<{ slug: stri
             </>
           ) : (
             <>
-              <CheckCircle size={52} color="#16A34A" style={{ marginBottom: 16 }} />
-              <h2 style={{ color: NAVY, fontSize: 22, marginBottom: 6 }}>Inscricao confirmada!</h2>
-              <p style={{ color: "#555", fontSize: 15, marginBottom: 20 }}>Apresente o QR Code abaixo no dia do evento.</p>
-              <QRCodePlaceholder code={result.qrCode} />
+              {result.pagamentoStatus === "AGUARDANDO_PAGAMENTO" ? (
+                <>
+                  <Clock size={52} color={GOLD} style={{ marginBottom: 16 }} />
+                  <h2 style={{ color: NAVY, fontSize: 22, marginBottom: 6 }}>Inscricao realizada!</h2>
+                  <p style={{ color: "#555", fontSize: 15, marginBottom: 12 }}>Seu pagamento ainda esta pendente.</p>
+                  <div style={{ background: "#FEF3C7", border: "1px solid #F59E0B", borderRadius: 12, padding: 16, marginBottom: 20, textAlign: "left" }}>
+                    <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 700, color: "#92400E" }}>Instrucoes de pagamento:</p>
+                    <p style={{ margin: "0 0 4px", fontSize: 13, color: "#78350F" }}>1. Realize o pagamento de <strong>R$ {totalFinal.toFixed(2)}</strong> via PIX ou dinheiro.</p>
+                    <p style={{ margin: "0 0 4px", fontSize: 13, color: "#78350F" }}>2. Entre em contato com a secretaria da igreja para confirmar.</p>
+                    <p style={{ margin: "0", fontSize: 13, color: "#78350F" }}>3. Apos a confirmacao, sua inscricao sera ativada.</p>
+                  </div>
+                  <p style={{ color: "#555", fontSize: 14, marginBottom: 16 }}>Guarde seu QR Code — ele sera ativado apos a confirmacao do pagamento.</p>
+                  <QRCodePlaceholder code={result.qrCode} />
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={52} color="#16A34A" style={{ marginBottom: 16 }} />
+                  <h2 style={{ color: NAVY, fontSize: 22, marginBottom: 6 }}>Inscricao confirmada!</h2>
+                  <p style={{ color: "#555", fontSize: 15, marginBottom: 20 }}>Apresente o QR Code abaixo no dia do evento.</p>
+                  <QRCodePlaceholder code={result.qrCode} />
+                </>
+              )}
               <div style={{ marginTop: 20, textAlign: "left", background: "#F9FAFB", borderRadius: 12, padding: "16px 20px" }}>
                 <p style={{ margin: "4px 0", fontSize: 14, color: "#555" }}><strong>Evento:</strong> {evento.title}</p>
                 <p style={{ margin: "4px 0", fontSize: 14, color: "#555" }}><strong>Participante:</strong> {nome}</p>

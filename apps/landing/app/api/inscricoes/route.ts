@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
       status = "LISTA_ESPERA";
     }
 
+    // For paid events, status is AGUARDANDO_PAGAMENTO unless gratuito
+    const isPago = !evento.isGratuito && totalFinal && totalFinal > 0;
+    const pagamentoStatus = isPago ? "AGUARDANDO_PAGAMENTO" : "CONFIRMADO";
+
     const qrCode = crypto.randomUUID();
 
     // Create inscription
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
         status,
         qrCode,
         formaPagamento: formaPagamento ?? null,
-        pagamentoStatus: (totalFinal && totalFinal > 0) ? "PENDENTE" : "CONFIRMADO",
+        pagamentoStatus,
       },
     });
 
@@ -92,7 +96,7 @@ export async function POST(request: NextRequest) {
           category: "Eventos",
           description: `Inscricao: ${evento.title}`,
           date: new Date(),
-          status: formaPagamento === "PIX" ? "PENDENTE" : "PENDENTE",
+          status: isPago ? "PENDENTE" : "CONFIRMADO",
           paymentMethod: formaPagamento ?? null,
         },
       });
