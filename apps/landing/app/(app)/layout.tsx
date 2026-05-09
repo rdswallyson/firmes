@@ -16,9 +16,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       name: true,
       role: true,
       avatar: true,
-      tenant: { select: { name: true } },
+      tenant: {
+        select: {
+          name: true,
+          plan: true,
+          isWhiteLabel: true,
+          isActive: true,
+        },
+      },
     },
   });
+
+  // Bloquear tenants suspensos (isActive = false)
+  if (user?.tenant && user.tenant.isActive === false) {
+    redirect("/plano-expirado");
+  }
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
@@ -27,6 +39,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         userName={user?.name ?? "Administrador"}
         userRole={user?.role ?? "ADMIN"}
         userAvatar={user?.avatar ?? undefined}
+        userPlan={user?.tenant?.plan ?? "FREE"}
+        isWhiteLabel={user?.tenant?.isWhiteLabel ?? false}
       />
       <main style={{ flex: 1, overflowY: "auto", background: "#F5F0EB" }}>
         {children}

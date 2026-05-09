@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@firmes/db";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder", { apiVersion: "2023-10-16" as any });
 
-const PRICE_IDS: Record<string, string> = {
-  PRATA: process.env.STRIPE_PRICE_PRATA || "price_prata",
-  OURO: process.env.STRIPE_PRICE_OURO || "price_ouro",
-  DIAMANTE: process.env.STRIPE_PRICE_DIAMANTE || "price_diamante",
-  ESMERALDA_STARTER: process.env.STRIPE_PRICE_ESMERALDA_STARTER || "price_esmeralda_starter",
-  ESMERALDA_PRO: process.env.STRIPE_PRICE_ESMERALDA_PRO || "price_esmeralda_pro",
-  ESMERALDA_PLUS: process.env.STRIPE_PRICE_ESMERALDA_PLUS || "price_esmeralda_plus",
-  ESMERALDA_ULTRA: process.env.STRIPE_PRICE_ESMERALDA_ULTRA || "price_esmeralda_ultra",
-};
+function getStripe(): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY não está configurada");
+  return new Stripe(key, { apiVersion: "2023-10-16" as any });
+}
+
+function getPriceIds(): Record<string, string> {
+  return {
+    PRATA:             process.env.STRIPE_PRICE_PRATA             ?? "",
+    OURO:              process.env.STRIPE_PRICE_OURO              ?? "",
+    DIAMANTE:          process.env.STRIPE_PRICE_DIAMANTE          ?? "",
+    ESMERALDA_STARTER: process.env.STRIPE_PRICE_ESMERALDA_STARTER ?? "",
+    ESMERALDA_PRO:     process.env.STRIPE_PRICE_ESMERALDA_PRO     ?? "",
+    ESMERALDA_PLUS:    process.env.STRIPE_PRICE_ESMERALDA_PLUS    ?? "",
+    ESMERALDA_ULTRA:   process.env.STRIPE_PRICE_ESMERALDA_ULTRA   ?? "",
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,11 +29,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Plan e tenantId obrigatorios" }, { status: 400 });
     }
 
+    const PRICE_IDS = getPriceIds();
     const priceId = PRICE_IDS[plan];
     if (!priceId) {
-      return NextResponse.json({ error: "Plano invalido" }, { status: 400 });
+      return NextResponse.json({ error: "Plano inválido ou price ID não configurado para este plano" }, { status: 400 });
     }
 
+    const stripe = getStripe();
     const tenant = await prisma.tenant.findUnique({ 
       where: { id: tenantId },
       include: { users: { take: 1 } },

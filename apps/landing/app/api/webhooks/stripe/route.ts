@@ -1,24 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@firmes/db";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder", { apiVersion: "2023-10-16" as any });
 
-const PLAN_CONFIG: Record<string, { plan: string; maxChurches: number }> = {
-  "price_prata": { plan: "PRATA", maxChurches: 1 },
-  "price_ouro": { plan: "OURO", maxChurches: 1 },
-  "price_diamante": { plan: "DIAMANTE", maxChurches: 1 },
-  "price_esmeralda_starter": { plan: "ESMERALDA_STARTER", maxChurches: 5 },
-  "price_esmeralda_pro": { plan: "ESMERALDA_PRO", maxChurches: 15 },
-  "price_esmeralda_plus": { plan: "ESMERALDA_PLUS", maxChurches: 25 },
-  "price_esmeralda_ultra": { plan: "ESMERALDA_ULTRA", maxChurches: 999 },
-};
+function getStripe(): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY não está configurada");
+  return new Stripe(key, { apiVersion: "2023-10-16" as any });
+}
+
+function buildPlanConfig(): Record<string, { plan: string; maxChurches: number }> {
+  const config: Record<string, { plan: string; maxChurches: number }> = {};
+  const entries: [string | undefined, string, number][] = [
+    [process.env.STRIPE_PRICE_PRATA,             "PRATA",             1],
+    [process.env.STRIPE_PRICE_OURO,              "OURO",              1],
+    [process.env.STRIPE_PRICE_DIAMANTE,          "DIAMANTE",          1],
+    [process.env.STRIPE_PRICE_ESMERALDA_STARTER, "ESMERALDA_STARTER", 5],
+    [process.env.STRIPE_PRICE_ESMERALDA_PRO,     "ESMERALDA_PRO",     15],
+    [process.env.STRIPE_PRICE_ESMERALDA_PLUS,    "ESMERALDA_PLUS",    25],
+    [process.env.STRIPE_PRICE_ESMERALDA_ULTRA,   "ESMERALDA_ULTRA",   999],
+  ];
+  for (const [priceId, plan, maxChurches] of entries) {
+    if (priceId) config[priceId] = { plan, maxChurches };
+  }
+  return config;
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = request.headers.get("stripe-signature") as string;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error("STRIPE_WEBHOOK_SECRET não configurada");
+    return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 });
+  }
 
   let event: Stripe.Event;
+  const stripe = getStripe();
+  const PLAN_CONFIG = buildPlanConfig();
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);

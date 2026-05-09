@@ -326,10 +326,13 @@ interface SidebarProps {
   userName?: string;
   userRole?: string;
   userAvatar?: string;
+  userPlan?: string;
+  isWhiteLabel?: boolean;
 }
 
-export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrador", userRole = "ADMIN", userAvatar }: SidebarProps) {
+export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrador", userRole = "ADMIN", userAvatar, userPlan = "FREE", isWhiteLabel = false }: SidebarProps) {
   const pathname = usePathname();
+  const isEsmeralda = isWhiteLabel || (userPlan?.startsWith("ESMERALDA") ?? false);
   const [collapsed, setCollapsed] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>("dashboard");
 
@@ -427,6 +430,8 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
               </div>
             )}
             {group.items.map((item) => {
+              // Ocultar White Label para planos não-Esmeralda
+              if (item.id === "whitelabel" && !isEsmeralda) return null;
               const hasChildren = item.children && item.children.length > 0;
               const isOpen = openMenu === item.id;
               const active = item.href ? isActive(item.href) : false;
