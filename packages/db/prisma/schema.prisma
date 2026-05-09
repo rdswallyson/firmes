@@ -20,18 +20,18 @@ enum Plan {
 }
 
 model Tenant {
-  id             String           @id @default(cuid())
-  name           String
-  slug           String           @unique
-  logo           String?
-  primaryColor   String           @default("#1A3C6E")
-  secondaryColor String           @default("#C8922A")
-  domain         String?
-  plan           Plan             @default(FREE)
-  isWhiteLabel   Boolean          @default(false)
-  maxChurches    Int              @default(1)
-  resellerId     String?
-  isActive       Boolean          @default(true)
+  id                   String          @id @default(cuid())
+  name                 String
+  slug                 String          @unique
+  logo                 String?
+  primaryColor         String          @default("#1A3C6E")
+  secondaryColor       String          @default("#C8922A")
+  domain               String?
+  plan                 Plan            @default(FREE)
+  isWhiteLabel         Boolean         @default(false)
+  maxChurches          Int             @default(1)
+  resellerId           String?
+  isActive             Boolean         @default(true)
   // Stripe fields
   stripeCustomerId     String?
   stripeSubscriptionId String?
@@ -41,23 +41,25 @@ model Tenant {
   // Branding
   customName           String? // Nome personalizado do sistema
   customDomain         String? // subdominio.firmes.app
-  createdAt      DateTime         @default(now())
-  users          User[]
-  members        Member[]
-  groups         Group[]
-  events         Event[]
-  inscricoes     Inscricao[]
-  finances       Finance[]
-  contas         ContaBancaria[]
-  metas          Meta[]
-  produtos       Produto[]
-  pedidos        Pedido[]
-  cupons         Cupom[]
-  midias         Midia[]
-  cultos         Culto[]
-  checkins       Checkin[]
-  churches      Tenant[]          @relation("ResellerChurches")
-  reseller      Tenant?           @relation("ResellerChurches", fields: [resellerId], references: [id])
+  createdAt            DateTime        @default(now())
+  users                User[]
+  members              Member[]
+  groups               Group[]
+  events               Event[]
+  inscricoes           Inscricao[]
+  finances             Finance[]
+  contas               ContaBancaria[]
+  metas                Meta[]
+  produtos             Produto[]
+  pedidos              Pedido[]
+  cupons               Cupom[]
+  midias               Midia[]
+  cultos               Culto[]
+  checkins             Checkin[]
+  escalas              Escala[]
+  notificacoes         Notificacao[]
+  churches             Tenant[]        @relation("ResellerChurches")
+  reseller             Tenant?         @relation("ResellerChurches", fields: [resellerId], references: [id])
 }
 
 model User {
@@ -75,151 +77,152 @@ model User {
 }
 
 model Member {
-  id            String        @id @default(cuid())
-  tenantId      String
-  tenant        Tenant        @relation(fields: [tenantId], references: [id])
-  name          String
-  email         String?
-  phone         String?
-  birthDate     DateTime?
-  baptismDate   DateTime?
-  address       String?
-  cep           String?
-  city          String?
-  state         String?
-  neighborhood  String?
-  number        String?
-  complement    String?
-  photo         String?
-  memberSince   DateTime      @default(now())
-  status        String        @default("ACTIVE")
-  role          String?
-  groupId       String?
-  notes         String?
-  isActive      Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @default(now()) @updatedAt
-  groups        GroupMember[]
-  lideraGroups  Group[]       @relation("GroupToLeader")
+  id           String         @id @default(cuid())
+  tenantId     String
+  tenant       Tenant         @relation(fields: [tenantId], references: [id])
+  name         String
+  email        String?
+  phone        String?
+  birthDate    DateTime?
+  baptismDate  DateTime?
+  address      String?
+  cep          String?
+  city         String?
+  state        String?
+  neighborhood String?
+  number       String?
+  complement   String?
+  photo        String?
+  memberSince  DateTime       @default(now())
+  status       String         @default("ACTIVE")
+  role         String?
+  groupId      String?
+  notes        String?
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  groups       GroupMember[]
+  lideraGroups Group[]        @relation("GroupToLeader")
+  escalas      EscalaMembro[]
 }
 
 model Group {
-  id          String           @id @default(cuid())
+  id          String            @id @default(cuid())
   tenantId    String
-  tenant      Tenant           @relation(fields: [tenantId], references: [id])
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
   name        String
   description String?
   leaderId    String?
-  leader      Member?          @relation("GroupToLeader", fields: [leaderId], references: [id])
+  leader      Member?           @relation("GroupToLeader", fields: [leaderId], references: [id])
   meetingDay  String?
   meetingTime String?
   address     String?
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
   members     GroupMember[]
   frequencias GroupFrequencia[]
 }
 
 model GroupMember {
-  id        String   @id @default(cuid())
-  groupId   String
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  memberId  String
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  joinedAt  DateTime @default(now())
-  
+  id       String   @id @default(cuid())
+  groupId  String
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  memberId String
+  member   Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+
   @@unique([groupId, memberId])
 }
 
 model GroupFrequencia {
-  id        String   @id @default(cuid())
-  groupId   String
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  date      DateTime
-  presentes Int      @default(0)
-  ausentes  Int      @default(0)
-  visitantes Int     @default(0)
+  id         String   @id @default(cuid())
+  groupId    String
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  date       DateTime
+  presentes  Int      @default(0)
+  ausentes   Int      @default(0)
+  visitantes Int      @default(0)
   observacao String?
-  createdAt DateTime @default(now())
-  
+  createdAt  DateTime @default(now())
+
   @@index([groupId, date])
 }
 
 model Event {
-  id                  String      @id @default(cuid())
-  tenantId            String
-  tenant              Tenant      @relation(fields: [tenantId], references: [id])
-  title               String
-  slug                String?     @unique
-  description         String?
-  date                DateTime
-  location            String?
-  banner              String?
-  maxVagas            Int?
-  isGratuito          Boolean     @default(true)
-  valor               Float?
-  linkExterno         String?
-  status              String      @default("ABERTO")
-  recorrente          Boolean     @default(false)
-  isPublic            Boolean     @default(true)
-  avancado            Boolean     @default(false)
-  alimentacaoAtiva    Boolean     @default(false)
-  alimentacaoModelo   String?
-  endereco            String?
-  googleMapsLink      String?
-  cidadeExterna       String?
-  enderecoRetirada    String?
-  instrucaoRetirada   String?
-  createdAt           DateTime    @default(now())
-  inscricoes          Inscricao[]
-  produtos            EventoProduto[]
-  refeicoes           EventoRefeicao[]
-  checkinPontos       EventoCheckinPonto[]
-  fases               EventoFase[]
-  equipes             EventoEquipe[]
-  checklist           EventoChecklist[]
-  marcos              EventoMarco[]
-  recursos            EventoRecurso[]
+  id                String               @id @default(cuid())
+  tenantId          String
+  tenant            Tenant               @relation(fields: [tenantId], references: [id])
+  title             String
+  slug              String?              @unique
+  description       String?
+  date              DateTime
+  location          String?
+  banner            String?
+  maxVagas          Int?
+  isGratuito        Boolean              @default(true)
+  valor             Float?
+  linkExterno       String?
+  status            String               @default("ABERTO")
+  recorrente        Boolean              @default(false)
+  isPublic          Boolean              @default(true)
+  avancado          Boolean              @default(false)
+  alimentacaoAtiva  Boolean              @default(false)
+  alimentacaoModelo String?
+  endereco          String?
+  googleMapsLink    String?
+  cidadeExterna     String?
+  enderecoRetirada  String?
+  instrucaoRetirada String?
+  createdAt         DateTime             @default(now())
+  inscricoes        Inscricao[]
+  produtos          EventoProduto[]
+  refeicoes         EventoRefeicao[]
+  checkinPontos     EventoCheckinPonto[]
+  fases             EventoFase[]
+  equipes           EventoEquipe[]
+  checklist         EventoChecklist[]
+  marcos            EventoMarco[]
+  recursos          EventoRecurso[]
 }
 
 model Inscricao {
-  id              String    @id @default(cuid())
+  id              String                @id @default(cuid())
   tenantId        String
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
   eventId         String
-  event           Event     @relation(fields: [eventId], references: [id])
+  event           Event                 @relation(fields: [eventId], references: [id])
   nome            String
   email           String
   telefone        String?
-  tipo            String    @default("MEMBRO")
+  tipo            String                @default("MEMBRO")
   memberId        String?
-  status          String    @default("CONFIRMADO")
-  qrCode          String    @unique
+  status          String                @default("CONFIRMADO")
+  qrCode          String                @unique
   checkinAt       DateTime?
   formaPagamento  String?
-  pagamentoStatus String    @default("PENDENTE")
+  pagamentoStatus String                @default("PENDENTE")
   lancamentoId    String?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime              @default(now())
   itensPedido     InscricaoPedidoItem[]
   scans           EventoCheckinScan[]
   refeicoesUsadas InscricaoRefeicao[]
 }
 
 model Finance {
-  id          String         @id @default(cuid())
-  tenantId    String
-  tenant      Tenant         @relation(fields: [tenantId], references: [id])
-  type        String
-  category    String
-  amount      Float
-  description String?
-  date        DateTime       @default(now())
-  memberId    String?
-  memberName  String?
-  contaId     String?
-  conta       ContaBancaria? @relation(fields: [contaId], references: [id])
-  metaId      String?
-  meta        Meta?          @relation(fields: [metaId], references: [id])
+  id            String         @id @default(cuid())
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  type          String
+  category      String
+  amount        Float
+  description   String?
+  date          DateTime       @default(now())
+  memberId      String?
+  memberName    String?
+  contaId       String?
+  conta         ContaBancaria? @relation(fields: [contaId], references: [id])
+  metaId        String?
+  meta          Meta?          @relation(fields: [metaId], references: [id])
   reciboNum     String?
   paymentMethod String?
   status        String         @default("CONFIRMADO")
@@ -242,17 +245,17 @@ model ContaBancaria {
 }
 
 model Meta {
-  id          String    @id @default(cuid())
-  tenantId    String
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
-  titulo      String
-  descricao   String?
-  valorMeta   Float
-  valorAtual  Float     @default(0)
-  dataFim     DateTime?
-  isAtiva     Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  finances    Finance[]
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  titulo     String
+  descricao  String?
+  valorMeta  Float
+  valorAtual Float     @default(0)
+  dataFim    DateTime?
+  isAtiva    Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  finances   Finance[]
 }
 
 model AuditLog {
@@ -266,16 +269,16 @@ model AuditLog {
 // ── Alimentação ──────────────────────────────────────────
 
 model EventoRefeicao {
-  id       String   @id @default(cuid())
-  eventId  String
-  nome     String
-  emoji    String?
-  modelo   String
-  valor    Float?
-  dias     String
-  ativo    Boolean  @default(true)
-  event    Event    @relation(fields: [eventId], references: [id])
-  usadas   InscricaoRefeicao[]
+  id      String              @id @default(cuid())
+  eventId String
+  nome    String
+  emoji   String?
+  modelo  String
+  valor   Float?
+  dias    String
+  ativo   Boolean             @default(true)
+  event   Event               @relation(fields: [eventId], references: [id])
+  usadas  InscricaoRefeicao[]
 }
 
 model InscricaoRefeicao {
@@ -293,14 +296,14 @@ model InscricaoRefeicao {
 // ── Check-in Múltiplo por Pontos ─────────────────────────
 
 model EventoCheckinPonto {
-  id       String   @id @default(cuid())
-  eventId  String
-  nome     String
-  tipo     String
-  qrToken  String   @unique
-  ativo    Boolean  @default(true)
-  scans    EventoCheckinScan[]
-  event    Event    @relation(fields: [eventId], references: [id])
+  id      String              @id @default(cuid())
+  eventId String
+  nome    String
+  tipo    String
+  qrToken String              @unique
+  ativo   Boolean             @default(true)
+  scans   EventoCheckinScan[]
+  event   Event               @relation(fields: [eventId], references: [id])
 }
 
 model EventoCheckinScan {
@@ -457,29 +460,29 @@ model EventoMarco {
 }
 
 model EventoRecurso {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   eventId    String
   nome       String
   quantidade String?
-  status     String @default("PENDENTE")
-  event      Event  @relation(fields: [eventId], references: [id])
+  status     String  @default("PENDENTE")
+  event      Event   @relation(fields: [eventId], references: [id])
 }
 
 // ── Mídias ───────────────────────────────────────────────
 
 model Midia {
-  id           String   @id @default(cuid())
-  tenantId     String
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
-  titulo       String
-  tipo         String   // AUDIO | VIDEO
-  categoria    String   // SERMAO | LOUVOR | ESTUDO | OUTROS
-  url          String
-  pregador     String?
-  data         DateTime?
-  duracao      String?
-  reproducoes  Int      @default(0)
-  createdAt    DateTime @default(now())
+  id          String    @id @default(cuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  titulo      String
+  tipo        String // AUDIO | VIDEO
+  categoria   String // SERMAO | LOUVOR | ESTUDO | OUTROS
+  url         String
+  pregador    String?
+  data        DateTime?
+  duracao     String?
+  reproducoes Int       @default(0)
+  createdAt   DateTime  @default(now())
 }
 
 // ── ENSINO & DISCIPULADO ──────────────────────────────
@@ -490,56 +493,57 @@ model CursoCategoria {
   cor       String   @default("#1D4ED8")
   ordem     Int      @default(0)
   createdAt DateTime @default(now())
-  
+
   @@unique([tenantId, nome])
 }
 
 model Curso {
-  id          String        @id @default(cuid())
-  tenantId    String
-  titulo      String
-  descricao   String?
-  banner      String?
-  categoria   String        @default("ESTUDO") // ESTUDO | DISCIPULADO | ESCOLA | OUTROS
-  nivel       String        @default("INICIANTE") // INICIANTE | INTERMEDIARIO | AVANCADO
-  publicado   Boolean       @default(false)
+  id           String           @id @default(cuid())
+  tenantId     String
+  titulo       String
+  descricao    String?
+  banner       String?
+  categoria    String           @default("ESTUDO") // ESTUDO | DISCIPULADO | ESCOLA | OUTROS
+  nivel        String           @default("INICIANTE") // INICIANTE | INTERMEDIARIO | AVANCADO
+  publicado    Boolean          @default(false)
   cargaHoraria Int?
-  instrutor   String?
-  modulos     CursoModulo[]
-  progressos  CursoProgresso[]
-  createdAt   DateTime      @default(now())
+  instrutor    String?
+  modulos      CursoModulo[]
+  progressos   CursoProgresso[]
+  createdAt    DateTime         @default(now())
 }
 
 model CursoModulo {
-  id       String      @id @default(cuid())
-  cursoId  String
-  titulo   String
-  ordem    Int         @default(0)
-  curso    Curso       @relation(fields: [cursoId], references: [id])
-  aulas    CursoAula[]
+  id      String      @id @default(cuid())
+  cursoId String
+  titulo  String
+  ordem   Int         @default(0)
+  curso   Curso       @relation(fields: [cursoId], references: [id])
+  aulas   CursoAula[]
 }
 
 model CursoAula {
-  id          String   @id @default(cuid())
-  moduloId    String
-  titulo      String
-  tipo        String   @default("VIDEO") // VIDEO | PDF | TEXTO
-  conteudo    String?  // URL do video ou PDF, ou texto
-  duracao     String?
-  ordem       Int      @default(0)
-  modulo      CursoModulo @relation(fields: [moduloId], references: [id])
-  progressos  CursoProgresso[]
+  id         String           @id @default(cuid())
+  moduloId   String
+  titulo     String
+  tipo       String           @default("VIDEO") // VIDEO | PDF | TEXTO
+  conteudo   String? // URL do video ou PDF, ou texto
+  duracao    String?
+  ordem      Int              @default(0)
+  modulo     CursoModulo      @relation(fields: [moduloId], references: [id])
+  progressos CursoProgresso[]
 }
 
 model CursoProgresso {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   cursoId   String
   aulaId    String
   memberId  String
-  concluido Boolean  @default(false)
-  dataHora  DateTime @default(now())
-  curso     Curso      @relation(fields: [cursoId], references: [id])
-  aula      CursoAula  @relation(fields: [aulaId], references: [id])
+  concluido Boolean   @default(false)
+  dataHora  DateTime  @default(now())
+  curso     Curso     @relation(fields: [cursoId], references: [id])
+  aula      CursoAula @relation(fields: [aulaId], references: [id])
+
   @@unique([cursoId, aulaId, memberId])
 }
 
@@ -556,15 +560,53 @@ model Culto {
 }
 
 model Checkin {
-  id        String   @id @default(cuid())
-  cultoId   String
-  culto     Culto    @relation(fields: [cultoId], references: [id])
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  nome      String
-  tipo      String   // MEMBRO | VISITANTE
-  memberId  String?
-  telefone  String?
+  id           String   @id @default(cuid())
+  cultoId      String
+  culto        Culto    @relation(fields: [cultoId], references: [id])
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  nome         String
+  tipo         String // MEMBRO | VISITANTE
+  memberId     String?
+  telefone     String?
   comoConheceu String?
+  createdAt    DateTime @default(now())
+}
+
+model Escala {
+  id          String         @id @default(cuid())
+  tenantId    String
+  tenant      Tenant         @relation(fields: [tenantId], references: [id])
+  titulo      String
+  data        DateTime
+  ministerio  String // LOUVOR | SOM | RECEPCAO | PORTARIA | INFANTIL
+  observacoes String?
+  status      String         @default("ATIVA") // ATIVA | ENCERRADA | CANCELADA
+  membros     EscalaMembro[]
+  createdAt   DateTime       @default(now())
+}
+
+model EscalaMembro {
+  id        String   @id @default(cuid())
+  escalaId  String
+  escala    Escala   @relation(fields: [escalaId], references: [id])
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id])
+  funcao    String // ex: Baterista, Vocal, Recepcionista
+  status    String   @default("PENDENTE") // PENDENTE | CONFIRMADO | RECUSADO
   createdAt DateTime @default(now())
+}
+
+model Notificacao {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  titulo        String
+  mensagem      String
+  canal         String // EMAIL | WHATSAPP | PUSH
+  destinatario  String // TODOS | GRUPO | ANIVERSARIANTES | AUSENTES | ESCALADOS
+  grupoId       String?
+  enviadoEm     DateTime?
+  totalEnviados Int       @default(0)
+  createdAt     DateTime  @default(now())
 }
