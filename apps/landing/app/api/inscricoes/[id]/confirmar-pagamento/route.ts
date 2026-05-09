@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@firmes/db";
 
 // POST /api/inscricoes/[id]/confirmar-pagamento
 export async function POST(

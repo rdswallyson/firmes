@@ -73,9 +73,9 @@ model User {
 }
 
 model Member {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   tenantId      String
-  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
   name          String
   email         String?
   phone         String?
@@ -89,27 +89,58 @@ model Member {
   number        String?
   complement    String?
   photo         String?
-  memberSince   DateTime  @default(now())
-  status        String    @default("ACTIVE")
+  memberSince   DateTime      @default(now())
+  status        String        @default("ACTIVE")
   role          String?
   groupId       String?
   notes         String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+  groups        GroupMember[]
+  lideraGroups  Group[]       @relation("GroupToLeader")
 }
 
 model Group {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  tenant      Tenant           @relation(fields: [tenantId], references: [id])
   name        String
   description String?
   leaderId    String?
+  leader      Member?          @relation("GroupToLeader", fields: [leaderId], references: [id])
   meetingDay  String?
   meetingTime String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  address     String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  members     GroupMember[]
+  frequencias GroupFrequencia[]
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+  
+  @@unique([groupId, memberId])
+}
+
+model GroupFrequencia {
+  id        String   @id @default(cuid())
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  date      DateTime
+  presentes Int      @default(0)
+  ausentes  Int      @default(0)
+  visitantes Int     @default(0)
+  observacao String?
+  createdAt DateTime @default(now())
+  
+  @@index([groupId, date])
 }
 
 model Event {
@@ -450,6 +481,17 @@ model Midia {
 }
 
 // ── ENSINO & DISCIPULADO ──────────────────────────────
+model CursoCategoria {
+  id        String   @id @default(cuid())
+  tenantId  String
+  nome      String
+  cor       String   @default("#1D4ED8")
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  
+  @@unique([tenantId, nome])
+}
+
 model Curso {
   id          String        @id @default(cuid())
   tenantId    String

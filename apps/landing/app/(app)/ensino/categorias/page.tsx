@@ -14,13 +14,6 @@ interface Categoria {
   cor: string;
 }
 
-const CATEGORIAS_DEFAULT = [
-  { id: "ESTUDO", nome: "Estudo", cor: "#1D4ED8" },
-  { id: "DISCIPULADO", nome: "Discipulado", cor: "#16A34A" },
-  { id: "ESCOLA", nome: "Escola", cor: "#CA8A04" },
-  { id: "OUTROS", nome: "Outros", cor: "#6B7280" },
-];
-
 export default function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,24 +22,23 @@ export default function CategoriasPage() {
   const [form, setForm] = useState({ nome: "", cor: "#1D4ED8" });
 
   useEffect(() => {
-    fetch("/api/ensino").then(r => r.json()).then(data => {
-      const cursos = data.cursos || [];
-      
-      // Count cursos by categoria
-      const countMap: Record<string, number> = {};
-      cursos.forEach((c: any) => {
-        const cat = c.categoria || "OUTROS";
-        countMap[cat] = (countMap[cat] || 0) + 1;
-      });
-      
-      const cats = CATEGORIAS_DEFAULT.map(c => ({
-        ...c,
-        totalCursos: countMap[c.id] || 0,
-      }));
-      
-      setCategorias(cats);
-    }).finally(() => setLoading(false));
+    fetchCategorias();
   }, []);
+
+  async function fetchCategorias() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ensino/categorias");
+      if (res.ok) {
+        const data = await res.json();
+        setCategorias(data.categorias || []);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function openNewModal() {
     setEditId(null);
@@ -60,26 +52,39 @@ export default function CategoriasPage() {
     setShowModal(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.nome.trim()) return;
-    
-    if (editId) {
-      setCategorias(cats => cats.map(c => c.id === editId ? { ...c, nome: form.nome, cor: form.cor } : c));
-    } else {
-      const newCat: Categoria = {
-        id: `CAT-${Date.now()}`,
-        nome: form.nome,
-        cor: form.cor,
-        totalCursos: 0,
-      };
-      setCategorias([...categorias, newCat]);
+
+    try {
+      if (editId) {
+        const res = await fetch(`/api/ensino/categorias/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        if (res.ok) fetchCategorias();
+      } else {
+        const res = await fetch("/api/ensino/categorias", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        if (res.ok) fetchCategorias();
+      }
+    } catch (error) {
+      console.error(error);
     }
     setShowModal(false);
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     if (!confirm("Tem certeza que deseja excluir esta categoria?")) return;
-    setCategorias(cats => cats.filter(c => c.id !== id));
+    try {
+      const res = await fetch(`/api/ensino/categorias/${id}`, { method: "DELETE" });
+      if (res.ok) fetchCategorias();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -138,6 +143,15 @@ export default function CategoriasPage() {
               </div>
             </motion.div>
           ))}
+          {categorias.length === 0 && (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#9CA3AF" }}>
+              Nenhuma categoria criada ainda.
+              <br />
+              <button onClick={openNewModal} style={{ marginTop: "1rem", color: NAVY, background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
+                Criar primeira categoria
+              </button>
+            </div>
+          )}
         </div>
       )}
 

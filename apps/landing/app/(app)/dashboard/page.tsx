@@ -60,7 +60,7 @@ const NOTICES = [
   { id: 5, title: "Manutencao do sistema - domingo 02h", author: "Admin", date: "18 mar", status: "Arquivado" },
 ];
 
-const ACTIVITY = [
+const ACTIVITY_FALLBACK = [
   { icon: <Users size={14} strokeWidth={1.5} />, desc: "Novo membro: Beatriz Santos", time: "5 min", color: "#1A3C6E" },
   { icon: <DollarSign size={14} strokeWidth={1.5} />, desc: "Dizimo registrado: R$ 250", time: "18 min", color: "#16A34A" },
   { icon: <CheckSquare size={14} strokeWidth={1.5} />, desc: "Check-in no culto: 47 pessoas", time: "1h", color: "#C8922A" },
@@ -240,12 +240,34 @@ export default function DashboardPage() {
   const [produtos, setProdutos] = useState<ProdutoSlide[]>([]);
   const [publicLinks, setPublicLinks] = useState<{ label: string; url: string; icon: React.ReactNode }[]>([]);
 
+  const [growthData, setGrowthData] = useState<{ mes: string; membros: number }[]>([]);
+  const [recentActivity, setRecentActivity] = useState<{ icon: React.ReactNode; desc: string; time: string; color: string }[]>([]);
+
   const nextCulto = new Date();
   nextCulto.setDate(nextCulto.getDate() + ((7 - nextCulto.getDay()) % 7 || 7));
   nextCulto.setHours(19, 0, 0, 0);
 
   useEffect(() => {
     fetch("/api/dashboard/stats").then(r => r.json()).then((d: DashStats) => setStats(d)).catch(() => null);
+    fetch("/api/dashboard/activity").then(r => r.json()).then((d: { activities?: { icon: string; desc: string; time: string; color: string }[] }) => {
+      if (d.activities) {
+        const iconMap: Record<string, React.ReactNode> = {
+          Users: <Users size={14} strokeWidth={1.5} />,
+          DollarSign: <DollarSign size={14} strokeWidth={1.5} />,
+          Calendar: <Calendar size={14} strokeWidth={1.5} />,
+          CheckSquare: <CheckSquare size={14} strokeWidth={1.5} />,
+        };
+        setRecentActivity(d.activities.map(a => ({
+          icon: iconMap[a.icon] || <Users size={14} strokeWidth={1.5} />,
+          desc: a.desc,
+          time: a.time,
+          color: a.color,
+        })));
+      }
+    }).catch(() => null);
+    fetch("/api/dashboard/growth").then(r => r.json()).then((d: { growth?: { mes: string; membros: number }[] }) => {
+      if (d.growth) setGrowthData(d.growth);
+    }).catch(() => null);
     fetch("/api/auth/session").then(r => r.json()).then((d: { user?: { name?: string } }) => { if (d.user?.name) setUserName(d.user.name.split(" ")[0] ?? "Pastor"); }).catch(() => null);
 
     // Fetch eventos for carousel + public links
@@ -362,7 +384,7 @@ export default function DashboardPage() {
             <span style={{ background: "#DCFCE7", color: "#16A34A", fontSize: "0.75rem", fontWeight: 600, borderRadius: 20, padding: "3px 10px" }}>+32% no periodo</span>
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={GROWTH_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <AreaChart data={growthData.length > 0 ? growthData : GROWTH_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1A3C6E" stopOpacity={0.15}/><stop offset="95%" stopColor="#1A3C6E" stopOpacity={0}/></linearGradient></defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="mes" tick={{ fontSize: 12, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
@@ -432,8 +454,8 @@ export default function DashboardPage() {
           style={{ flex: 1, background: "white", borderRadius: 12, padding: "1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h3 style={{ margin: "0 0 1rem", fontSize: "0.9375rem", fontWeight: 700, color: "#111827" }}>Atividade Recente</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {ACTIVITY.map((a, i) => (
-              <div key={i} style={{ display: "flex", gap: "0.625rem", padding: "0.5rem 0", borderBottom: i < ACTIVITY.length - 1 ? "1px solid #F9FAFB" : "none" }}>
+            {(recentActivity.length > 0 ? recentActivity : ACTIVITY_FALLBACK).map((a, i) => (
+              <div key={i} style={{ display: "flex", gap: "0.625rem", padding: "0.5rem 0", borderBottom: i < (recentActivity.length > 0 ? recentActivity : ACTIVITY_FALLBACK).length - 1 ? "1px solid #F9FAFB" : "none" }}>
                 <div style={{ width: 26, height: 26, borderRadius: 6, background: `${a.color}12`, display: "flex", alignItems: "center", justifyContent: "center", color: a.color, flexShrink: 0, marginTop: 1 }}>{a.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: "0.8rem", color: "#374151", lineHeight: 1.3 }}>{a.desc}</div>

@@ -32,7 +32,7 @@ export default function AutoCadastroPage() {
     setSaving(true);
     setError("");
     try {
-      const res = await fetch("/api/members", {
+      const res = await fetch(`/api/public/members?slug=${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, status: "PENDING" }),
