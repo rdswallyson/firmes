@@ -23,12 +23,15 @@ export async function GET(req: NextRequest) {
       : {}),
   };
 
+  const includeFrequencia = req.nextUrl.searchParams.get("includeFrequencia") === "true";
+
   const grupos = await prisma.group.findMany({
     where,
     orderBy: { createdAt: "desc" },
     include: {
       leader: { select: { id: true, name: true, photo: true } },
       _count: { select: { members: true } },
+      ...(includeFrequencia ? { frequencias: { select: { presentes: true, ausentes: true }, orderBy: { date: "desc" }, take: 20 } } : {}),
     },
   });
 
