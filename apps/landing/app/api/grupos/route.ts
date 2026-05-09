@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     include: {
       leader: { select: { id: true, name: true, photo: true } },
       _count: { select: { members: true } },
-      ...(includeFrequencia ? { frequencias: { select: { presentes: true, ausentes: true }, orderBy: { date: "desc" }, take: 20 } } : {}),
+      ...(includeFrequencia ? { frequencias: { select: { presentes: true, ausentes: true, visitantes: true, date: true }, orderBy: { date: "desc" }, take: 30 } } : {}),
     },
   });
 
