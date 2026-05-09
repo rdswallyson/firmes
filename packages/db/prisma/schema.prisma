@@ -54,6 +54,8 @@ model Tenant {
   pedidos        Pedido[]
   cupons         Cupom[]
   midias         Midia[]
+  cultos         Culto[]
+  checkins       Checkin[]
   churches      Tenant[]          @relation("ResellerChurches")
   reseller      Tenant?           @relation("ResellerChurches", fields: [resellerId], references: [id])
 }
@@ -539,4 +541,30 @@ model CursoProgresso {
   curso     Curso      @relation(fields: [cursoId], references: [id])
   aula      CursoAula  @relation(fields: [aulaId], references: [id])
   @@unique([cursoId, aulaId, memberId])
+}
+
+model Culto {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  titulo    String
+  data      DateTime
+  qrCode    String    @unique
+  ativo     Boolean   @default(true)
+  checkins  Checkin[]
+  createdAt DateTime  @default(now())
+}
+
+model Checkin {
+  id        String   @id @default(cuid())
+  cultoId   String
+  culto     Culto    @relation(fields: [cultoId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  nome      String
+  tipo      String   // MEMBRO | VISITANTE
+  memberId  String?
+  telefone  String?
+  comoConheceu String?
+  createdAt DateTime @default(now())
 }
