@@ -65,10 +65,13 @@ export default function NovaEscalaPage() {
           membros: selecionados,
         }),
       });
-      if (!res.ok) throw new Error("Erro ao salvar");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
       router.push("/escalas");
-    } catch {
-      alert("Erro ao criar escala");
+    } catch (err) {
+      alert("Erro ao criar escala: " + (err instanceof Error ? err.message : "Erro desconhecido"));
       setSalvando(false);
     }
   };

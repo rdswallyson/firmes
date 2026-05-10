@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ escala }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/escalas]", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Erro interno";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
