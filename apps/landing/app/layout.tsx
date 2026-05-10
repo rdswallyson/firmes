@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { WatermarkDove } from "./components/WatermarkDove";
+import { ServiceWorkerRegister } from "./components/ServiceWorkerRegister";
+import { Toaster } from "./components/Toast";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -9,12 +11,30 @@ const nunito = Nunito({
   variable: "--font-nunito",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#1A3C6E",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   title: "Firmes — Gestão para Igrejas",
-  description: "Plataforma de gestão para igrejas",
+  description: "Plataforma completa de gestão para igrejas",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "FIRMES",
+  },
   icons: {
     icon: "/favicon.ico",
     apple: "/icon-180.png",
+    other: [
+      { rel: "icon", sizes: "48x48",  url: "/icon-48.png" },
+      { rel: "icon", sizes: "96x96",  url: "/icon-96.png" },
+      { rel: "icon", sizes: "512x512", url: "/icon-512.png" },
+    ],
   },
 };
 
@@ -28,7 +48,7 @@ export default function RootLayout({
       <body
         className={nunito.variable}
         style={{
-          background: "#F0EBE1",
+          background: "#F5F0EB",
           margin: 0,
           padding: 0,
           minHeight: "100vh",
@@ -36,6 +56,8 @@ export default function RootLayout({
         }}
       >
         <WatermarkDove />
+        <Toaster />
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>

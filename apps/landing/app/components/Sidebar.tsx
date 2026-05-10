@@ -324,12 +324,14 @@ interface SidebarProps {
   userAvatar?: string;
   userPlan?: string;
   isWhiteLabel?: boolean;
+  forceExpanded?: boolean;
 }
 
-export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrador", userRole = "ADMIN", userAvatar, userPlan = "FREE", isWhiteLabel = false }: SidebarProps) {
+export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrador", userRole = "ADMIN", userAvatar, userPlan = "FREE", isWhiteLabel = false, forceExpanded = false }: SidebarProps) {
   const pathname = usePathname();
   const isEsmeralda = isWhiteLabel || (userPlan?.startsWith("ESMERALDA") ?? false);
   const [collapsed, setCollapsed] = useState(false);
+  const effectiveCollapsed = forceExpanded ? false : collapsed;
   const [openMenu, setOpenMenu] = useState<string | null>("dashboard");
 
   function toggleMenu(id: string) {
@@ -340,7 +342,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
     return pathname === href || pathname.startsWith(href + "/");
   }
 
-  const sidebarWidth = collapsed ? 72 : 260;
+  const sidebarWidth = effectiveCollapsed ? 72 : 260;
 
   return (
     <motion.aside
@@ -358,8 +360,8 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
       }}
     >
       {/* Header */}
-      <div style={{ padding: collapsed ? "1.25rem 0" : "1.25rem 1rem", display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
-        {!collapsed && (
+      <div style={{ padding: effectiveCollapsed ? "1.25rem 0" : "1.25rem 1rem", display: "flex", alignItems: "center", justifyContent: effectiveCollapsed ? "center" : "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
+        {!effectiveCollapsed && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -391,7 +393,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
             </div>
           </motion.div>
         )}
-        {collapsed && (
+        {effectiveCollapsed && (
           <div style={{
             width: "34px", height: "34px", borderRadius: "8px",
             background: "rgba(200,146,42,0.2)",
@@ -413,7 +415,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
       <nav style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.75rem 0", scrollbarWidth: "none" }}>
         {MENU.map((group, gi) => (
           <div key={gi}>
-            {group.section && !collapsed && (
+            {group.section && !effectiveCollapsed && (
               <div style={{
                 padding: "0.875rem 1rem 0.25rem",
                 fontSize: "0.65rem",
@@ -442,8 +444,8 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                         display: "flex",
                         alignItems: "center",
                         gap: "0.75rem",
-                        padding: collapsed ? "0.7rem 0" : "0.7rem 1rem",
-                        justifyContent: collapsed ? "center" : "flex-start",
+                        padding: effectiveCollapsed ? "0.7rem 0" : "0.7rem 1rem",
+                        justifyContent: effectiveCollapsed ? "center" : "flex-start",
                         cursor: "pointer",
                         position: "relative",
                         background: active ? "rgba(255,255,255,0.08)" : "transparent",
@@ -471,7 +473,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                         {item.icon}
                       </span>
                       <AnimatePresence>
-                        {!collapsed && (
+                        {!effectiveCollapsed && (
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -495,14 +497,14 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
               return (
                 <div key={item.id}>
                   <motion.div
-                    onClick={() => !collapsed && toggleMenu(item.id)}
+                    onClick={() => !effectiveCollapsed && toggleMenu(item.id)}
                     whileHover={{ x: 0 }}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: "0.75rem",
-                      padding: collapsed ? "0.7rem 0" : "0.7rem 1rem",
-                      justifyContent: collapsed ? "center" : "flex-start",
+                      padding: effectiveCollapsed ? "0.7rem 0" : "0.7rem 1rem",
+                      justifyContent: effectiveCollapsed ? "center" : "flex-start",
                       cursor: "pointer",
                       background: isOpen ? "rgba(255,255,255,0.06)" : "transparent",
                       transition: "background 0.15s",
@@ -515,7 +517,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                       {item.icon}
                     </span>
                     <AnimatePresence>
-                      {!collapsed && (
+                      {!effectiveCollapsed && (
                         <motion.span
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -532,7 +534,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                         </motion.span>
                       )}
                     </AnimatePresence>
-                    {!collapsed && (
+                    {!effectiveCollapsed && (
                       <motion.span
                         animate={{ rotate: isOpen ? 90 : 0 }}
                         transition={{ duration: 0.2 }}
@@ -544,7 +546,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                   </motion.div>
 
                   <AnimatePresence initial={false}>
-                    {isOpen && !collapsed && item.children && (
+                    {isOpen && !effectiveCollapsed && item.children && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
@@ -598,8 +600,8 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
       </nav>
 
       {/* Footer */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: collapsed ? "0.875rem 0" : "0.875rem 1rem", flexShrink: 0 }}>
-        {!collapsed && (
+      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: effectiveCollapsed ? "0.875rem 0" : "0.875rem 1rem", flexShrink: 0 }}>
+        {!effectiveCollapsed && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "0.625rem" }}>
             <div style={{
               width: "32px", height: "32px", borderRadius: "50%",
@@ -645,7 +647,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
           onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
         >
-          {collapsed ? <ChevronRight size={16} strokeWidth={1.5} /> : <ChevronLeft size={16} strokeWidth={1.5} />}
+          {effectiveCollapsed ? <ChevronRight size={16} strokeWidth={1.5} /> : <ChevronLeft size={16} strokeWidth={1.5} />}
         </button>
       </div>
     </motion.aside>

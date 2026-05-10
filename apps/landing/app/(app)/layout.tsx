@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "../../lib/auth";
 import { prisma } from "@firmes/db";
-import { Sidebar } from "../components/Sidebar";
+import { AppShell } from "../components/AppShell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -27,24 +27,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     },
   });
 
-  // Bloquear tenants suspensos (isActive = false)
   if (user?.tenant && user.tenant.isActive === false) {
     redirect("/plano-expirado");
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      <Sidebar
-        tenantName={user?.tenant?.name ?? "Igreja Firmes"}
-        userName={user?.name ?? "Administrador"}
-        userRole={user?.role ?? "ADMIN"}
-        userAvatar={user?.avatar ?? undefined}
-        userPlan={user?.tenant?.plan ?? "FREE"}
-        isWhiteLabel={user?.tenant?.isWhiteLabel ?? false}
-      />
-      <main style={{ flex: 1, overflowY: "auto", background: "#F5F0EB" }}>
-        {children}
-      </main>
-    </div>
+    <AppShell
+      tenantName={user?.tenant?.name ?? "Igreja Firmes"}
+      userName={user?.name ?? "Administrador"}
+      userRole={user?.role ?? "ADMIN"}
+      userAvatar={user?.avatar ?? undefined}
+      userPlan={user?.tenant?.plan ?? "FREE"}
+      isWhiteLabel={user?.tenant?.isWhiteLabel ?? false}
+    >
+      {children}
+    </AppShell>
   );
 }
