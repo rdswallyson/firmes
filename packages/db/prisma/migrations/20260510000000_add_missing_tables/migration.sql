@@ -1,14 +1,6 @@
--- Migration: add missing tables (safe - IF NOT EXISTS)
--- Tabelas: Group, GroupMember, GroupFrequencia, Midia,
---          CursoCategoria, Curso, CursoModulo, CursoAula, CursoProgresso,
---          Culto, Checkin, Escala, EscalaMembro, Notificacao, AuditLog
-
--- Enum Plan (ignorar se já existir)
-DO $$ BEGIN
-  CREATE TYPE "Plan" AS ENUM ('FREE', 'PRATA', 'OURO', 'DIAMANTE', 'ESMERALDA_STARTER', 'ESMERALDA_PRO', 'ESMERALDA_PLUS', 'ESMERALDA_ULTRA');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
--- ── GRUPOS ────────────────────────────────────────────────────────────────────
+-- Migration: add missing tables
+-- Safe: CREATE TABLE IF NOT EXISTS + CREATE INDEX IF NOT EXISTS
+-- Sem DO $$ blocks (incompatível com o parser do Prisma migrate)
 
 CREATE TABLE IF NOT EXISTS "Group" (
     "id"          TEXT NOT NULL,
@@ -33,18 +25,16 @@ CREATE TABLE IF NOT EXISTS "GroupMember" (
 );
 
 CREATE TABLE IF NOT EXISTS "GroupFrequencia" (
-    "id"          TEXT NOT NULL,
-    "groupId"     TEXT NOT NULL,
-    "date"        TIMESTAMP(3) NOT NULL,
-    "presentes"   INTEGER NOT NULL DEFAULT 0,
-    "ausentes"    INTEGER NOT NULL DEFAULT 0,
-    "visitantes"  INTEGER NOT NULL DEFAULT 0,
-    "observacao"  TEXT,
-    "createdAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "id"         TEXT NOT NULL,
+    "groupId"    TEXT NOT NULL,
+    "date"       TIMESTAMP(3) NOT NULL,
+    "presentes"  INTEGER NOT NULL DEFAULT 0,
+    "ausentes"   INTEGER NOT NULL DEFAULT 0,
+    "visitantes" INTEGER NOT NULL DEFAULT 0,
+    "observacao" TEXT,
+    "createdAt"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "GroupFrequencia_pkey" PRIMARY KEY ("id")
 );
-
--- ── MÍDIAS ────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS "Midia" (
     "id"          TEXT NOT NULL,
@@ -60,8 +50,6 @@ CREATE TABLE IF NOT EXISTS "Midia" (
     "createdAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Midia_pkey" PRIMARY KEY ("id")
 );
-
--- ── ENSINO ────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS "CursoCategoria" (
     "id"        TEXT NOT NULL,
@@ -117,8 +105,6 @@ CREATE TABLE IF NOT EXISTS "CursoProgresso" (
     CONSTRAINT "CursoProgresso_pkey" PRIMARY KEY ("id")
 );
 
--- ── CULTOS & CHECK-IN ─────────────────────────────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS "Culto" (
     "id"        TEXT NOT NULL,
     "tenantId"  TEXT NOT NULL,
@@ -143,8 +129,6 @@ CREATE TABLE IF NOT EXISTS "Checkin" (
     CONSTRAINT "Checkin_pkey" PRIMARY KEY ("id")
 );
 
--- ── ESCALAS ───────────────────────────────────────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS "Escala" (
     "id"          TEXT NOT NULL,
     "tenantId"    TEXT NOT NULL,
@@ -167,23 +151,19 @@ CREATE TABLE IF NOT EXISTS "EscalaMembro" (
     CONSTRAINT "EscalaMembro_pkey" PRIMARY KEY ("id")
 );
 
--- ── NOTIFICAÇÕES ──────────────────────────────────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS "Notificacao" (
-    "id"             TEXT NOT NULL,
-    "tenantId"       TEXT NOT NULL,
-    "titulo"         TEXT NOT NULL,
-    "mensagem"       TEXT NOT NULL,
-    "canal"          TEXT NOT NULL,
-    "destinatario"   TEXT NOT NULL,
-    "grupoId"        TEXT,
-    "enviadoEm"      TIMESTAMP(3),
-    "totalEnviados"  INTEGER NOT NULL DEFAULT 0,
-    "createdAt"      TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "id"            TEXT NOT NULL,
+    "tenantId"      TEXT NOT NULL,
+    "titulo"        TEXT NOT NULL,
+    "mensagem"      TEXT NOT NULL,
+    "canal"         TEXT NOT NULL,
+    "destinatario"  TEXT NOT NULL,
+    "grupoId"       TEXT,
+    "enviadoEm"     TIMESTAMP(3),
+    "totalEnviados" INTEGER NOT NULL DEFAULT 0,
+    "createdAt"     TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Notificacao_pkey" PRIMARY KEY ("id")
 );
-
--- ── AUDIT LOG ─────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS "AuditLog" (
     "id"        TEXT NOT NULL,
@@ -194,89 +174,8 @@ CREATE TABLE IF NOT EXISTS "AuditLog" (
     CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
 );
 
--- ── INDEXES ───────────────────────────────────────────────────────────────────
-
-CREATE UNIQUE INDEX IF NOT EXISTS "GroupMember_groupId_memberId_key"
-    ON "GroupMember"("groupId", "memberId");
-
-CREATE INDEX IF NOT EXISTS "GroupFrequencia_groupId_date_idx"
-    ON "GroupFrequencia"("groupId", "date");
-
-CREATE UNIQUE INDEX IF NOT EXISTS "CursoCategoria_tenantId_nome_key"
-    ON "CursoCategoria"("tenantId", "nome");
-
-CREATE UNIQUE INDEX IF NOT EXISTS "CursoProgresso_cursoId_aulaId_memberId_key"
-    ON "CursoProgresso"("cursoId", "aulaId", "memberId");
-
-CREATE UNIQUE INDEX IF NOT EXISTS "Culto_qrCode_key"
-    ON "Culto"("qrCode");
-
--- ── FOREIGN KEYS (ignorar se já existir) ─────────────────────────────────────
-
-DO $$ BEGIN ALTER TABLE "Group" ADD CONSTRAINT "Group_tenantId_fkey"
-    FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Group" ADD CONSTRAINT "Group_leaderId_fkey"
-    FOREIGN KEY ("leaderId") REFERENCES "Member"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "GroupMember" ADD CONSTRAINT "GroupMember_groupId_fkey"
-    FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "GroupMember" ADD CONSTRAINT "GroupMember_memberId_fkey"
-    FOREIGN KEY ("memberId") REFERENCES "Member"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "GroupFrequencia" ADD CONSTRAINT "GroupFrequencia_groupId_fkey"
-    FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Midia" ADD CONSTRAINT "Midia_tenantId_fkey"
-    FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "CursoModulo" ADD CONSTRAINT "CursoModulo_cursoId_fkey"
-    FOREIGN KEY ("cursoId") REFERENCES "Curso"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "CursoAula" ADD CONSTRAINT "CursoAula_moduloId_fkey"
-    FOREIGN KEY ("moduloId") REFERENCES "CursoModulo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "CursoProgresso" ADD CONSTRAINT "CursoProgresso_cursoId_fkey"
-    FOREIGN KEY ("cursoId") REFERENCES "Curso"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "CursoProgresso" ADD CONSTRAINT "CursoProgresso_aulaId_fkey"
-    FOREIGN KEY ("aulaId") REFERENCES "CursoAula"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Culto" ADD CONSTRAINT "Culto_tenantId_fkey"
-    FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Checkin" ADD CONSTRAINT "Checkin_cultoId_fkey"
-    FOREIGN KEY ("cultoId") REFERENCES "Culto"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Checkin" ADD CONSTRAINT "Checkin_tenantId_fkey"
-    FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Escala" ADD CONSTRAINT "Escala_tenantId_fkey"
-    FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "EscalaMembro" ADD CONSTRAINT "EscalaMembro_escalaId_fkey"
-    FOREIGN KEY ("escalaId") REFERENCES "Escala"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "EscalaMembro" ADD CONSTRAINT "EscalaMembro_memberId_fkey"
-    FOREIGN KEY ("memberId") REFERENCES "Member"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN ALTER TABLE "Notificacao" ADD CONSTRAINT "Notificacao_tenantId_fkey"
-    FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE UNIQUE INDEX IF NOT EXISTS "GroupMember_groupId_memberId_key" ON "GroupMember"("groupId", "memberId");
+CREATE INDEX IF NOT EXISTS "GroupFrequencia_groupId_date_idx" ON "GroupFrequencia"("groupId", "date");
+CREATE UNIQUE INDEX IF NOT EXISTS "CursoCategoria_tenantId_nome_key" ON "CursoCategoria"("tenantId", "nome");
+CREATE UNIQUE INDEX IF NOT EXISTS "CursoProgresso_cursoId_aulaId_memberId_key" ON "CursoProgresso"("cursoId", "aulaId", "memberId");
+CREATE UNIQUE INDEX IF NOT EXISTS "Culto_qrCode_key" ON "Culto"("qrCode");
