@@ -4,6 +4,7 @@ import "./globals.css";
 import { WatermarkDove } from "./components/WatermarkDove";
 import { ServiceWorkerRegister } from "./components/ServiceWorkerRegister";
 import { Toaster } from "./components/Toast";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default function RootLayout({
       >
         <WatermarkDove />
         <Toaster />
+        <PWAInstallPrompt />
         <ServiceWorkerRegister />
         {children}
       </body>

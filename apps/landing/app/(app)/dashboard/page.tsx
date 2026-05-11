@@ -76,7 +76,7 @@ function StatCard({ icon, label, value, change, positive, color, delay }: {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.4 }}
       whileHover={{ y: -2, boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}
-      style={{ flex: 1, background: "white", borderRadius: "12px", padding: "1.125rem 1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: "0.875rem", cursor: "default" }}>
+      style={{ background: "white", borderRadius: "12px", padding: "1.125rem 1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: "0.875rem", cursor: "default" }}>
       <div style={{ width: 42, height: 42, borderRadius: 10, background: `${color}14`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: "#6B7280", fontSize: "0.75rem", marginBottom: 2, fontWeight: 500 }}>{label}</div>
@@ -305,7 +305,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div style={{ padding: "1.75rem 2rem", maxWidth: "1400px", margin: "0 auto" }}>
+    <div className="page-pad" style={{ maxWidth: "1400px", margin: "0 auto" }}>
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
@@ -321,6 +321,7 @@ export default function DashboardPage() {
 
       {/* Banner: Proximo Culto + Carrossel */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}
+        className="dashboard-banner"
         style={{ background: "linear-gradient(135deg, #0D2545 0%, #1A3C6E 60%, #1E4A84 100%)", borderRadius: 12, padding: "1.5rem 2rem", boxShadow: "0 4px 16px rgba(26,60,110,0.2)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", color: "white", marginBottom: "1.5rem", flexWrap: "wrap", minHeight: 120 }}>
         <div style={{ flex: "0 0 auto", marginRight: "0.5rem" }}>
           <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 4, fontWeight: 600 }}>Proximo Culto</div>
@@ -328,7 +329,7 @@ export default function DashboardPage() {
           <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 2 }}>
             {nextCulto.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })} - 19h00
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.75rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
             <CountdownTimer targetDate={nextCulto} />
             <button onClick={() => window.location.href = "/eventos/checkin"} style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
               <ScanLine size={15} strokeWidth={1.5} /> Abrir check-in
@@ -336,7 +337,7 @@ export default function DashboardPage() {
           </div>
         </div>
         {/* Carrossel */}
-        <div style={{ flex: 1, minWidth: 0, width: "100%", paddingLeft: "0.75rem", marginLeft: "-0.5rem", borderLeft: "1px solid rgba(255,255,255,0.15)", background: "transparent" }}>
+        <div className="banner-carousel" style={{ flex: 1, minWidth: 0, width: "100%", paddingLeft: "0.75rem", marginLeft: "-0.5rem", borderLeft: "1px solid rgba(255,255,255,0.15)", background: "transparent" }}>
           <Carousel eventos={eventos} aniversariantes={BIRTHDAYS} produtos={produtos} />
         </div>
       </motion.div>
@@ -365,7 +366,7 @@ export default function DashboardPage() {
       )}
 
       {/* Stat cards */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+      <div className="grid-4" style={{ marginBottom: "1.5rem" }}>
         <StatCard icon={<Users size={20} strokeWidth={1.5} />} label="Total Membros" value={totalMembers} change="+12%" positive color="#1A3C6E" delay={0.25} />
         <StatCard icon={<DollarSign size={20} strokeWidth={1.5} />} label="Saldo do Mes" value={totalFinances} change="+8%" positive color="#16A34A" delay={0.3} />
         <StatCard icon={<Calendar size={20} strokeWidth={1.5} />} label="Eventos" value={upcomingEvents} change="+2" positive color="#C8922A" delay={0.35} />
@@ -373,7 +374,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Chart + Birthdays */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div className="dashboard-main-row" style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.4 }}
           style={{ flex: "0 0 60%", background: "white", borderRadius: 12, padding: "1.25rem 1.5rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
@@ -418,7 +419,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Notices + Activity */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div className="dashboard-main-row" style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.4 }}
           style={{ flex: "0 0 65%", background: "white", borderRadius: 12, padding: "1.25rem 1.5rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
