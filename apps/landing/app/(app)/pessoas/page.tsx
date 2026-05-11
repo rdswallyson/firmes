@@ -158,7 +158,7 @@ export default function PessoasPage() {
 
         {/* Table */}
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8375rem" }}>
+          <table className="responsive-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8375rem" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #F3F4F6" }}>
                 {["Membro", "Telefone", "Cargo", "Status", "Membro desde", "Ações"].map((h) => (
@@ -178,7 +178,7 @@ export default function PessoasPage() {
                     onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "#FAFAFA"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}
                   >
-                    <td style={{ padding: "0.625rem 1rem" }}>
+                    <td data-label="Membro" style={{ padding: "0.625rem 1rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
                         <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: m.photo ? `url(${m.photo}) center/cover` : `hsl(${m.name.charCodeAt(0) * 7},55%,82%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700, color: `hsl(${m.name.charCodeAt(0) * 7},40%,30%)`, flexShrink: 0 }}>
                           {!m.photo && m.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
@@ -189,13 +189,13 @@ export default function PessoasPage() {
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.phone ?? "—"}</td>
-                    <td style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.role ?? "—"}</td>
-                    <td style={{ padding: "0.625rem 1rem" }}>
+                    <td data-label="Telefone" style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.phone ?? "—"}</td>
+                    <td data-label="Cargo" style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.role ?? "—"}</td>
+                    <td data-label="Status" style={{ padding: "0.625rem 1rem" }}>
                       <span style={{ background: st.bg, color: st.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "2px 8px" }}>{st.label}</span>
                     </td>
-                    <td style={{ padding: "0.625rem 1rem", color: "#6B7280" }}>{new Date(m.memberSince).toLocaleDateString("pt-BR")}</td>
-                    <td style={{ padding: "0.625rem 1rem" }}>
+                    <td data-label="Desde" style={{ padding: "0.625rem 1rem", color: "#6B7280" }}>{new Date(m.memberSince).toLocaleDateString("pt-BR")}</td>
+                    <td data-label="Ações" style={{ padding: "0.625rem 1rem" }}>
                       <div style={{ display: "flex", gap: "0.25rem" }}>
                         <button onClick={() => router.push(`/pessoas/${m.id}`)} title="Ver" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "4px", color: "#6B7280" }}
                           onMouseEnter={(e) => { e.currentTarget.style.background = "#F3F4F6"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}>

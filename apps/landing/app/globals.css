@@ -135,13 +135,32 @@ body, p, li, td, th, span, div, label {
   /* ── Base ─────────────────────────────────────────────── */
   body { font-size: 14px; }
 
+  /* ── Override de padding em TODAS as páginas ────────── */
+  /* Pega o primeiro filho direto do <main class="app-main"> 
+     que é o container raiz de cada page.tsx. Sobrescreve
+     padding/maxWidth inline para evitar conteúdo cortado. */
+  .app-main > * {
+    padding: 16px 16px 32px !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   /* ── Grids ────────────────────────────────────────────── */
   .grid-4                  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .grid-3                  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .grid-2                  { grid-template-columns: 1fr; }
   .form-grid, .form-grid-3 { grid-template-columns: 1fr; gap: 12px; }
 
-  /* ── Padding de página ────────────────────────────────── */
+  /* Qualquer grid com minmax fixo grande vira coluna única */
+  .app-main [style*="grid-template-columns"][style*="minmax(3"],
+  .app-main [style*="grid-template-columns"][style*="minmax(2"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Padding de página (class utilitária) ────────────── */
   .page-pad { padding: 16px 16px 32px; }
 
   /* ── Cabeçalho de página ──────────────────────────────── */
@@ -159,8 +178,23 @@ body, p, li, td, th, span, div, label {
   /* ── Título de boas-vindas do Dashboard ──────────────── */
   .dashboard-greeting { font-size: 1.25rem !important; }
 
-  /* ── Tabelas → cards ──────────────────────────────────── */
+  /* ══════════════════════════════════════════════════════
+     TABELAS — wrapper com scroll + tabelas marcadas viram cards
+     ══════════════════════════════════════════════════════ */
+  /* Toda tabela dentro de .app-main ganha scroll horizontal automático */
+  .app-main table {
+    font-size: 12px;
+  }
+  /* Containers comuns de tabela: garantir scroll horizontal */
+  .app-main div[style*="overflow"] table,
+  .app-main div[style*="overflowX"] table {
+    min-width: max-content;
+  }
+
+  /* Marcador explícito: vira cards empilhados */
   .responsive-table thead { display: none; }
+  .responsive-table,
+  .responsive-table tbody { display: block; width: 100%; }
   .responsive-table tbody tr {
     display: block;
     margin-bottom: 12px;
@@ -178,6 +212,8 @@ body, p, li, td, th, span, div, label {
     border: none !important;
     font-size: 13px;
     min-height: 0;
+    white-space: normal;
+    text-align: right;
   }
   .responsive-table tbody td::before {
     content: attr(data-label);
@@ -188,6 +224,12 @@ body, p, li, td, th, span, div, label {
     letter-spacing: 0.04em;
     flex-shrink: 0;
     margin-right: 8px;
+    text-align: left;
+  }
+  .responsive-table tbody td:first-child {
+    font-weight: 600;
+    color: #111827;
+    font-size: 14px;
   }
 
   /* ── Modais bottom-sheet ──────────────────────────────── */
@@ -231,19 +273,13 @@ body, p, li, td, th, span, div, label {
     gap: 0.875rem !important;
     min-height: unset !important;
   }
-  .dashboard-banner .banner-left {
-    width: 100%;
-  }
+  .dashboard-banner .banner-left { width: 100%; }
   .dashboard-banner .banner-countdown {
     flex-wrap: wrap;
     gap: 0.5rem !important;
   }
-  .dashboard-banner .banner-countdown > div {
-    min-width: 42px !important;
-  }
-  .dashboard-banner .banner-countdown .countdown-num {
-    font-size: 1.5rem !important;
-  }
+  .dashboard-banner .banner-countdown > div { min-width: 42px !important; }
+  .dashboard-banner .banner-countdown .countdown-num { font-size: 1.5rem !important; }
   .dashboard-banner .banner-carousel {
     border-left: none !important;
     border-top: 1px solid rgba(255,255,255,0.15) !important;
@@ -264,17 +300,34 @@ body, p, li, td, th, span, div, label {
     width: 100% !important;
   }
 
-  /* ── Dashboard — Links para compartilhar ─────────────── */
+  /* ── Dashboard — Links para compartilhar (2 por linha) ── */
   .links-row {
-    flex-direction: column !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
-    overflow-x: unset !important;
+    overflow: unset !important;
+    flex-direction: unset !important;
   }
-  .links-row > * { width: 100% !important; }
+  .links-row > * {
+    width: auto !important;
+    flex: unset !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    font-size: 12px !important;
+  }
+  .links-row > * > div { font-size: 11px !important; }
+  .links-row > * svg { width: 14px !important; height: 14px !important; flex-shrink: 0; }
+  .links-row > * button { min-height: 32px !important; padding: 4px 8px !important; font-size: 11px !important; }
 
   /* ── Formulários ──────────────────────────────────────── */
   .form-row { flex-direction: column !important; gap: 12px !important; }
   .form-row > * { width: 100% !important; }
+
+  /* ── Stat cards: garantir min-width 0 ─────────────────── */
+  .app-main [style*="display: flex"][style*="gap"] > div[style*="flex: 1"] {
+    min-width: 0;
+  }
 
   /* ── Utilitários ──────────────────────────────────────── */
   .hide-mobile     { display: none !important; }
