@@ -97,9 +97,12 @@ export function AppShell({
           z-index: 399;
           opacity: 0;
           transition: opacity 0.25s ease;
+          pointer-events: none;
         }
         .app-drawer-overlay.open {
+          display: block;
           opacity: 1;
+          pointer-events: auto;
         }
 
         /* Drawer container */
@@ -115,9 +118,11 @@ export function AppShell({
           transition: transform 0.28s cubic-bezier(.4,0,.2,1);
           flex-direction: column;
           box-shadow: 4px 0 32px rgba(0,0,0,0.3);
+          pointer-events: none;
         }
         .app-mobile-drawer.open {
           transform: translateX(0);
+          pointer-events: auto;
         }
 
         /* ── Mobile (<768px) ─────────────────────── */
@@ -125,7 +130,6 @@ export function AppShell({
           .app-sidebar-desktop { display: none !important; }
           .app-mobile-header   { display: flex !important; }
           .app-mobile-drawer   { display: flex !important; }
-          .app-drawer-overlay  { display: block !important; }
           .app-main            { padding-top: 0; }
         }
 
