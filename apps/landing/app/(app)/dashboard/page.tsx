@@ -310,7 +310,7 @@ export default function DashboardPage() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0D2545", margin: 0 }}>{getGreeting()}, {userName}!</h1>
+          <h1 className="dashboard-greeting" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0D2545", margin: 0 }}>{getGreeting()}, {userName}!</h1>
           <p style={{ color: "#6B7280", marginTop: 2, fontSize: "0.875rem", textTransform: "capitalize" }}>{formatDate()}</p>
         </div>
         <button style={{ background: "white", border: "1px solid #E5E7EB", borderRadius: 10, padding: "0.6rem 0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", color: "#374151", fontSize: "0.875rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>

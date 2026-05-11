@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -79,6 +79,7 @@ import {
   ChevronRight,
   ChevronLeft,
   LogOut,
+  X,
 } from "lucide-react";
 
 interface SubItem {
@@ -325,14 +326,42 @@ interface SidebarProps {
   userPlan?: string;
   isWhiteLabel?: boolean;
   forceExpanded?: boolean;
+  /** Chamado ao clicar em qualquer link — usado para fechar drawer */
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrador", userRole = "ADMIN", userAvatar, userPlan = "FREE", isWhiteLabel = false, forceExpanded = false }: SidebarProps) {
+export function Sidebar({
+  tenantName = "Igreja Firmes",
+  userName = "Administrador",
+  userRole = "ADMIN",
+  userAvatar,
+  userPlan = "FREE",
+  isWhiteLabel = false,
+  forceExpanded = false,
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isEsmeralda = isWhiteLabel || (userPlan?.startsWith("ESMERALDA") ?? false);
   const [collapsed, setCollapsed] = useState(false);
   const effectiveCollapsed = forceExpanded ? false : collapsed;
   const [openMenu, setOpenMenu] = useState<string | null>("dashboard");
+
+  // No drawer (forceExpanded), a sidebar ocupa 100% do container
+  const sidebarWidth = forceExpanded ? "100%" : (effectiveCollapsed ? 72 : 260);
+
+  // Padding e altura dos itens — maior no drawer para touch confortável
+  const itemPad = forceExpanded
+    ? "0.9rem 1.25rem"
+    : (effectiveCollapsed ? "0.7rem 0" : "0.7rem 1rem");
+  const itemMinH = forceExpanded ? 56 : undefined;
+  const subItemPad = forceExpanded ? "0.7rem 1.25rem 0.7rem 3.25rem" : "0.5rem 1rem 0.5rem 2.75rem";
+  const subItemMinH = forceExpanded ? 48 : undefined;
+
+  function handleNavigate(href: string) {
+    onNavigate?.();
+    router.push(href);
+  }
 
   function toggleMenu(id: string) {
     setOpenMenu((prev) => (prev === id ? null : id));
@@ -342,7 +371,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
     return pathname === href || pathname.startsWith(href + "/");
   }
 
-  const sidebarWidth = effectiveCollapsed ? 72 : 260;
+  const goldColor = "#C8922A";
 
   return (
     <motion.aside
@@ -360,7 +389,15 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
       }}
     >
       {/* Header */}
-      <div style={{ padding: effectiveCollapsed ? "1.25rem 0" : "1.25rem 1rem", display: "flex", alignItems: "center", justifyContent: effectiveCollapsed ? "center" : "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
+      <div style={{
+        padding: effectiveCollapsed ? "1.25rem 0" : "1.25rem 1rem",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: effectiveCollapsed ? "center" : "space-between",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        flexShrink: 0,
+        minHeight: forceExpanded ? 64 : undefined,
+      }}>
         {!effectiveCollapsed && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -409,15 +446,38 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
             </svg>
           </div>
         )}
+
+        {/* Botão fechar (X) — só no drawer mobile */}
+        {forceExpanded && (
+          <button
+            onClick={() => onNavigate?.()}
+            aria-label="Fechar menu"
+            style={{
+              background: "rgba(255,255,255,0.1)",
+              border: "none",
+              borderRadius: 8,
+              width: 36,
+              height: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "rgba(255,255,255,0.8)",
+              flexShrink: 0,
+            }}
+          >
+            <X size={18} strokeWidth={1.5} />
+          </button>
+        )}
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.75rem 0", scrollbarWidth: "none" }}>
+      <nav style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.5rem 0", scrollbarWidth: "none" }}>
         {MENU.map((group, gi) => (
           <div key={gi}>
             {group.section && !effectiveCollapsed && (
               <div style={{
-                padding: "0.875rem 1rem 0.25rem",
+                padding: forceExpanded ? "1rem 1.25rem 0.3rem" : "0.875rem 1rem 0.25rem",
                 fontSize: "0.65rem",
                 fontWeight: 700,
                 letterSpacing: "0.1em",
@@ -433,64 +493,67 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
               const hasChildren = item.children && item.children.length > 0;
               const isOpen = openMenu === item.id;
               const active = item.href ? isActive(item.href) : false;
-              const goldColor = "#C8922A";
 
               if (!hasChildren && item.href) {
                 return (
-                  <Link key={item.id} href={item.href} style={{ textDecoration: "none" }}>
-                    <motion.div
-                      whileHover={{ x: 0 }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.75rem",
-                        padding: effectiveCollapsed ? "0.7rem 0" : "0.7rem 1rem",
-                        justifyContent: effectiveCollapsed ? "center" : "flex-start",
-                        cursor: "pointer",
-                        position: "relative",
-                        background: active ? "rgba(255,255,255,0.08)" : "transparent",
-                        transition: "background 0.15s",
-                        margin: "1px 0",
-                      }}
-                      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-                      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
-                    >
-                      {active && (
-                        <motion.div
-                          layoutId="indicator"
+                  <div
+                    key={item.id}
+                    onClick={() => handleNavigate(item.href!)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleNavigate(item.href!); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                      padding: itemPad,
+                      minHeight: itemMinH,
+                      justifyContent: effectiveCollapsed ? "center" : "flex-start",
+                      cursor: "pointer",
+                      position: "relative",
+                      background: active ? "rgba(255,255,255,0.08)" : "transparent",
+                      transition: "background 0.15s",
+                      margin: "1px 0",
+                      textDecoration: "none",
+                    }}
+                    onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                    onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = active ? "rgba(255,255,255,0.08)" : "transparent"; }}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="indicator"
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: "3px",
+                          background: goldColor,
+                          borderRadius: "0 2px 2px 0",
+                        }}
+                      />
+                    )}
+                    <span style={{ color: item.isGold ? goldColor : active ? "white" : "rgba(255,255,255,0.7)", flexShrink: 0 }}>
+                      {item.icon}
+                    </span>
+                    <AnimatePresence>
+                      {!effectiveCollapsed && (
+                        <motion.span
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
                           style={{
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
-                            bottom: 0,
-                            width: "3px",
-                            background: goldColor,
-                            borderRadius: "0 2px 2px 0",
+                            color: item.isGold ? goldColor : active ? "white" : "rgba(255,255,255,0.75)",
+                            fontSize: forceExpanded ? "0.9rem" : "0.8375rem",
+                            fontWeight: active ? 600 : 400,
+                            whiteSpace: "nowrap",
                           }}
-                        />
+                        >
+                          {item.label}
+                        </motion.span>
                       )}
-                      <span style={{ color: item.isGold ? goldColor : active ? "white" : "rgba(255,255,255,0.7)", flexShrink: 0 }}>
-                        {item.icon}
-                      </span>
-                      <AnimatePresence>
-                        {!effectiveCollapsed && (
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            style={{
-                              color: item.isGold ? goldColor : active ? "white" : "rgba(255,255,255,0.75)",
-                              fontSize: "0.8375rem",
-                              fontWeight: active ? 600 : 400,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {item.label}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  </Link>
+                    </AnimatePresence>
+                  </div>
                 );
               }
 
@@ -498,12 +561,12 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                 <div key={item.id}>
                   <motion.div
                     onClick={() => !effectiveCollapsed && toggleMenu(item.id)}
-                    whileHover={{ x: 0 }}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: "0.75rem",
-                      padding: effectiveCollapsed ? "0.7rem 0" : "0.7rem 1rem",
+                      padding: itemPad,
+                      minHeight: itemMinH,
                       justifyContent: effectiveCollapsed ? "center" : "flex-start",
                       cursor: "pointer",
                       background: isOpen ? "rgba(255,255,255,0.06)" : "transparent",
@@ -511,7 +574,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                       margin: "1px 0",
                     }}
                     onMouseEnter={(e) => { if (!isOpen) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-                    onMouseLeave={(e) => { if (!isOpen) e.currentTarget.style.background = isOpen ? "rgba(255,255,255,0.06)" : "transparent"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = isOpen ? "rgba(255,255,255,0.06)" : "transparent"; }}
                   >
                     <span style={{ color: item.isGold ? goldColor : isOpen ? "white" : "rgba(255,255,255,0.7)", flexShrink: 0 }}>
                       {item.icon}
@@ -525,7 +588,7 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                           style={{
                             flex: 1,
                             color: item.isGold ? goldColor : isOpen ? "white" : "rgba(255,255,255,0.75)",
-                            fontSize: "0.8375rem",
+                            fontSize: forceExpanded ? "0.9rem" : "0.8375rem",
                             fontWeight: isOpen ? 600 : 400,
                             whiteSpace: "nowrap",
                           }}
@@ -557,36 +620,40 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
                         {item.children.map((sub) => {
                           const subActive = isActive(sub.href);
                           return (
-                            <Link key={sub.href} href={sub.href} style={{ textDecoration: "none" }}>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "0.5rem",
-                                  padding: "0.5rem 1rem 0.5rem 2.75rem",
-                                  cursor: "pointer",
-                                  background: subActive ? "rgba(200,146,42,0.1)" : "transparent",
-                                  transition: "background 0.15s",
-                                }}
-                                onMouseEnter={(e) => { if (!subActive) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                                onMouseLeave={(e) => { if (!subActive) e.currentTarget.style.background = "transparent"; }}
-                              >
-                                {subActive && (
-                                  <div style={{
-                                    width: "5px", height: "5px", borderRadius: "50%",
-                                    background: "#C8922A", flexShrink: 0,
-                                  }} />
-                                )}
-                                {!subActive && <div style={{ width: "5px", flexShrink: 0 }} />}
-                                <span style={{
-                                  color: subActive ? "#C8922A" : "rgba(255,255,255,0.6)",
-                                  fontSize: "0.8rem",
-                                  fontWeight: subActive ? 500 : 400,
-                                }}>
-                                  {sub.label}
-                                </span>
-                              </div>
-                            </Link>
+                            <div
+                              key={sub.href}
+                              onClick={() => handleNavigate(sub.href)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleNavigate(sub.href); }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                padding: subItemPad,
+                                minHeight: subItemMinH,
+                                cursor: "pointer",
+                                background: subActive ? "rgba(200,146,42,0.1)" : "transparent",
+                                transition: "background 0.15s",
+                              }}
+                              onMouseEnter={(e) => { if (!subActive) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                              onMouseLeave={(e) => { if (!subActive) e.currentTarget.style.background = "transparent"; }}
+                            >
+                              {subActive && (
+                                <div style={{
+                                  width: "5px", height: "5px", borderRadius: "50%",
+                                  background: "#C8922A", flexShrink: 0,
+                                }} />
+                              )}
+                              {!subActive && <div style={{ width: "5px", flexShrink: 0 }} />}
+                              <span style={{
+                                color: subActive ? "#C8922A" : "rgba(255,255,255,0.6)",
+                                fontSize: forceExpanded ? "0.875rem" : "0.8rem",
+                                fontWeight: subActive ? 500 : 400,
+                              }}>
+                                {sub.label}
+                              </span>
+                            </div>
                           );
                         })}
                       </motion.div>
@@ -629,26 +696,29 @@ export function Sidebar({ tenantName = "Igreja Firmes", userName = "Administrado
             </button>
           </div>
         )}
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          style={{
-            width: "100%",
-            background: "rgba(255,255,255,0.06)",
-            border: "none",
-            borderRadius: "6px",
-            padding: "0.45rem",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "rgba(255,255,255,0.5)",
-            transition: "background 0.15s",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
-        >
-          {effectiveCollapsed ? <ChevronRight size={16} strokeWidth={1.5} /> : <ChevronLeft size={16} strokeWidth={1.5} />}
-        </button>
+        {/* Botão colapsar — só no desktop */}
+        {!forceExpanded && (
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            style={{
+              width: "100%",
+              background: "rgba(255,255,255,0.06)",
+              border: "none",
+              borderRadius: "6px",
+              padding: "0.45rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "rgba(255,255,255,0.5)",
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+          >
+            {effectiveCollapsed ? <ChevronRight size={16} strokeWidth={1.5} /> : <ChevronLeft size={16} strokeWidth={1.5} />}
+          </button>
+        )}
       </div>
     </motion.aside>
   );

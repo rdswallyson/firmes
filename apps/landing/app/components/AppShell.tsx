@@ -142,11 +142,13 @@ export function AppShell({
             position: "fixed",
             top: 0,
             left: 0,
+            width: "100vw",
             height: "100vh",
             zIndex: 300,
             transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
             transition: "transform 0.28s cubic-bezier(.4,0,.2,1)",
             flexDirection: "column",
+            pointerEvents: drawerOpen ? "auto" : "none",
           }}
         >
           <Sidebar
@@ -157,6 +159,7 @@ export function AppShell({
             userPlan={userPlan}
             isWhiteLabel={isWhiteLabel}
             forceExpanded
+            onNavigate={() => setDrawerOpen(false)}
           />
         </div>
 

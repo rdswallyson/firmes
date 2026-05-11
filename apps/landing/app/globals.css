@@ -132,6 +132,9 @@ input, textarea, select {
   }
   .page-header h1 { font-size: 1.2rem !important; }
 
+  /* Título de boas-vindas do Dashboard */
+  .dashboard-greeting { font-size: 1.2rem !important; }
+
   /* Tabelas → scroll horizontal ou card layout */
   .responsive-table thead { display: none; }
   .responsive-table tbody tr {
