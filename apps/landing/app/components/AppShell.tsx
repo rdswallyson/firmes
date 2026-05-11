@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Sidebar } from "./Sidebar";
-import { MobileHeader, DrawerOverlay } from "./MobileHeader";
+import { MobileHeader } from "./MobileHeader";
+// DrawerOverlay foi movido para dentro do AppShell (div.app-drawer-overlay)
 import { usePathname } from "next/navigation";
 import { SkeletonStyles } from "./Skeleton";
 
@@ -26,61 +27,109 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
-
-  // Detectar breakpoint
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   // Fechar drawer ao navegar
   useEffect(() => {
     setDrawerOpen(false);
   }, [pathname]);
 
-  // Swipe para fechar
+  // Bloquear scroll do body quando drawer aberto
+  useEffect(() => {
+    document.body.style.overflow = drawerOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [drawerOpen]);
+
+  // Swipe para abrir (da esquerda) e fechar (para a esquerda)
   const touchStartX = useRef<number | null>(null);
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     touchStartX.current = e.touches[0]?.clientX ?? 0;
+    touchStartY.current = e.touches[0]?.clientY ?? 0;
   }, []);
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
     if (touchStartX.current === null) return;
-    const dx = touchStartX.current - (e.changedTouches[0]?.clientX ?? 0);
-    if (dx > 60) setDrawerOpen(false); // swipe esquerda = fechar
+    const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current;
+    const dy = Math.abs((e.changedTouches[0]?.clientY ?? 0) - (touchStartY.current ?? 0));
+    // Só processar swipes horizontais (dy < 40)
+    if (dy < 40) {
+      if (!drawerOpen && dx > 60 && (touchStartX.current ?? 0) < 40) {
+        setDrawerOpen(true); // swipe direita da borda = abrir
+      }
+      if (drawerOpen && dx < -60) {
+        setDrawerOpen(false); // swipe esquerda = fechar
+      }
+    }
     touchStartX.current = null;
-  }, []);
+    touchStartY.current = null;
+  }, [drawerOpen]);
+
+  useEffect(() => {
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchend", handleTouchEnd, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [handleTouchStart, handleTouchEnd]);
 
   return (
     <>
       <SkeletonStyles />
 
-      {/* CSS responsivo via style tag */}
       <style>{`
-        .app-main {
-          flex: 1;
-          overflow-y: auto;
-          background: #F5F0EB;
-          min-height: 100vh;
+        /* ── Layout base ─────────────────────────── */
+        .app-root { display: flex; height: 100vh; overflow: hidden; }
+
+        .app-sidebar-desktop { display: flex; flex-shrink: 0; }
+        .app-mobile-header   { display: none; position: sticky; top: 0; z-index: 200; }
+        .app-content-wrap    { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+        .app-main            { flex: 1; overflow-y: auto; overflow-x: hidden; background: #F5F0EB; }
+
+        /* Drawer overlay */
+        .app-drawer-overlay {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.55);
+          z-index: 399;
+          opacity: 0;
+          transition: opacity 0.25s ease;
         }
+        .app-drawer-overlay.open {
+          opacity: 1;
+        }
+
+        /* Drawer container */
+        .app-mobile-drawer {
+          display: none;
+          position: fixed;
+          top: 0; left: 0;
+          height: 100vh;
+          width: 80vw;
+          max-width: 300px;
+          z-index: 400;
+          transform: translateX(-100%);
+          transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+          flex-direction: column;
+          box-shadow: 4px 0 32px rgba(0,0,0,0.3);
+        }
+        .app-mobile-drawer.open {
+          transform: translateX(0);
+        }
+
+        /* ── Mobile (<768px) ─────────────────────── */
         @media (max-width: 767px) {
-          .app-main {
-            padding-top: 0;
-          }
           .app-sidebar-desktop { display: none !important; }
           .app-mobile-header   { display: flex !important; }
           .app-mobile-drawer   { display: flex !important; }
+          .app-drawer-overlay  { display: block !important; }
+          .app-main            { padding-top: 0; }
         }
-        @media (min-width: 768px) {
-          .app-mobile-header { display: none !important; }
-          .app-mobile-drawer { display: none !important; }
-          .app-sidebar-desktop { display: flex !important; }
-        }
-        /* Tables → cards no mobile */
+
+        /* ── Responsive tables → cards ───────────── */
         @media (max-width: 767px) {
           .responsive-table thead { display: none; }
           .responsive-table tbody tr {
@@ -95,9 +144,10 @@ export function AppShell({
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
-            border: none;
-            font-size: 13px;
+            padding: 5px 0;
+            border: none !important;
+            font-size: 14px;
+            min-height: 0;
           }
           .responsive-table tbody td::before {
             content: attr(data-label);
@@ -105,19 +155,14 @@ export function AppShell({
             color: #6B7280;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+            margin-right: 8px;
           }
         }
-        /* Grid responsivo */
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-        @media (max-width: 1023px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 767px)  { .grid-4 { grid-template-columns: 1fr; } }
-
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        @media (max-width: 767px) { .grid-2 { grid-template-columns: 1fr; } }
       `}</style>
 
-      <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      <div className="app-root">
         {/* Sidebar desktop */}
         <div className="app-sidebar-desktop">
           <Sidebar
@@ -130,27 +175,15 @@ export function AppShell({
           />
         </div>
 
-        {/* Overlay quando drawer aberto */}
-        {drawerOpen && isMobile && <DrawerOverlay onClose={() => setDrawerOpen(false)} />}
+        {/* Overlay do drawer */}
+        <div
+          className={`app-drawer-overlay${drawerOpen ? " open" : ""}`}
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden="true"
+        />
 
         {/* Drawer mobile */}
-        <div
-          className="app-mobile-drawer"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            zIndex: 300,
-            transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
-            transition: "transform 0.28s cubic-bezier(.4,0,.2,1)",
-            flexDirection: "column",
-            pointerEvents: drawerOpen ? "auto" : "none",
-          }}
-        >
+        <div className={`app-mobile-drawer${drawerOpen ? " open" : ""}`}>
           <Sidebar
             tenantName={tenantName}
             userName={userName}
@@ -164,9 +197,9 @@ export function AppShell({
         </div>
 
         {/* Conteúdo principal */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
-          {/* Header mobile */}
-          <div className="app-mobile-header" style={{ display: "none" }}>
+        <div className="app-content-wrap">
+          {/* Header mobile — sticky 56px */}
+          <div className="app-mobile-header">
             <MobileHeader
               tenantName={tenantName}
               onMenuOpen={() => setDrawerOpen(true)}

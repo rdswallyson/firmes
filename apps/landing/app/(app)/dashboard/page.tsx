@@ -323,13 +323,13 @@ export default function DashboardPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}
         className="dashboard-banner"
         style={{ background: "linear-gradient(135deg, #0D2545 0%, #1A3C6E 60%, #1E4A84 100%)", borderRadius: 12, padding: "1.5rem 2rem", boxShadow: "0 4px 16px rgba(26,60,110,0.2)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", color: "white", marginBottom: "1.5rem", flexWrap: "wrap", minHeight: 120 }}>
-        <div style={{ flex: "0 0 auto", marginRight: "0.5rem" }}>
+        <div className="banner-left" style={{ flex: "0 0 auto", marginRight: "0.5rem" }}>
           <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 4, fontWeight: 600 }}>Proximo Culto</div>
           <div style={{ fontSize: "1.2rem", fontWeight: 700 }}>Culto de Domingo</div>
           <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 2 }}>
             {nextCulto.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })} - 19h00
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
+          <div className="banner-countdown" style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
             <CountdownTimer targetDate={nextCulto} />
             <button onClick={() => window.location.href = "/eventos/checkin"} style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
               <ScanLine size={15} strokeWidth={1.5} /> Abrir check-in
@@ -350,13 +350,13 @@ export default function DashboardPage() {
             <LinkIcon size={15} strokeWidth={1.5} color="#1A3C6E" />
             <h3 style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Links para Compartilhar</h3>
           </div>
-          <div style={{ display: "flex", flexDirection: "row", gap: "0.75rem", overflowX: "auto", paddingBottom: "0.25rem" }}>
+          <div className="links-row">
             {publicLinks.map((link, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.5rem 0.75rem", borderRadius: 8, background: "#FAFAFA", border: "1px solid #F3F4F6", flexShrink: 0, minWidth: 280 }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.5rem 0.75rem", borderRadius: 8, background: "#FAFAFA", border: "1px solid #F3F4F6", minWidth: 0, flex: "1 1 260px" }}>
                 {link.icon}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#111827" }}>{link.label}</div>
-                  <div style={{ fontSize: "0.7rem", color: "#9CA3AF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }}>{link.url}</div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.label}</div>
+                  <div style={{ fontSize: "0.7rem", color: "#9CA3AF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.url}</div>
                 </div>
                 <CopyButton text={link.url} />
               </div>

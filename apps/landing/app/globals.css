@@ -12,9 +12,9 @@ html, body {
   overflow-x: hidden;
   background: #F5F0EB;
   font-family: var(--font-nunito), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Prevenir zoom no iOS ao focar inputs */
   -webkit-text-size-adjust: 100%;
 }
 
@@ -32,20 +32,28 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── Touch targets mínimo 44px ─────────────────────────────── */
-button, a, [role="button"], input[type="submit"], input[type="button"] {
+button, a[role="button"], [role="button"],
+input[type="submit"], input[type="button"],
+input[type="reset"] {
   min-height: 44px;
-  min-width: 44px;
 }
-/* Exceção: badges e spans decorativos */
-.badge, .chip { min-height: unset; min-width: unset; }
+/* Exceção: badges, chips e ícones decorativos */
+.badge, .chip, .icon-btn-sm { min-height: unset !important; min-width: unset !important; }
 
-/* ── Inputs mobile — sem zoom no iOS ──────────────────────── */
+/* ── Inputs mobile — previne zoom iOS ────────────────────── */
 input, textarea, select {
-  font-size: 16px !important; /* iOS zoom ao focar */
+  font-size: 16px !important;
   font-family: inherit;
 }
 
-/* ── Layout grid utilities ────────────────────────────────── */
+/* ── Texto mínimo 14px em todo o sistema ─────────────────── */
+body, p, li, td, th, span, div, label {
+  font-size: inherit;
+}
+
+/* ══════════════════════════════════════════════════════════
+   GRID UTILITIES
+   ══════════════════════════════════════════════════════════ */
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -80,6 +88,15 @@ input, textarea, select {
   padding: 1.75rem 2rem;
 }
 
+/* ── Page header (título + botão) ─────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
 /* ── Form grid ─────────────────────────────────────────────── */
 .form-grid {
   display: grid;
@@ -96,53 +113,60 @@ input, textarea, select {
 .links-row {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 4px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.links-row::-webkit-scrollbar { height: 3px; }
 
 /* ══════════════════════════════════════════════════════════
    TABLET  768–1023px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 1023px) {
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-4     { grid-template-columns: repeat(2, 1fr); }
+  .grid-3     { grid-template-columns: repeat(2, 1fr); }
   .form-grid-3 { grid-template-columns: repeat(2, 1fr); }
-  .page-pad { padding: 1.25rem 1.25rem; }
+  .page-pad   { padding: 1.25rem 1.25rem; }
 }
 
 /* ══════════════════════════════════════════════════════════
    MOBILE  < 768px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
-  /* Grids */
-  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-  .form-grid, .form-grid-3  { grid-template-columns: 1fr; }
 
-  /* Padding de página */
-  .page-pad { padding: 16px; }
+  /* ── Base ─────────────────────────────────────────────── */
+  body { font-size: 14px; }
 
-  /* Cabeçalhos de página (título + botão) */
+  /* ── Grids ────────────────────────────────────────────── */
+  .grid-4                  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grid-3                  { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grid-2                  { grid-template-columns: 1fr; }
+  .form-grid, .form-grid-3 { grid-template-columns: 1fr; gap: 12px; }
+
+  /* ── Padding de página ────────────────────────────────── */
+  .page-pad { padding: 16px 16px 32px; }
+
+  /* ── Cabeçalho de página ──────────────────────────────── */
   .page-header {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
   }
-  .page-header h1 { font-size: 1.2rem !important; }
+  .page-header h1,
+  .page-header h2 {
+    font-size: 1.15rem !important;
+    font-weight: 700;
+    line-height: 1.3;
+  }
 
-  /* Título de boas-vindas do Dashboard */
-  .dashboard-greeting { font-size: 1.2rem !important; }
+  /* ── Título de boas-vindas do Dashboard ──────────────── */
+  .dashboard-greeting { font-size: 1.25rem !important; }
 
-  /* Tabelas → scroll horizontal ou card layout */
+  /* ── Tabelas → cards ──────────────────────────────────── */
   .responsive-table thead { display: none; }
   .responsive-table tbody tr {
     display: block;
     margin-bottom: 12px;
     border: 1px solid #E5E7EB;
     border-radius: 12px;
-    padding: 12px 16px;
+    padding: 12px 14px;
     background: #fff;
     box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   }
@@ -166,55 +190,59 @@ input, textarea, select {
     margin-right: 8px;
   }
 
-  /* Modais fullscreen no mobile */
-  .modal-overlay {
-    align-items: flex-end !important;
-  }
+  /* ── Modais bottom-sheet ──────────────────────────────── */
+  .modal-overlay { align-items: flex-end !important; }
   .modal-content {
     border-radius: 20px 20px 0 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 90vh;
+    max-height: 88vh;
     overflow-y: auto;
+    padding: 20px 16px 32px !important;
   }
 
-  /* Cards de stat */
-  .stat-card {
-    padding: 14px 16px !important;
-  }
-  .stat-card .stat-value { font-size: 1.4rem !important; }
-
-  /* Botões de ação — full width no mobile */
+  /* ── Botões de ação ───────────────────────────────────── */
   .btn-action-row {
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: column !important;
+    gap: 8px !important;
   }
   .btn-action-row button,
   .btn-action-row a {
-    width: 100%;
-    justify-content: center;
+    width: 100% !important;
+    justify-content: center !important;
   }
 
-  /* Abas (tabs) — scroll horizontal */
+  /* ── Abas (tabs) — scroll horizontal ─────────────────── */
   .tabs-row {
-    overflow-x: auto;
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap !important;
-    gap: 4px;
-    padding-bottom: 2px;
+    gap: 4px !important;
+    padding-bottom: 4px;
+    scrollbar-width: none;
   }
-  .tabs-row::-webkit-scrollbar { height: 2px; }
+  .tabs-row::-webkit-scrollbar { display: none; }
+  .tabs-row button { flex-shrink: 0; font-size: 13px !important; }
 
-  /* Carrossel do dashboard */
-  .dashboard-carousel {
-    min-height: 120px !important;
-  }
-
-  /* Banner de culto */
+  /* ── Dashboard — Banner Culto ─────────────────────────── */
   .dashboard-banner {
     flex-direction: column !important;
-    gap: 1rem !important;
-    padding: 1.125rem 1rem !important;
+    padding: 1rem !important;
+    gap: 0.875rem !important;
+    min-height: unset !important;
+  }
+  .dashboard-banner .banner-left {
+    width: 100%;
+  }
+  .dashboard-banner .banner-countdown {
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+  .dashboard-banner .banner-countdown > div {
+    min-width: 42px !important;
+  }
+  .dashboard-banner .banner-countdown .countdown-num {
+    font-size: 1.5rem !important;
   }
   .dashboard-banner .banner-carousel {
     border-left: none !important;
@@ -224,49 +252,52 @@ input, textarea, select {
     padding-top: 0.75rem;
     width: 100% !important;
   }
-  .dashboard-banner .banner-countdown {
-    font-size: 1.6rem !important;
-  }
 
-  /* Linhas de gráfico/lista — empilhar no mobile */
+  /* ── Dashboard — Linhas de gráfico/lista ──────────────── */
   .dashboard-main-row {
     flex-direction: column !important;
+    gap: 12px !important;
   }
   .dashboard-main-row > * {
     flex: 1 1 100% !important;
     min-width: 0 !important;
+    width: 100% !important;
   }
 
-  /* Sidebar drawer ocupa largura total */
-  .sidebar-drawer {
-    width: 100vw !important;
-    max-width: 300px;
+  /* ── Dashboard — Links para compartilhar ─────────────── */
+  .links-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow-x: unset !important;
   }
+  .links-row > * { width: 100% !important; }
 
-  /* Formulários — inputs full width */
-  .form-row { flex-direction: column !important; }
+  /* ── Formulários ──────────────────────────────────────── */
+  .form-row { flex-direction: column !important; gap: 12px !important; }
   .form-row > * { width: 100% !important; }
 
-  /* Texto truncate em mobile */
+  /* ── Utilitários ──────────────────────────────────────── */
+  .hide-mobile     { display: none !important; }
+  .show-mobile     { display: flex !important; }
+  .action-btn-text { display: none; }
+
+  /* Sem scroll horizontal na página */
+  .app-main        { overflow-x: hidden !important; }
+
+  /* Texto truncado */
   .mobile-truncate {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
+    max-width: 160px;
   }
-
-  /* Ocultar colunas secundárias no mobile */
-  .hide-mobile { display: none !important; }
-
-  /* Ações de tabela — ícone apenas */
-  .action-btn-text { display: none; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   DARK MODE (respeitar preferência do sistema)
+   DARK MODE
    ══════════════════════════════════════════════════════════ */
 @media (prefers-color-scheme: dark) {
-  /* Por ora manter light — implementar dark mode futuramente */
+  /* Manter light por enquanto */
 }
 
 /* ══════════════════════════════════════════════════════════
