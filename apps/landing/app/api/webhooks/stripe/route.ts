@@ -25,6 +25,14 @@ function buildPlanConfig(): Record<string, { plan: string; maxChurches: number }
   return config;
 }
 
+async function logAudit(action: string, targetId: string, details: string) {
+  try {
+    await prisma.auditLog.create({ data: { action, targetId, details } });
+  } catch (e) {
+    console.error("[AuditLog]", e);
+  }
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = request.headers.get("stripe-signature") as string;
@@ -53,7 +61,6 @@ export async function POST(request: NextRequest) {
         const subscriptionId = session.subscription as string;
         const priceId = session.metadata?.priceId || "";
         
-        // Find tenant by stripe customer id
         const tenant = await prisma.tenant.findFirst({
           where: { stripeCustomerId: customerId },
         });
@@ -70,6 +77,7 @@ export async function POST(request: NextRequest) {
               trialEndsAt: null,
             },
           });
+          await logAudit("SUBSCRIPTION_CREATED", tenant.id, `Novo pagamento: ${PLAN_CONFIG[priceId].plan}`);
         }
         break;
       }
@@ -77,7 +85,6 @@ export async function POST(request: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
-        const priceId = subscription.items.data[0]?.price.id;
         
         const tenant = await prisma.tenant.findFirst({
           where: { stripeCustomerId: customerId },
@@ -98,6 +105,7 @@ export async function POST(request: NextRequest) {
               }),
             },
           });
+          await logAudit("SUBSCRIPTION_UPDATED", tenant.id, `Status: ${status}`);
         }
         break;
       }
@@ -121,6 +129,7 @@ export async function POST(request: NextRequest) {
               stripePriceId: null,
             },
           });
+          await logAudit("SUBSCRIPTION_CANCELLED", tenant.id, "Cliente cancelou a assinatura");
         }
         break;
       }
@@ -143,6 +152,9 @@ export async function POST(request: NextRequest) {
                 isActive: false,
               },
             });
+            await logAudit("TENANT_SUSPENDED", tenant.id, `Pagamento falhou ${attemptCount}x — tenant suspenso`);
+          } else {
+            await logAudit("PAYMENT_FAILED", tenant.id, `Tentativa ${attemptCount} falhou`);
           }
         }
         break;
