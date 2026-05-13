@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Shield, ArrowLeft, TrendingUp, AlertTriangle, CheckCircle, Clock, XCircle, Users } from "lucide-react";
+import { SuperAdminShell } from "../../components/SuperAdminShell";
+import { TrendingUp, AlertTriangle, CheckCircle, Clock, XCircle, Users } from "lucide-react";
 
 const NAVY = "#1A3C6E";
 
@@ -58,20 +59,16 @@ export default function MetricasPage() {
     a.click();
   };
 
-  if (loading) return <div style={{ padding: 60, textAlign: "center", color: "#9CA3AF" }}>Carregando...</div>;
+  if (loading) return (
+    <SuperAdminShell>
+      <div style={{ padding: 60, textAlign: "center", color: "#9CA3AF" }}>Carregando...</div>
+    </SuperAdminShell>
+  );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F0EB" }}>
-      <header style={{ background: NAVY, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Shield size={22} strokeWidth={1.5} />
-          <span style={{ fontSize: 16, fontWeight: 700 }}>FIRMES Super Admin</span>
-        </div>
-        <button onClick={logout} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Sair</button>
-      </header>
-
+    <SuperAdminShell>
       <div style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}>
-        <Link href="/superadmin" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: NAVY, fontSize: 14, fontWeight: 600, textDecoration: "none", marginBottom: 16 }}><ArrowLeft size={16} /> Dashboard</Link>
+        <Link href="/superadmin/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: NAVY, fontSize: 14, fontWeight: 600, textDecoration: "none", marginBottom: 16 }}>← Dashboard</Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#0D2545" }}>Metricas de Engajamento</h1>
           <button onClick={exportCSV} style={{ padding: "8px 16px", background: NAVY, color: "#fff", borderRadius: 8, border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Exportar CSV</button>
@@ -119,6 +116,6 @@ export default function MetricasPage() {
           </div>
         </div>
       </div>
-    </div>
+    </SuperAdminShell>
   );
 }

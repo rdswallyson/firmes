@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Shield, Users, Building2, Church, UserCheck, CalendarDays, TrendingUp, AlertTriangle, Clock, LogOut, Crown, Gem, Diamond, CircleDollarSign } from "lucide-react";
+import { SuperAdminShell } from "../../components/SuperAdminShell";
+import { Building2, TrendingUp, Users, UserCheck, AlertTriangle, Clock, Gem, Crown, Diamond, CircleDollarSign } from "lucide-react";
 
 const NAVY = "#1A3C6E";
 const GOLD = "#C8922A";
@@ -75,16 +76,15 @@ export default function SuperAdminDashboard() {
   };
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F5F0EB" }}>
-      <div style={{ width: 40, height: 40, border: `3px solid ${NAVY}20`, borderTopColor: NAVY, borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-    </div>
+    <SuperAdminShell>
+      <div style={{ padding: 60, textAlign: "center", color: "#9CA3AF" }}>Carregando...</div>
+    </SuperAdminShell>
   );
 
   if (error) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F5F0EB", flexDirection: "column", gap: 16 }}>
-      <div style={{ background: "#FEE2E2", color: "#DC2626", padding: "16px 24px", borderRadius: 12, fontWeight: 600 }}>{error}</div>
-      <Link href="/superadmin" style={{ color: NAVY, fontWeight: 700, textDecoration: "none" }}>Voltar para login</Link>
-    </div>
+    <SuperAdminShell>
+      <div style={{ padding: 60, textAlign: "center", color: "#DC2626", fontWeight: 600 }}>{error}</div>
+    </SuperAdminShell>
   );
 
   if (!data) return null;
@@ -99,17 +99,7 @@ export default function SuperAdminDashboard() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F0EB" }}>
-      <header style={{ background: NAVY, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Shield size={22} strokeWidth={1.5} />
-          <span style={{ fontSize: 16, fontWeight: 700 }}>FIRMES Super Admin</span>
-        </div>
-        <button onClick={logout} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-          <LogOut size={14} /> Sair
-        </button>
-      </header>
-
+    <SuperAdminShell>
       <div style={{ padding: "24px", maxWidth: 1400, margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 24 }}>
           {statCards.map((card, i) => (
@@ -206,6 +196,6 @@ export default function SuperAdminDashboard() {
           </Link>
         </div>
       </div>
-    </div>
+    </SuperAdminShell>
   );
 }

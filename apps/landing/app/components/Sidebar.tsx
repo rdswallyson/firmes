@@ -312,7 +312,7 @@ const MENU: SectionGroup[] = [
         label: "Super Admin",
         icon: <Shield size={18} strokeWidth={1.5} />,
         isGold: true,
-        href: "/super-admin",
+        href: "/superadmin",
       },
     ],
   },

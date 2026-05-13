@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Shield, Building2, Search, Filter, ArrowLeft, Eye, Power, PowerOff, Trash2, Crown, Gem, Diamond, CircleDollarSign } from "lucide-react";
+import { SuperAdminShell } from "../../components/SuperAdminShell";
+import { Building2, Search, Eye, Power, PowerOff, Trash2, Crown, Gem, Diamond, CircleDollarSign } from "lucide-react";
 
 const NAVY = "#1A3C6E";
 const ESMERALDA = "#DC2626";
@@ -78,17 +79,9 @@ export default function SuperAdminClientesPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F0EB" }}>
-      <header style={{ background: NAVY, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Shield size={22} strokeWidth={1.5} />
-          <span style={{ fontSize: 16, fontWeight: 700 }}>FIRMES Super Admin</span>
-        </div>
-        <button onClick={logout} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Sair</button>
-      </header>
-
+    <SuperAdminShell>
       <div style={{ padding: "24px", maxWidth: 1400, margin: "0 auto" }}>
-        <Link href="/superadmin" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: NAVY, fontSize: 14, fontWeight: 600, textDecoration: "none", marginBottom: 16 }}><ArrowLeft size={16} /> Dashboard</Link>
+        <Link href="/superadmin/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: NAVY, fontSize: 14, fontWeight: 600, textDecoration: "none", marginBottom: 16 }}>← Dashboard</Link>
         <h1 style={{ margin: "0 0 20px", fontSize: 22, fontWeight: 800, color: "#0D2545" }}>Clientes</h1>
 
         {/* Filtros */}
@@ -165,6 +158,6 @@ export default function SuperAdminClientesPage() {
           </div>
         </div>
       </div>
-    </div>
+    </SuperAdminShell>
   );
 }
