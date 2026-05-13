@@ -47,7 +47,7 @@ export async function proxy(req: NextRequest) {
 
   // ── Super Admin routes ─────────────────────────────────
   if (pathname.startsWith("/superadmin/") || pathname.startsWith("/api/superadmin/")) {
-    if (pathname === "/api/superadmin/login") return NextResponse.next();
+    if (pathname === "/api/superadmin/login" || pathname === "/superadmin") return NextResponse.next();
     const token = req.cookies.get("superadmin_session")?.value;
     if (!token || !(await verifySuperAdmin(token))) {
       if (pathname.startsWith("/api/")) {
