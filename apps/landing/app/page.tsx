@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { FirmesLogo, FirmesLogoFull } from "./components/landing/FirmesLogo";
 import { ParticleBackground } from "./components/landing/ParticleBackground";
 import { AnimatedCounter } from "./components/landing/AnimatedCounter";
 import { FAQSection } from "./components/landing/FAQSection";
 import {
   Users, Building2, Wallet, CalendarDays, Megaphone, BookOpen, Landmark, Palette,
-  Check, ArrowRight, Shield, Gem, Menu, X, MessageCircle
+  Check, ArrowRight, Gem, Menu, X, MessageCircle, Shield, TrendingUp
 } from "lucide-react";
 
 const NAVY = "#1A3C6E";
@@ -27,10 +28,10 @@ const FEATURES = [
 ];
 
 const CHURCH_PLANS = [
-  { name: "Gratuito", price: 0, yearlyPrice: 0, features: ["Até 50 membros", "1 usuário", "Módulo Pessoas", "Relatórios básicos", "Suporte por email"], popular: false },
-  { name: "Prata", price: 49, yearlyPrice: 490, features: ["Membros ilimitados", "3 usuários", "Todos os módulos", "Financeiro completo", "Suporte prioritário"], popular: false },
-  { name: "Ouro", price: 99, yearlyPrice: 990, features: ["Membros ilimitados", "10 usuários", "Todos os módulos", "White Label básico", "Suporte 24h"], popular: true },
-  { name: "Diamante", price: 199, yearlyPrice: 1990, features: ["Membros ilimitados", "Usuários ilimitados", "Todos os módulos", "White Label completo", "API + Integrações"], popular: false },
+  { name: "Gratuito", price: 0, features: ["Até 50 membros", "1 usuário", "Módulo Pessoas", "Relatórios básicos", "Suporte por email"], popular: false },
+  { name: "Prata", price: 49, features: ["Membros ilimitados", "3 usuários", "Todos os módulos", "Financeiro completo", "Suporte prioritário"], popular: false },
+  { name: "Ouro", price: 99, features: ["Membros ilimitados", "10 usuários", "Todos os módulos", "White Label básico", "Suporte 24h"], popular: true },
+  { name: "Diamante", price: 199, features: ["Membros ilimitados", "Usuários ilimitados", "Todos os módulos", "White Label completo", "API + Integrações"], popular: false },
 ];
 
 const RESELLER_PLANS = [
@@ -44,9 +45,11 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  if (typeof window !== "undefined") {
-    window.addEventListener("scroll", () => setScrolled(window.scrollY > 50));
-  }
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { label: "Funcionalidades", href: "#features" },
@@ -56,40 +59,54 @@ function Navbar() {
   ];
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        padding: "16px 24px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        transition: "all 0.3s",
-        background: scrolled ? "rgba(26,60,110,0.95)" : "transparent",
-        backdropFilter: scrolled ? "blur(10px)" : "none",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Shield size={24} color="#fff" strokeWidth={1.5} />
-        <span style={{ fontSize: 20, fontWeight: 800, color: "#fff" }}>FIRMES</span>
-      </div>
+    <>
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          padding: "16px 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          transition: "all 0.3s",
+          background: scrolled ? "rgba(26,60,110,0.95)" : "transparent",
+          backdropFilter: scrolled ? "blur(10px)" : "none",
+        }}
+      >
+        <FirmesLogoFull height={28} color="#fff" />
 
-      <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
-        {navLinks.map(link => (
-          <a key={link.href} href={link.href} style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 14, fontWeight: 600, transition: "color 0.2s" }}>
-            {link.label}
-          </a>
-        ))}
-        <Link href="/login" style={{ padding: "8px 16px", background: "#fff", color: NAVY, borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>Entrar</Link>
-      </div>
+        <div style={{ display: "flex", gap: 28, alignItems: "center" }} className="hide-mobile">
+          {navLinks.map(link => (
+            <a key={link.href} href={link.href} style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
+              {link.label}
+            </a>
+          ))}
+          <Link href="/login" style={{ padding: "8px 16px", background: "#fff", color: NAVY, borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
+            Entrar
+          </Link>
+        </div>
 
-      <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: "none", background: "none", border: "none", color: "#fff", cursor: "pointer" }}>
-        {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-    </nav>
+        <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: "none", background: "none", border: "none", color: "#fff", cursor: "pointer" }} className="show-mobile">
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </nav>
+
+      {mobileOpen && (
+        <div style={{ position: "fixed", top: 60, left: 0, right: 0, background: NAVY, zIndex: 99, padding: "16px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {navLinks.map(link => (
+            <a key={link.href} href={link.href} onClick={() => setMobileOpen(false)} style={{ color: "#fff", textDecoration: "none", fontSize: 16, fontWeight: 600, padding: "8px 0" }}>
+              {link.label}
+            </a>
+          ))}
+          <Link href="/login" onClick={() => setMobileOpen(false)} style={{ padding: "10px 16px", background: "#fff", color: NAVY, borderRadius: 8, fontSize: 14, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
+            Entrar
+          </Link>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -102,7 +119,6 @@ function HeroSection() {
         minHeight: "100vh",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
         overflow: "hidden",
         background: "linear-gradient(135deg, #1A3C6E 0%, #0D2545 50%, #1A3C6E 100%)",
         backgroundSize: "400% 400%",
@@ -123,90 +139,123 @@ function HeroSection() {
 
       <ParticleBackground />
 
-      <div style={{ position: "relative", zIndex: 2, textAlign: "center", maxWidth: 900, padding: "0 24px" }}>
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, color: "#fff", marginBottom: 16, lineHeight: 1.2 }}
-        >
-          Gerencie sua igreja com
-          <br />
-          <span style={{ color: GOLD }}>tecnologia moderna</span>
-        </motion.h1>
+      <div style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1200, margin: "0 auto", padding: "120px 24px 60px", display: "flex", alignItems: "center", gap: 60, flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 400px", minWidth: 0 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "rgba(255,255,255,0.1)", borderRadius: 20, marginBottom: 20 }}
+          >
+            <Shield size={14} color={GOLD} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>Sistema completo para igrejas</span>
+          </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          style={{ fontSize: "clamp(1rem, 2vw, 1.25rem)", color: "rgba(255,255,255,0.8)", marginBottom: 32, lineHeight: 1.6 }}
->
-          Controle membros, finanças, grupos e eventos em um só lugar.
-          <br />
-          Plano gratuito para sempre. Sem cartão de crédito.
-        </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 800, color: "#fff", marginBottom: 20, lineHeight: 1.15 }}
+          >
+            Gerencie sua igreja com{" "}
+            <span style={{ color: GOLD }}>tecnologia moderna</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            style={{ fontSize: "clamp(1rem, 1.5vw, 1.15rem)", color: "rgba(255,255,255,0.75)", marginBottom: 32, lineHeight: 1.6, maxWidth: 480 }}
+          >
+            Controle membros, finanças, grupos e eventos em um só lugar. Plano gratuito para sempre. Sem cartão de crédito.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
+          >
+            <Link
+              href="/login"
+              style={{
+                padding: "14px 28px",
+                background: GOLD,
+                color: "#fff",
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 700,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              Começar grátis <ArrowRight size={18} />
+            </Link>
+            <a
+              href="#features"
+              style={{
+                padding: "14px 28px",
+                background: "rgba(255,255,255,0.1)",
+                color: "#fff",
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 700,
+                textDecoration: "none",
+                border: "1px solid rgba(255,255,255,0.2)",
+              }}
+            >
+              Ver funcionalidades
+            </a>
+          </motion.div>
+        </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}
->
-          <Link
-            href="/cadastro"
-            style={{
-              padding: "14px 32px",
-              background: GOLD,
-              color: "#fff",
-              borderRadius: 12,
-              fontSize: 16,
-              fontWeight: 700,
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            Começar grátis <ArrowRight size={18} />
-          </Link>
-          <a
-            href="#demo"
-            style={{
-              padding: "14px 32px",
-              background: "rgba(255,255,255,0.1)",
-              color: "#fff",
-              borderRadius: 12,
-              fontSize: 16,
-              fontWeight: 700,
-              textDecoration: "none",
-              border: "1px solid rgba(255,255,255,0.2)",
-            }}
-          >
-            Ver demonstração
-          </a>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.5 }}
           style={{
-            marginTop: 60,
-            width: "100%",
-            maxWidth: 800,
-            height: 400,
-            background: "rgba(255,255,255,0.05)",
-            borderRadius: 20,
-            border: "1px solid rgba(255,255,255,0.1)",
+            flex: "1 1 400px",
+            minWidth: 0,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
-            animation: "float 6s ease-in-out infinite",
           }}
->
-          <div style={{ textAlign: "center", color: "rgba(255,255,255,0.4)" }}>
-            <Shield size={64} strokeWidth={1} />
-            <p style={{ marginTop: 16, fontSize: 14 }}>Dashboard FIRMES</p>
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 520,
+              aspectRatio: "16/10",
+              background: "rgba(255,255,255,0.05)",
+              borderRadius: 20,
+              border: "1px solid rgba(255,255,255,0.15)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              animation: "float 6s ease-in-out infinite",
+              boxShadow: "0 25px 50px rgba(0,0,0,0.3)",
+            }}
+          >
+            {/* Mockup header */}
+            <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#EF4444" }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#F59E0B" }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#10B981" }} />
+              <span style={{ marginLeft: 8, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>dashboard.firmes.app</span>
+            </div>
+            {/* Mockup content */}
+            <div style={{ flex: 1, padding: 20, display: "flex", gap: 16 }}>
+              <div style={{ width: 50, background: "rgba(255,255,255,0.03)", borderRadius: 8 }} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                  {[1,2,3,4].map(i => (
+                    <div key={i} style={{ height: 70, background: "rgba(255,255,255,0.05)", borderRadius: 10 }} />
+                  ))}
+                </div>
+                <div style={{ flex: 1, background: "rgba(255,255,255,0.03)", borderRadius: 10 }} />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -230,7 +279,7 @@ function SocialProof() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
->
+          >
             <div style={{ fontSize: 36, fontWeight: 800, color: NAVY }}>
               <AnimatedCounter end={stat.value} suffix={stat.suffix} prefix={stat.prefix} />
             </div>
@@ -251,7 +300,7 @@ function FeaturesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           style={{ textAlign: "center", marginBottom: 60 }}
->
+        >
           <h2 style={{ fontSize: 32, fontWeight: 800, color: "#0D2545", marginBottom: 12 }}>Tudo que sua igreja precisa</h2>
           <p style={{ fontSize: 16, color: "#6B7280" }}>8 módulos integrados para gerenciar cada área</p>
         </motion.div>
@@ -271,9 +320,8 @@ function FeaturesSection() {
                 padding: "28px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                 cursor: "pointer",
-                transition: "box-shadow 0.2s",
               }}
->
+            >
               <div style={{ width: 48, height: 48, borderRadius: 12, background: f.color + "15", display: "flex", alignItems: "center", justifyContent: "center", color: f.color, marginBottom: 16 }}>
                 <f.icon size={24} strokeWidth={1.5} />
               </div>
@@ -298,7 +346,7 @@ function WhiteLabelSection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
->
+        >
           <Gem size={40} style={{ color: GOLD, marginBottom: 16 }} />
           <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>Seja um revendedor FIRMES</h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 48 }}>Venda o sistema com a sua marca e lucre R$1.000+ por mês</p>
@@ -310,7 +358,7 @@ function WhiteLabelSection() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
           style={{ background: "rgba(255,255,255,0.05)", borderRadius: 20, padding: "40px", border: "1px solid rgba(255,255,255,0.1)" }}
->
+        >
           <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Quantas igrejas você quer atender?</p>
           <input
             type="range"
@@ -320,13 +368,14 @@ function WhiteLabelSection() {
             onChange={e => setChurches(Number(e.target.value))}
             style={{ width: "100%", maxWidth: 400, marginBottom: 24 }}
           />
+          <div style={{ fontSize: 20, color: "rgba(255,255,255,0.6)", marginBottom: 8 }}>{churches} igrejas</div>
           <div style={{ fontSize: 48, fontWeight: 800, color: GOLD }}>
             R$ {revenue.toLocaleString("pt-BR")}/mês
           </div>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>{churches} igrejas × R$99/mês em média</p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>Receita estimada baseada em R$99/igreja</p>
 
           <Link
-            href="/planos#esmeralda"
+            href="/login"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -360,7 +409,7 @@ function PlansSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           style={{ textAlign: "center", marginBottom: 48 }}
->
+        >
           <h2 style={{ fontSize: 32, fontWeight: 800, color: "#0D2545", marginBottom: 12 }}>Escolha o plano ideal para sua igreja</h2>
           <p style={{ fontSize: 16, color: "#6B7280", marginBottom: 24 }}>Comece grátis. Sem cartão de crédito.</p>
 
@@ -413,7 +462,7 @@ function PlansSection() {
                 boxShadow: plan.popular ? `0 0 0 2px ${GOLD}` : "0 2px 8px rgba(0,0,0,0.06)",
                 position: "relative",
               }}
->
+            >
               {plan.popular && (
                 <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: GOLD, color: "#fff", padding: "4px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
                   Mais popular
@@ -421,9 +470,14 @@ function PlansSection() {
               )}
               <h3 style={{ fontSize: 20, fontWeight: 700, color: "#111827", marginBottom: 8 }}>{plan.name}</h3>
               <div style={{ fontSize: 36, fontWeight: 800, color: NAVY, marginBottom: 16 }}>
-                R${yearly ? Math.round(plan.yearlyPrice / 12) : plan.price}
+                R${yearly ? plan.price * 10 : plan.price}
                 <span style={{ fontSize: 14, color: "#9CA3AF", fontWeight: 500 }}>/mês</span>
               </div>
+              {yearly && (
+                <div style={{ fontSize: 12, color: "#16A34A", fontWeight: 600, marginBottom: 8 }}>
+                  Economize R${plan.price * 2}/ano
+                </div>
+              )}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
                 {plan.features.map(f => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#374151" }}>
@@ -432,7 +486,7 @@ function PlansSection() {
                 ))}
               </div>
               <Link
-                href="/cadastro"
+                href="/login"
                 style={{
                   display: "block",
                   textAlign: "center",
@@ -457,7 +511,7 @@ function PlansSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           style={{ textAlign: "center", marginBottom: 48 }}
->
+        >
           <Gem size={32} style={{ color: ESMERALDA, marginBottom: 12 }} />
           <h2 style={{ fontSize: 28, fontWeight: 800, color: "#0D2545", marginBottom: 8 }}>Seja um Revendedor FIRMES</h2>
           <p style={{ fontSize: 16, color: "#6B7280" }}>Venda com sua marca. Lucre desde o primeiro cliente.</p>
@@ -478,7 +532,7 @@ function PlansSection() {
                 boxShadow: plan.best ? `0 0 0 2px ${GOLD}` : "0 2px 8px rgba(0,0,0,0.06)",
                 position: "relative",
               }}
->
+            >
               {plan.best && (
                 <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: GOLD, color: "#fff", padding: "4px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700 }}>
                   Melhor para redes
@@ -498,7 +552,7 @@ function PlansSection() {
                 ))}
               </div>
               <Link
-                href="/cadastro"
+                href="/login"
                 style={{
                   display: "block",
                   textAlign: "center",
@@ -533,7 +587,7 @@ function CTASection() {
         <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 800, marginBottom: 16 }}>Pronto para transformar sua igreja?</h2>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 32 }}>Junte-se a 200+ igrejas que já usam o FIRMES</p>
         <Link
-          href="/cadastro"
+          href="/login"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -559,17 +613,16 @@ function Footer() {
     <footer style={{ padding: "60px 24px 30px", background: "#0D2545", color: "#fff" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40, marginBottom: 40 }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-            <Shield size={24} />
-            <span style={{ fontSize: 18, fontWeight: 800 }}>FIRMES</span>
-          </div>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>"Firmes na fé, firmes no propósito."<br />2 Coríntios 1:24</p>
+          <FirmesLogoFull height={28} color="#fff" />
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, marginTop: 12 }}>
+            "Firmes na fé, firmes no propósito."<br />2 Coríntios 1:24
+          </p>
         </div>
 
         <div>
           <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Produto</h4>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {["Funcionalidades", "Planos", "White Label", "Demonstração"].map(l => (
+            {["Funcionalidades", "Planos", "White Label"].map(l => (
               <a key={l} href="#" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>{l}</a>
             ))}
           </div>
@@ -578,7 +631,7 @@ function Footer() {
         <div>
           <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Suporte</h4>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {["Central de ajuda", "WhatsApp", "Email", "Status"].map(l => (
+            {["Central de ajuda", "WhatsApp", "Email"].map(l => (
               <a key={l} href="#" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>{l}</a>
             ))}
           </div>
@@ -587,7 +640,7 @@ function Footer() {
         <div>
           <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Legal</h4>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {["Termos de uso", "Privacidade (LGPD)", "Cookies"].map(l => (
+            {["Termos de uso", "Privacidade (LGPD)"].map(l => (
               <a key={l} href="#" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>{l}</a>
             ))}
           </div>
