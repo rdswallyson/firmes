@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FirmesLogo, FirmesLogoFull } from "./components/landing/FirmesLogo";
+import { FirmesLogoFull } from "./components/landing/FirmesLogo";
 import { ParticleBackground } from "./components/landing/ParticleBackground";
 import { AnimatedCounter } from "./components/landing/AnimatedCounter";
 import { FAQSection } from "./components/landing/FAQSection";
 import {
   Users, Building2, Wallet, CalendarDays, Megaphone, BookOpen, Landmark, Palette,
-  Check, ArrowRight, Gem, Menu, X, MessageCircle, Shield, TrendingUp
+  Check, ArrowRight, Gem, Menu, X, MessageCircle, TrendingUp, BarChart3, ShieldCheck
 } from "lucide-react";
 
 const NAVY = "#1A3C6E";
@@ -147,7 +147,7 @@ function HeroSection() {
             transition={{ duration: 0.8 }}
             style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: "rgba(255,255,255,0.1)", borderRadius: 20, marginBottom: 20 }}
           >
-            <Shield size={14} color={GOLD} />
+            <ShieldCheck size={14} color={GOLD} />
             <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>Sistema completo para igrejas</span>
           </motion.div>
 
@@ -177,7 +177,7 @@ function HeroSection() {
             style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
           >
             <Link
-              href="/login"
+              href="/cadastro"
               style={{
                 padding: "14px 28px",
                 background: GOLD,
@@ -375,7 +375,7 @@ function WhiteLabelSection() {
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>Receita estimada baseada em R$99/igreja</p>
 
           <Link
-            href="/login"
+            href="/cadastro"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -486,7 +486,7 @@ function PlansSection() {
                 ))}
               </div>
               <Link
-                href="/login"
+                href="/cadastro"
                 style={{
                   display: "block",
                   textAlign: "center",
@@ -552,7 +552,7 @@ function PlansSection() {
                 ))}
               </div>
               <Link
-                href="/login"
+                href="/cadastro"
                 style={{
                   display: "block",
                   textAlign: "center",
@@ -587,7 +587,7 @@ function CTASection() {
         <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 800, marginBottom: 16 }}>Pronto para transformar sua igreja?</h2>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 32 }}>Junte-se a 200+ igrejas que já usam o FIRMES</p>
         <Link
-          href="/login"
+          href="/cadastro"
           style={{
             display: "inline-flex",
             alignItems: "center",
