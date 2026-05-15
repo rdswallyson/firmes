@@ -40,6 +40,7 @@ model Tenant {
   // Branding
   customName           String? // Nome personalizado do sistema
   customDomain         String? // subdominio.firmes.app
+  onboardingCompleted  Boolean         @default(false)
   createdAt            DateTime        @default(now())
   users                User[]
   members              Member[]
@@ -72,6 +73,7 @@ model User {
   avatar    String?
   phone     String?
   isActive  Boolean  @default(true)
+  acceptedTermsAt DateTime?
   createdAt DateTime @default(now())
 }
 

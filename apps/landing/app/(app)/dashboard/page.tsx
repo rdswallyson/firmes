@@ -239,6 +239,7 @@ export default function DashboardPage() {
   const [eventos, setEventos] = useState<EventoSlide[]>([]);
   const [produtos, setProdutos] = useState<ProdutoSlide[]>([]);
   const [publicLinks, setPublicLinks] = useState<{ label: string; url: string; icon: React.ReactNode }[]>([]);
+  const [trialInfo, setTrialInfo] = useState<{ isTrialing: boolean; daysLeft: number } | null>(null);
 
   const [growthData, setGrowthData] = useState<{ mes: string; membros: number }[]>([]);
   const [recentActivity, setRecentActivity] = useState<{ icon: React.ReactNode; desc: string; time: string; color: string }[]>([]);
@@ -291,6 +292,11 @@ export default function DashboardPage() {
 
     // Fetch produtos for carousel
     fetch("/api/produtos").then(r => r.json()).then((prods: ProdutoSlide[]) => { if (Array.isArray(prods)) setProdutos(prods.filter((p: any) => p.ativo).slice(0, 5)); }).catch(() => null);
+
+    // Fetch trial info
+    fetch("/api/tenant/trial").then(r => r.json()).then((d: { isTrialing?: boolean; daysLeft?: number }) => {
+      if (d.isTrialing !== undefined) setTrialInfo({ isTrialing: d.isTrialing, daysLeft: d.daysLeft || 0 });
+    }).catch(() => null);
   }, []);
 
   const totalMembers = stats?.totalMembers ?? 412;
@@ -306,6 +312,48 @@ export default function DashboardPage() {
 
   return (
     <div className="page-pad" style={{ maxWidth: "1400px", margin: "0 auto" }}>
+      {/* Trial Banner */}
+      {trialInfo?.isTrialing && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            background: "linear-gradient(135deg, #0D2545, #1A3C6E)",
+            borderRadius: 12,
+            padding: "14px 20px",
+            marginBottom: "1.25rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+            flexWrap: "wrap",
+            color: "white",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Clock size={20} style={{ color: "#C8922A" }} />
+            <span style={{ fontSize: 14, fontWeight: 600 }}>
+              Seu trial termina em <strong style={{ color: "#C8922A" }}>{trialInfo.daysLeft} dias</strong> — Assine agora para manter o acesso.
+            </span>
+          </div>
+          <a
+            href="/planos"
+            style={{
+              padding: "8px 18px",
+              background: "#C8922A",
+              color: "white",
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Assinar agora
+          </a>
+        </motion.div>
+      )}
+
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>

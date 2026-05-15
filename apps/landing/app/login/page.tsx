@@ -28,7 +28,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json() as { error?: string };
+      const data = await res.json() as { error?: string; tenant?: { onboardingCompleted?: boolean } };
 
       if (!res.ok) {
         setError(data.error ?? "Erro ao fazer login");
@@ -36,7 +36,12 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
+      // Redirecionar para onboarding se não completou
+      if (data.tenant && !data.tenant.onboardingCompleted) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
     } catch {
       setError("Erro de conexão");
       setShakeKey((k) => k + 1);

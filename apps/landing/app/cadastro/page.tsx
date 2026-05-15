@@ -17,6 +17,7 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +30,11 @@ export default function RegisterPage() {
 
     if (form.password.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError("Você precisa aceitar os Termos de Uso e a Política de Privacidade");
       return;
     }
 
@@ -53,8 +59,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redirecionar para login
-      router.push("/login?registered=true");
+      // Redirecionar para página de obrigado
+      router.push(`/obrigado?name=${encodeURIComponent(form.name)}`);
     } catch {
       setError("Erro de conexão");
     } finally {
@@ -323,6 +329,23 @@ export default function RegisterPage() {
                   color: "#111827",
                 }}
               />
+            </div>
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer", fontSize: "0.875rem", color: "#374151" }}>
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  style={{ marginTop: 2, accentColor: "#1A3C6E" }}
+                />
+                <span>
+                  Li e aceito os{" "}
+                  <Link href="/termos-de-uso" target="_blank" style={{ color: "#1A3C6E", fontWeight: 600, textDecoration: "underline" }}>Termos de Uso</Link>{" "}
+                  e a{" "}
+                  <Link href="/politica-de-privacidade" target="_blank" style={{ color: "#1A3C6E", fontWeight: 600, textDecoration: "underline" }}>Política de Privacidade</Link>
+                </span>
+              </label>
             </div>
 
             <motion.button

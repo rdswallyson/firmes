@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
           plan: true,
           isWhiteLabel: true,
           isActive: true,
+          onboardingCompleted: true,
         },
       },
     },

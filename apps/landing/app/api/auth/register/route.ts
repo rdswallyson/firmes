@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
         plan: "FREE",
         isActive: true,
         maxChurches: 1,
+        onboardingCompleted: false,
       },
     });
 
@@ -50,8 +51,24 @@ export async function POST(req: NextRequest) {
         role: "ADMIN",
         tenantId: tenant.id,
         isActive: true,
+        acceptedTermsAt: new Date(),
       },
     });
+
+    // Enviar email de boas-vindas (não bloqueante)
+    try {
+      fetch(`${process.env.NEXTAUTH_URL || ""}/api/emails/welcome`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: email,
+          churchName: tenant.name,
+          name,
+        }),
+      }).catch(() => {});
+    } catch {
+      // Ignora erro de email
+    }
 
     return NextResponse.json({
       success: true,
