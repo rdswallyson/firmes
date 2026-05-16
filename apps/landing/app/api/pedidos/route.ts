@@ -1,80 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "../../../lib/auth";
 import { prisma } from "@firmes/db";
 
-export async function GET() {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
+export async function POST(req: NextRequest) {
   try {
-    const pedidos = await prisma.pedido.findMany({
-      where: { tenantId: session.tenantId },
-      include: { itens: { include: { produto: true } }, _count: { select: { itens: true } } },
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ pedidos });
-  } catch (error) {
-    console.error("[GET /api/pedidos]", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
-  }
-}
+    const body = await req.json();
+    const { tenantId, nomeComprador, telefone, email, itens, formaPagamento, total } = body;
 
-export async function POST(request: NextRequest) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Nao autenticado" }, { status: 401 });
-
-  try {
-    const body = await request.json();
-    const { itens, formaPagamento, total } = body;
-
-    if (!itens || !Array.isArray(itens) || itens.length === 0) {
-      return NextResponse.json({ error: "Carrinho vazio" }, { status: 400 });
+    if (!tenantId || !nomeComprador || !itens?.length || !formaPagamento) {
+      return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
     }
 
-    // Create Pedido
+    // Criar pedido
     const pedido = await prisma.pedido.create({
       data: {
-        tenantId: session.tenantId,
-        nomeComprador: "Cliente PDV",
-        status: "PAGO",
+        tenantId,
+        nomeComprador,
+        telefone,
+        email,
         formaPagamento,
         total,
-        itens: {
-          create: itens.map((item: { produtoId: string; variacaoId?: string; quantidade: number; preco: number }) => ({
-            produtoId: item.produtoId,
-            variacaoId: item.variacaoId || null,
-            quantidade: item.quantidade,
-            preco: item.preco,
-            entregue: true,
-            entregueEm: new Date(),
-          })),
+        status: formaPagamento === "PIX" ? "AGUARDANDO_PAGAMENTO" : "PAGO",
+      },
+    });
+
+    // Criar itens do pedido
+    for (const item of itens) {
+      await prisma.pedidoItem.create({
+        data: {
+          pedidoId: pedido.id,
+          produtoId: item.produtoId,
+          variacaoId: item.variacaoId || null,
+          quantidade: item.quantidade,
+          preco: item.preco,
         },
-      },
-      include: { itens: true },
-    });
+      });
 
-    // Create Finance record
-    const lancamento = await prisma.finance.create({
-      data: {
-        tenantId: session.tenantId,
-        amount: total,
-        type: "INCOME",
-        category: "Vendas",
-        description: `Venda PDV #${pedido.id.slice(-6)}`,
-        paymentMethod: formaPagamento,
-        status: "CONFIRMADO",
-        date: new Date(),
-      },
-    });
+      // Atualizar estoque
+      await prisma.produto.update({
+        where: { id: item.produtoId },
+        data: { estoque: { decrement: item.quantidade } },
+      });
+    }
 
-    // Link lancamento to pedido
-    await prisma.pedido.update({
-      where: { id: pedido.id },
-      data: { lancamentoId: lancamento.id },
-    });
+    // Criar lançamento no financeiro se pago
+    if (formaPagamento !== "PIX") {
+      const lancamento = await prisma.finance.create({
+        data: {
+          tenantId,
+          type: "ENTRADA",
+          category: "Vendas",
+          amount: total,
+          description: `Venda: ${itens.map((i: any) => i.nome).join(", ")}`,
+          paymentMethod: formaPagamento,
+          status: "CONFIRMADO",
+        },
+      });
 
-    return NextResponse.json({ id: pedido.id, total }, { status: 201 });
+      await prisma.pedido.update({
+        where: { id: pedido.id },
+        data: { lancamentoId: lancamento.id },
+      });
+    }
+
+    return NextResponse.json({ success: true, pedidoId: pedido.id });
   } catch (error) {
     console.error("[POST /api/pedidos]", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao criar pedido" }, { status: 500 });
   }
 }

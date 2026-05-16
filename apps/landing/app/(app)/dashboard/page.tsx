@@ -276,18 +276,22 @@ export default function DashboardPage() {
       if (Array.isArray(evts)) {
         const upcoming = evts.filter((e: any) => e.status === "ABERTO" && new Date(e.date) > new Date()).slice(0, 5);
         setEventos(upcoming);
-        const origin = typeof window !== "undefined" ? window.location.origin : "";
-        const links: { label: string; url: string; icon: React.ReactNode }[] = [];
-        // Eventos abertos
-        upcoming.filter((e: any) => e.slug).forEach((e: any) => {
-          links.push({ label: e.title, url: `${origin}/inscricao/${e.slug}`, icon: <Calendar size={14} strokeWidth={1.5} color="#1A3C6E" /> });
-        });
-        // Cadastro de membro
-        links.push({ label: "Cadastro de Membro", url: `${origin}/cadastro/membro`, icon: <UserPlus size={14} strokeWidth={1.5} color="#1A3C6E" /> });
-        // Loja publica
-        links.push({ label: "Loja publica", url: `${origin}/loja`, icon: <ShoppingBag size={14} strokeWidth={1.5} color="#1A3C6E" /> });
-        setPublicLinks(links);
       }
+    }).catch(() => null);
+
+    // Fetch tenant + build public links
+    fetch("/api/tenant/me").then(r => r.json()).then((tenantData: { slug?: string }) => {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const links: { label: string; url: string; icon: React.ReactNode }[] = [];
+      // Eventos abertos
+      eventos.filter((e: any) => e.slug).forEach((e: any) => {
+        links.push({ label: e.title, url: `${origin}/inscricao/${e.slug}`, icon: <Calendar size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+      });
+      // Cadastro de membro
+      links.push({ label: "Cadastro de Membro", url: `${origin}/cadastro/${tenantData?.slug || ""}`, icon: <UserPlus size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+      // Loja publica
+      links.push({ label: "Loja publica", url: `${origin}/loja/${tenantData?.slug || ""}`, icon: <ShoppingBag size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+      setPublicLinks(links);
     }).catch(() => null);
 
     // Fetch produtos for carousel
