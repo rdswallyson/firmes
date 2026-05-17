@@ -1,15 +1,16 @@
-export default function ComunicacaoPage() {
+export default function ConfiguracoesPage() {
   return (
     <div className="page-pad" style={{ maxWidth: 800, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0D2545", marginBottom: 8 }}>Comunicação</h1>
-      <p style={{ color: "#6B7280", marginBottom: 24 }}>Central de comunicação da igreja</p>
+      <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0D2545", marginBottom: 24 }}>Configurações</h1>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {[
-          { label: "Notificações", href: "/configuracoes/notificacoes", desc: "Envie mensagens para membros e visitantes", icon: "🔔" },
-          { label: "Avisos", href: "/midias", desc: "Publique avisos no mural da igreja", icon: "📢" },
-          { label: "E-mails", href: "/configuracoes/notificacoes?canal=EMAIL", desc: "Envie e-mails em massa", icon: "📧" },
-          { label: "WhatsApp", href: "/configuracoes/notificacoes?canal=WHATSAPP", desc: "Envie mensagens via WhatsApp", icon: "💬" },
+          { label: "Usuários e Permissões", href: "/configuracoes/usuarios", desc: "Gerencie quem tem acesso ao sistema" },
+          { label: "Dados da Igreja", href: "/configuracoes/igreja", desc: "Nome, logo, endereço e contato" },
+          { label: "Planos e Assinatura", href: "/planos", desc: "Veja seu plano atual e faça upgrade" },
+          { label: "Integrações", href: "/configuracoes/integracoes", desc: "Stripe, WhatsApp, e-mail" },
+          { label: "Backup e Exportação", href: "/configuracoes/backup", desc: "Exporte seus dados em CSV/PDF" },
+          { label: "Notificações", href: "/configuracoes/notificacoes", desc: "Configure alertas e lembretes" },
         ].map((item, i) => (
           <a
             key={i}
@@ -17,7 +18,7 @@ export default function ComunicacaoPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 16,
+              justifyContent: "space-between",
               padding: "20px 24px",
               background: "white",
               borderRadius: 12,
@@ -29,12 +30,11 @@ export default function ComunicacaoPage() {
             onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)"; }}
           >
-            <span style={{ fontSize: 32 }}>{item.icon}</span>
             <div>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#111827" }}>{item.label}</h3>
               <p style={{ margin: "4px 0 0", fontSize: 14, color: "#6B7280" }}>{item.desc}</p>
             </div>
-            <span style={{ marginLeft: "auto", fontSize: 20, color: "#9CA3AF" }}>→</span>
+            <span style={{ fontSize: 20, color: "#9CA3AF" }}>→</span>
           </a>
         ))}
       </div>

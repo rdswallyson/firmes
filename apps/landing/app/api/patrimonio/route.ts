@@ -13,15 +13,15 @@ export async function GET(req: NextRequest) {
 
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
-    const notificacoes = await prisma.notificacao.findMany({
+    const bens = await prisma.patrimonio.findMany({
       where: { tenantId: user.tenantId },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(notificacoes);
+    return NextResponse.json(bens);
   } catch (error) {
-    console.error("[GET /api/notificacoes]", error);
-    return NextResponse.json({ error: "Erro ao buscar notificações" }, { status: 500 });
+    console.error("[GET /api/patrimonio]", error);
+    return NextResponse.json({ error: "Erro ao buscar patrimônio" }, { status: 500 });
   }
 }
 
@@ -38,26 +38,24 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
     const body = await req.json();
-    const { titulo, mensagem, canal, destinatario, grupoId } = body;
+    const { nome, descricao, categoria, localizacao, valor, dataAquisicao, estado } = body;
 
-    if (!titulo || !mensagem || !canal || !destinatario) {
-      return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
-    }
-
-    const notificacao = await prisma.notificacao.create({
+    const bem = await prisma.patrimonio.create({
       data: {
         tenantId: user.tenantId,
-        titulo,
-        mensagem,
-        canal,
-        destinatario,
-        grupoId: grupoId || null,
+        nome,
+        descricao,
+        categoria,
+        localizacao,
+        valor: valor || 0,
+        dataAquisicao: dataAquisicao ? new Date(dataAquisicao) : null,
+        estado: estado || "BOM",
       },
     });
 
-    return NextResponse.json(notificacao);
+    return NextResponse.json(bem);
   } catch (error) {
-    console.error("[POST /api/notificacoes]", error);
-    return NextResponse.json({ error: "Erro ao criar notificação" }, { status: 500 });
+    console.error("[POST /api/patrimonio]", error);
+    return NextResponse.json({ error: "Erro ao criar bem" }, { status: 500 });
   }
 }

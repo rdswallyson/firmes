@@ -58,6 +58,7 @@ model Tenant {
   checkins             Checkin[]
   escalas              Escala[]
   notificacoes         Notificacao[]
+  patrimonios          Patrimonio[]
   churches             Tenant[]        @relation("ResellerChurches")
   reseller             Tenant?         @relation("ResellerChurches", fields: [resellerId], references: [id])
 }
@@ -596,6 +597,21 @@ model EscalaMembro {
   funcao    String // ex: Baterista, Vocal, Recepcionista
   status    String   @default("PENDENTE") // PENDENTE | CONFIRMADO | RECUSADO
   createdAt DateTime @default(now())
+}
+
+model Patrimonio {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  nome          String
+  descricao     String?
+  categoria     String    @default("Geral")
+  localizacao   String    @default("Igreja")
+  valor         Float     @default(0)
+  dataAquisicao DateTime?
+  estado        String    @default("BOM") // NOVO | BOM | REGULAR | DEFEITO | DESCARTADO
+  foto          String?
+  createdAt     DateTime  @default(now())
 }
 
 model Notificacao {

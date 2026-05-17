@@ -21,7 +21,7 @@ interface DashStats {
 
 interface EventoSlide { id: string; title: string; date: string; location: string; banner?: string; slug?: string; }
 interface ProdutoSlide { id: string; nome: string; preco: number; foto?: string; }
-interface AniversarianteSlide { name: string; date: string; daysLeft: number; }
+interface AniversarianteSlide { id?: string; name: string; date: string; daysLeft: number; }
 
 function useCountUp(target: number, duration = 1500) {
   const [value, setValue] = useState(0);
@@ -38,21 +38,13 @@ function useCountUp(target: number, duration = 1500) {
   return value;
 }
 
-const GROWTH_DATA = [
+const GROWTH_FALLBACK = [
   { mes: "Out", membros: 312 }, { mes: "Nov", membros: 334 },
   { mes: "Dez", membros: 358 }, { mes: "Jan", membros: 371 },
   { mes: "Fev", membros: 389 }, { mes: "Mar", membros: 412 },
 ];
 
-const BIRTHDAYS: AniversarianteSlide[] = [
-  { name: "Ana Paula Silva", date: "27 mar", daysLeft: 2 },
-  { name: "Carlos Eduardo", date: "29 mar", daysLeft: 4 },
-  { name: "Mariana Costa", date: "01 abr", daysLeft: 7 },
-  { name: "Joao Batista", date: "03 abr", daysLeft: 9 },
-  { name: "Fernanda Lima", date: "05 abr", daysLeft: 11 },
-];
-
-const NOTICES = [
+const NOTICES_FALLBACK = [
   { id: 1, title: "Culto de Pascoa - inscricoes abertas", author: "Admin", date: "25 mar", status: "Publicado" },
   { id: 2, title: "Reuniao de lideres - 5a feira 19h", author: "Pastor Joao", date: "24 mar", status: "Publicado" },
   { id: 3, title: "Arrecadacao de alimentos - abril", author: "Admin", date: "22 mar", status: "Rascunho" },
@@ -240,6 +232,7 @@ export default function DashboardPage() {
   const [produtos, setProdutos] = useState<ProdutoSlide[]>([]);
   const [publicLinks, setPublicLinks] = useState<{ label: string; url: string; icon: React.ReactNode }[]>([]);
   const [trialInfo, setTrialInfo] = useState<{ isTrialing: boolean; daysLeft: number } | null>(null);
+  const [birthdays, setBirthdays] = useState<AniversarianteSlide[]>([]);
 
   const [growthData, setGrowthData] = useState<{ mes: string; membros: number }[]>([]);
   const [recentActivity, setRecentActivity] = useState<{ icon: React.ReactNode; desc: string; time: string; color: string }[]>([]);
@@ -268,6 +261,9 @@ export default function DashboardPage() {
     }).catch(() => null);
     fetch("/api/dashboard/growth").then(r => r.json()).then((d: { growth?: { mes: string; membros: number }[] }) => {
       if (d.growth) setGrowthData(d.growth);
+    }).catch(() => null);
+    fetch("/api/members/aniversariantes").then(r => r.json()).then((d: AniversarianteSlide[]) => {
+      if (Array.isArray(d)) setBirthdays(d);
     }).catch(() => null);
     fetch("/api/auth/session").then(r => r.json()).then((d: { user?: { name?: string } }) => { if (d.user?.name) setUserName(d.user.name.split(" ")[0] ?? "Pastor"); }).catch(() => null);
 
@@ -390,7 +386,7 @@ export default function DashboardPage() {
         </div>
         {/* Carrossel */}
         <div className="banner-carousel" style={{ flex: 1, minWidth: 0, width: "100%", paddingLeft: "0.75rem", marginLeft: "-0.5rem", borderLeft: "1px solid rgba(255,255,255,0.15)", background: "transparent" }}>
-          <Carousel eventos={eventos} aniversariantes={BIRTHDAYS} produtos={produtos} />
+          <Carousel eventos={eventos} aniversariantes={birthdays.length > 0 ? birthdays : []} produtos={produtos} />
         </div>
       </motion.div>
 
@@ -437,7 +433,7 @@ export default function DashboardPage() {
             <span style={{ background: "#DCFCE7", color: "#16A34A", fontSize: "0.75rem", fontWeight: 600, borderRadius: 20, padding: "3px 10px" }}>+32% no periodo</span>
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={growthData.length > 0 ? growthData : GROWTH_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <AreaChart data={growthData.length > 0 ? growthData : GROWTH_FALLBACK} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1A3C6E" stopOpacity={0.15}/><stop offset="95%" stopColor="#1A3C6E" stopOpacity={0}/></linearGradient></defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="mes" tick={{ fontSize: 12, fill: "#9CA3AF" }} axisLine={false} tickLine={false} />
@@ -452,20 +448,24 @@ export default function DashboardPage() {
           style={{ flex: 1, background: "white", borderRadius: 12, padding: "1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
           <h3 style={{ margin: "0 0 1rem", fontSize: "0.9375rem", fontWeight: 700, color: "#111827" }}>Aniversariantes</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {BIRTHDAYS.map((b, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.5rem 0.625rem", borderRadius: 8, background: i === 0 ? "#FFF8EE" : "transparent", transition: "background 0.15s" }}
-                onMouseEnter={e => { if (i !== 0) e.currentTarget.style.background = "#F9FAFB"; }}
-                onMouseLeave={e => { if (i !== 0) e.currentTarget.style.background = "transparent"; }}>
-                <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${(i * 67 + 210)},60%,88%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700, color: `hsl(${(i * 67 + 210)},50%,35%)`, flexShrink: 0 }}>
-                  {b.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
+            {birthdays.length === 0 ? (
+              <p style={{ color: "#9CA3AF", fontSize: 14, textAlign: "center", padding: "20px 0" }}>Nenhum aniversariante este mês</p>
+            ) : (
+              birthdays.map((b, i) => (
+                <div key={b.id || i} style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.5rem 0.625rem", borderRadius: 8, background: i === 0 ? "#FFF8EE" : "transparent", transition: "background 0.15s" }}
+                  onMouseEnter={e => { if (i !== 0) e.currentTarget.style.background = "#F9FAFB"; }}
+                  onMouseLeave={e => { if (i !== 0) e.currentTarget.style.background = "transparent"; }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: `hsl(${(i * 67 + 210)},60%,88%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700, color: `hsl(${(i * 67 + 210)},50%,35%)`, flexShrink: 0 }}>
+                    {b.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "0.8rem", fontWeight: 500, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.name}</div>
+                    <div style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>{b.date}</div>
+                  </div>
+                  <span style={{ background: (b.daysLeft || 0) <= 3 ? "#FEF3C7" : "#F3F4F6", color: (b.daysLeft || 0) <= 3 ? "#D97706" : "#6B7280", fontSize: "0.68rem", fontWeight: 600, borderRadius: 10, padding: "2px 7px", flexShrink: 0 }}>{b.daysLeft}d</span>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 500, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.name}</div>
-                  <div style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>{b.date}</div>
-                </div>
-                <span style={{ background: b.daysLeft <= 3 ? "#FEF3C7" : "#F3F4F6", color: b.daysLeft <= 3 ? "#D97706" : "#6B7280", fontSize: "0.68rem", fontWeight: 600, borderRadius: 10, padding: "2px 7px", flexShrink: 0 }}>{b.daysLeft}d</span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </motion.div>
       </div>
@@ -487,7 +487,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {NOTICES.map(n => (
+              {NOTICES_FALLBACK.map(n => (
                 <tr key={n.id} style={{ borderBottom: "1px solid #F9FAFB", transition: "background 0.1s" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = "#FAFAFA"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}>
