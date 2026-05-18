@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "../../../../../lib/auth";
+import { getSession } from "../../../../lib/auth";
 import { prisma } from "@firmes/db";
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ cultoId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { cultoId } = await params;
+    const { id } = await params;
     const session = await getSession();
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const checkins = await prisma.checkin.findMany({
-      where: { cultoId, tenantId: session.tenantId },
+      where: { cultoId: id, tenantId: session.tenantId },
       orderBy: { createdAt: "desc" },
     });
 

@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ qrCode: string }> }
-) {
-  const { qrCode } = await params;
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { pontoId } = body;
+    const { code, pontoId } = body;
 
+    if (!code) return NextResponse.json({ error: "Código obrigatório" }, { status: 400 });
     if (!pontoId) return NextResponse.json({ error: "pontoId obrigatorio" }, { status: 400 });
 
-    const inscricao = await prisma.inscricao.findUnique({ where: { qrCode } });
+    const inscricao = await prisma.inscricao.findUnique({ where: { qrCode: code } });
     if (!inscricao) return NextResponse.json({ error: "QR Code invalido" }, { status: 404 });
 
     // Check if already scanned at this point today

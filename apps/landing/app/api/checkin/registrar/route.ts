@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ qrCode: string }> }) {
+export async function POST(request: NextRequest) {
   try {
-    const { qrCode } = await params;
+    const body = await request.json();
+    const { qrCode, nome, tipo, memberId, telefone, comoConheceu } = body;
+
+    if (!qrCode) {
+      return NextResponse.json({ error: "QR Code obrigatório" }, { status: 400 });
+    }
+
     const culto = await prisma.culto.findUnique({
       where: { qrCode },
       include: { tenant: { select: { id: true, name: true } } },
@@ -12,9 +18,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (!culto || !culto.ativo) {
       return NextResponse.json({ error: "QR Code inválido ou culto encerrado" }, { status: 404 });
     }
-
-    const body = await request.json();
-    const { nome, tipo, memberId, telefone, comoConheceu } = body;
 
     if (!nome || !tipo) {
       return NextResponse.json({ error: "Nome e tipo obrigatórios" }, { status: 400 });
@@ -34,14 +37,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json({ checkin, culto: { titulo: culto.titulo, data: culto.data } }, { status: 201 });
   } catch (error) {
-    console.error("[POST /api/checkin/[qrCode]]", error);
+    console.error("[POST /api/checkin/registrar]", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ qrCode: string }> }) {
+export async function GET(request: NextRequest) {
   try {
-    const { qrCode } = await params;
+    const { searchParams } = new URL(request.url);
+    const qrCode = searchParams.get("qrCode");
+
+    if (!qrCode) {
+      return NextResponse.json({ error: "QR Code obrigatório" }, { status: 400 });
+    }
+
     const culto = await prisma.culto.findUnique({
       where: { qrCode },
       include: { tenant: { select: { name: true, logo: true } } },
@@ -51,6 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({ culto });
   } catch (error) {
+    console.error("[GET /api/checkin/registrar]", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }
