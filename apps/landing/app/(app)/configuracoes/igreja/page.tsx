@@ -1,32 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Save, Church, ArrowLeft, Upload } from "lucide-react";
+import { Save, Church, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function ConfigIgrejaPage() {
   const router = useRouter();
   const [form, setForm] = useState({
-    nome: "",
-    endereco: "",
-    cidade: "",
-    estado: "",
-    cep: "",
-    telefone: "",
-    email: "",
-    pastor: "",
-    website: "",
-    facebook: "",
-    instagram: "",
-    youtube: "",
+    name: "",
+    logo: "",
+    primaryColor: "#1A3C6E",
+    secondaryColor: "#C8922A",
+    domain: "",
+    customName: "",
+    customDomain: "",
   });
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/tenant")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.tenant) {
+          setForm({
+            name: data.tenant.name || "",
+            logo: data.tenant.logo || "",
+            primaryColor: data.tenant.primaryColor || "#1A3C6E",
+            secondaryColor: data.tenant.secondaryColor || "#C8922A",
+            domain: data.tenant.domain || "",
+            customName: data.tenant.customName || "",
+            customDomain: data.tenant.customDomain || "",
+          });
+        }
+      })
+      .catch(() => null)
+      .finally(() => setLoading(false));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     try {
       const res = await fetch("/api/tenant", {
         method: "PUT",
@@ -34,14 +50,14 @@ export default function ConfigIgrejaPage() {
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        alert("Dados atualizados!");
+        alert("Dados atualizados com sucesso!");
       } else {
         alert("Erro ao atualizar");
       }
     } catch {
       alert("Erro de conexão");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
@@ -57,160 +73,136 @@ export default function ConfigIgrejaPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ background: "white", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-        <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#EFF6FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
-            <Church size={32} style={{ color: "#1A3C6E" }} />
+      {loading ? (
+        <p style={{ color: "#6B7280" }}>Carregando...</p>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ background: "white", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+          <div style={{ marginBottom: 24, textAlign: "center" }}>
+            <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#EFF6FF", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+              <Church size={32} style={{ color: "#1A3C6E" }} />
+            </div>
+            <button type="button" style={{ padding: "6px 12px", background: "#F3F4F6", border: "none", borderRadius: 6, fontSize: 12, cursor: "pointer" }}>
+              Alterar logo
+            </button>
           </div>
-          <button type="button" style={{ padding: "6px 12px", background: "#F3F4F6", border: "none", borderRadius: 6, fontSize: 12, cursor: "pointer" }}>
-            Alterar logo
-          </button>
-        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-          <div style={{ gridColumn: "1 / -1" }}>
+          <div style={{ marginBottom: 16 }}>
             <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Nome da Igreja *</label>
             <input
               type="text"
               required
-              value={form.nome}
-              onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
             />
           </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Endereço</label>
-            <input
-              type="text"
-              value={form.endereco}
-              onChange={(e) => setForm({ ...form, endereco: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Cidade</label>
-            <input
-              type="text"
-              value={form.cidade}
-              onChange={(e) => setForm({ ...form, cidade: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Estado</label>
-            <input
-              type="text"
-              value={form.estado}
-              onChange={(e) => setForm({ ...form, estado: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>CEP</label>
-            <input
-              type="text"
-              value={form.cep}
-              onChange={(e) => setForm({ ...form, cep: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Telefone</label>
-            <input
-              type="tel"
-              value={form.telefone}
-              onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>E-mail</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Pastor Responsável</label>
-            <input
-              type="text"
-              value={form.pastor}
-              onChange={(e) => setForm({ ...form, pastor: e.target.value })}
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-        </div>
 
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", margin: "24px 0 16px" }}>Redes Sociais</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Website</label>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Logo (URL)</label>
             <input
               type="url"
-              value={form.website}
-              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              value={form.logo}
+              onChange={(e) => setForm({ ...form, logo: e.target.value })}
               placeholder="https://..."
               style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
             />
           </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Facebook</label>
-            <input
-              type="url"
-              value={form.facebook}
-              onChange={(e) => setForm({ ...form, facebook: e.target.value })}
-              placeholder="https://facebook.com/..."
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Cor Primária</label>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  type="color"
+                  value={form.primaryColor}
+                  onChange={(e) => setForm({ ...form, primaryColor: e.target.value })}
+                  style={{ width: 40, height: 40, border: "none", borderRadius: 8, cursor: "pointer" }}
+                />
+                <input
+                  type="text"
+                  value={form.primaryColor}
+                  onChange={(e) => setForm({ ...form, primaryColor: e.target.value })}
+                  style={{ flex: 1, padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
+                />
+              </div>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Cor Secundária</label>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  type="color"
+                  value={form.secondaryColor}
+                  onChange={(e) => setForm({ ...form, secondaryColor: e.target.value })}
+                  style={{ width: 40, height: 40, border: "none", borderRadius: 8, cursor: "pointer" }}
+                />
+                <input
+                  type="text"
+                  value={form.secondaryColor}
+                  onChange={(e) => setForm({ ...form, secondaryColor: e.target.value })}
+                  style={{ flex: 1, padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Instagram</label>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Domínio</label>
             <input
               type="text"
-              value={form.instagram}
-              onChange={(e) => setForm({ ...form, instagram: e.target.value })}
-              placeholder="@igreja"
+              value={form.domain}
+              onChange={(e) => setForm({ ...form, domain: e.target.value })}
+              placeholder="ex: minhaigreja.firmes.app"
               style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
             />
           </div>
-          <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>YouTube</label>
-            <input
-              type="url"
-              value={form.youtube}
-              onChange={(e) => setForm({ ...form, youtube: e.target.value })}
-              placeholder="https://youtube.com/..."
-              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
-            />
-          </div>
-        </div>
 
-        <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
-          <motion.button
-            type="submit"
-            disabled={loading}
-            whileTap={{ scale: 0.97 }}
-            style={{
-              padding: "10px 24px",
-              background: loading ? "#9CA3AF" : "linear-gradient(135deg, #1A3C6E, #1E4A84)",
-              color: "white",
-              border: "none",
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: loading ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <Save size={16} />
-            {loading ? "Salvando..." : "Salvar Alterações"}
-          </motion.button>
-        </div>
-      </form>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Nome Personalizado do Sistema</label>
+            <input
+              type="text"
+              value={form.customName}
+              onChange={(e) => setForm({ ...form, customName: e.target.value })}
+              placeholder="Como o sistema aparece para os usuários"
+              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Domínio Personalizado</label>
+            <input
+              type="text"
+              value={form.customDomain}
+              onChange={(e) => setForm({ ...form, customDomain: e.target.value })}
+              placeholder="ex: sistema.minhaigreja.com"
+              style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14 }}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+            <motion.button
+              type="submit"
+              disabled={saving}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                padding: "10px 24px",
+                background: saving ? "#9CA3AF" : "linear-gradient(135deg, #1A3C6E, #1E4A84)",
+                color: "white",
+                border: "none",
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: saving ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <Save size={16} />
+              {saving ? "Salvando..." : "Salvar Alterações"}
+            </motion.button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
