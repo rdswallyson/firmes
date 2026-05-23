@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../../../lib/auth";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
+    const evento = await prisma.event.findFirst({
+      where: { id, tenantId: session.tenantId },
+      select: { id: true },
+    });
+    if (!evento) return NextResponse.json({ error: "Evento não encontrado" }, { status: 404 });
+
     const [refeicoes, pontos, fases, equipes, checklist, marcos, recursos] = await Promise.all([
       prisma.eventoRefeicao.findMany({ where: { eventId: id } }),
       prisma.eventoCheckinPonto.findMany({ where: { eventId: id }, include: { _count: { select: { scans: true } } } }),
@@ -24,6 +34,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
+    const evento = await prisma.event.findFirst({
+      where: { id, tenantId: session.tenantId },
+      select: { id: true },
+    });
+    if (!evento) return NextResponse.json({ error: "Evento não encontrado" }, { status: 404 });
+
     const body = await req.json();
     const { action } = body;
 

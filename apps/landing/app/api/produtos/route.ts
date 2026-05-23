@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../lib/auth";
 
 export async function GET() {
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
     const produtos = await prisma.produto.findMany({
-      where: { tenantId: tenant.id, ativo: true },
+      where: { tenantId: session.tenantId, ativo: true },
       include: { variacoes: true },
       orderBy: { createdAt: "desc" },
     });
@@ -19,8 +21,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
     const body = await request.json();
     const { nome, descricao, foto, preco, categoria, estoque, variacoes } = body;
     if (!nome || preco === undefined || !categoria) {
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
     const produto = await prisma.produto.create({
       data: {
-        tenantId: tenant.id,
+        tenantId: session.tenantId,
         nome,
         descricao: descricao ?? null,
         foto: foto ?? null,
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       },
       include: { variacoes: true },
     });
-    return NextResponse.json(produto, { status: 201 });
+    return NextResponse.json({ produto }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/produtos]", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });

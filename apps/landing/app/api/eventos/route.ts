@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../lib/auth";
 
 function slugify(text: string): string {
   return text
@@ -14,15 +15,15 @@ function slugify(text: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const { searchParams } = new URL(request.url);
     const slugParam = searchParams.get("slug");
 
     if (slugParam) {
       const evento = await prisma.event.findFirst({
-        where: { slug: slugParam, tenantId: tenant.id },
+        where: { slug: slugParam, tenantId: session.tenantId },
         include: {
           inscricoes: true,
           refeicoes: { where: { ativo: true } },
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     const eventos = await prisma.event.findMany({
-      where: { tenantId: tenant.id },
+      where: { tenantId: session.tenantId },
       orderBy: { date: "desc" },
       include: { _count: { select: { inscricoes: true } } },
     });
@@ -48,8 +49,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await request.json();
     const { title, description, date, location, maxVagas, isGratuito, valor, banner, linkExterno, recorrente, avancado, endereco, googleMapsLink } = body;
@@ -60,12 +61,12 @@ export async function POST(request: NextRequest) {
 
     const baseSlug = slugify(title);
     let slug = baseSlug;
-    const existing = await prisma.event.findFirst({ where: { slug } });
+    const existing = await prisma.event.findFirst({ where: { slug, tenantId: session.tenantId } });
     if (existing) slug = `${baseSlug}-${Math.random().toString(36).slice(2, 7)}`;
 
     const evento = await prisma.event.create({
       data: {
-        tenantId: tenant.id,
+        tenantId: session.tenantId,
         title,
         slug,
         description: description ?? null,

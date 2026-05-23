@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../lib/auth";
 
 export async function GET() {
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
     const cursos = await prisma.curso.findMany({
-      where: { tenantId: tenant.id },
+      where: { tenantId: session.tenantId },
       include: {
         modulos: {
           orderBy: { ordem: "asc" },
@@ -25,42 +27,46 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const tenant = await prisma.tenant.findFirst();
-    if (!tenant) return NextResponse.json({ error: "No tenant" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
     const body = await request.json();
     const { titulo, descricao, banner, categoria, nivel, cargaHoraria, instrutor, modulos } = body;
     if (!titulo) return NextResponse.json({ error: "Titulo obrigatorio" }, { status: 400 });
 
     const curso = await prisma.curso.create({
       data: {
-        tenantId: tenant.id,
+        tenantId: session.tenantId,
         titulo,
         descricao: descricao ?? null,
         banner: banner ?? null,
         categoria: categoria ?? "ESTUDO",
         nivel: nivel ?? "INICIANTE",
-        cargaHoraria: cargaHoraria ? Number(cargaHoraria) : null,
+        cargaHoraria: cargaHoraria ?? null,
         instrutor: instrutor ?? null,
-        publicado: true,
         modulos: modulos?.length ? {
-          create: modulos.map((m: any, mi: number) => ({
+          create: modulos.map((m: { titulo: string; ordem?: number; aulas?: any[] }, i: number) => ({
             titulo: m.titulo,
-            ordem: mi,
+            ordem: m.ordem ?? i,
             aulas: m.aulas?.length ? {
-              create: m.aulas.map((a: any, ai: number) => ({
+              create: m.aulas.map((a: { titulo: string; ordem?: number; videoUrl?: string; materialUrl?: string }, j: number) => ({
                 titulo: a.titulo,
-                tipo: a.tipo ?? "VIDEO",
-                conteudo: a.conteudo ?? null,
-                duracao: a.duracao ?? null,
-                ordem: ai,
+                ordem: a.ordem ?? j,
+                videoUrl: a.videoUrl ?? null,
+                materialUrl: a.materialUrl ?? null,
               })),
             } : undefined,
           })),
         } : undefined,
       },
-      include: { modulos: { include: { aulas: true } } },
+      include: {
+        modulos: {
+          orderBy: { ordem: "asc" },
+          include: { aulas: { orderBy: { ordem: "asc" } } },
+        },
+      },
     });
-    return NextResponse.json(curso, { status: 201 });
+    return NextResponse.json({ curso }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/ensino]", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });

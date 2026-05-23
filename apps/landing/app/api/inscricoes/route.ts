@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get("eventId");
-    const where = eventId ? { eventId } : {};
+
+    const where: any = { tenantId: session.tenantId };
+    if (eventId) where.eventId = eventId;
+
     const inscricoes = await prisma.inscricao.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -28,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatorios: eventId, nome, email" }, { status: 400 });
     }
 
-    const evento = await prisma.event.findUnique({ where: { id: eventId } });
+    const evento = await prisma.event.findFirst({ where: { id: eventId } });
     if (!evento) return NextResponse.json({ error: "Evento nao encontrado" }, { status: 404 });
 
     const confirmedCount = await prisma.inscricao.count({ where: { eventId, status: "CONFIRMADO" } });
@@ -38,13 +45,11 @@ export async function POST(request: NextRequest) {
       status = "LISTA_ESPERA";
     }
 
-    // For paid events, status is AGUARDANDO_PAGAMENTO unless gratuito
     const isPago = !evento.isGratuito && totalFinal && totalFinal > 0;
     const pagamentoStatus = isPago ? "AGUARDANDO_PAGAMENTO" : "CONFIRMADO";
 
     const qrCode = crypto.randomUUID();
 
-    // Create inscription
     const inscricao = await prisma.inscricao.create({
       data: {
         tenantId: evento.tenantId,
@@ -60,7 +65,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create InscricaoPedidoItem for products
     if (itens && Array.isArray(itens) && itens.length > 0) {
       await prisma.inscricaoPedidoItem.createMany({
         data: itens.map((item: { produtoId: string; variacaoId?: string; quantidade: number; preco: number }) => ({
@@ -73,7 +77,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create InscricaoRefeicao for selected meals
     if (refeicoesSelecionadas && Array.isArray(refeicoesSelecionadas) && refeicoesSelecionadas.length > 0) {
       await prisma.inscricaoRefeicao.createMany({
         data: refeicoesSelecionadas.map((r: { refeicaoId: string; dia: string }) => ({
@@ -84,7 +87,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create Finance record if total > 0
     if (totalFinal && totalFinal > 0) {
       const lancamento = await prisma.finance.create({
         data: {
@@ -98,14 +100,12 @@ export async function POST(request: NextRequest) {
           paymentMethod: formaPagamento ?? null,
         },
       });
-      // Link lancamento to inscricao
       await prisma.inscricao.update({
         where: { id: inscricao.id },
         data: { lancamentoId: lancamento.id },
       });
     }
 
-    // Increment cupom usage
     if (cupomId) {
       await prisma.cupom.update({
         where: { id: cupomId },
@@ -113,7 +113,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Update event status if full
     if (status === "CONFIRMADO" && evento.maxVagas) {
       if (confirmedCount + 1 >= evento.maxVagas) {
         await prisma.event.update({ where: { id: eventId }, data: { status: "LOTADO" } });

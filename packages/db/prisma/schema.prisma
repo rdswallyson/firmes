@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -107,6 +108,13 @@ model Member {
   groups       GroupMember[]
   lideraGroups Group[]        @relation("GroupToLeader")
   escalas      EscalaMembro[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, groupId])
+  @@index([name])
+  @@index([email])
+  @@index([birthDate])
 }
 
 model Group {
@@ -124,6 +132,9 @@ model Group {
   createdAt   DateTime          @default(now())
   members     GroupMember[]
   frequencias GroupFrequencia[]
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
 }
 
 model GroupMember {
@@ -186,6 +197,11 @@ model Event {
   checklist         EventoChecklist[]
   marcos            EventoMarco[]
   recursos          EventoRecurso[]
+
+  @@index([tenantId])
+  @@index([tenantId, date])
+  @@index([tenantId, status])
+  @@index([slug])
 }
 
 model Inscricao {
@@ -209,6 +225,11 @@ model Inscricao {
   itensPedido     InscricaoPedidoItem[]
   scans           EventoCheckinScan[]
   refeicoesUsadas InscricaoRefeicao[]
+
+  @@index([tenantId])
+  @@index([eventId])
+  @@index([tenantId, status])
+  @@index([qrCode])
 }
 
 model Finance {
@@ -231,6 +252,11 @@ model Finance {
   status        String         @default("CONFIRMADO")
   isActive      Boolean        @default(true)
   createdAt     DateTime       @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, type])
+  @@index([tenantId, status])
 }
 
 model ContaBancaria {
@@ -245,6 +271,8 @@ model ContaBancaria {
   isAtiva     Boolean   @default(true)
   createdAt   DateTime  @default(now())
   finances    Finance[]
+
+  @@index([tenantId])
 }
 
 model Meta {
@@ -259,6 +287,8 @@ model Meta {
   isAtiva    Boolean   @default(true)
   createdAt  DateTime  @default(now())
   finances   Finance[]
+
+  @@index([tenantId])
 }
 
 model AuditLog {
@@ -336,6 +366,10 @@ model Produto {
   eventoProdutos EventoProduto[]
   tenant         Tenant            @relation(fields: [tenantId], references: [id])
   createdAt      DateTime          @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, ativo])
+  @@index([tenantId, nome])
 }
 
 model ProdutoVariacao {
@@ -408,6 +442,8 @@ model Cupom {
   validade  DateTime?
   ativo     Boolean   @default(true)
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
 }
 
 // ── Evento Avançado ──────────────────────────────────────
@@ -486,6 +522,9 @@ model Midia {
   duracao     String?
   reproducoes Int       @default(0)
   createdAt   DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, tipo])
 }
 
 // ── ENSINO & DISCIPULADO ──────────────────────────────
@@ -514,6 +553,9 @@ model Curso {
   modulos      CursoModulo[]
   progressos   CursoProgresso[]
   createdAt    DateTime         @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, publicado])
 }
 
 model CursoModulo {
@@ -560,6 +602,10 @@ model Culto {
   ativo     Boolean   @default(true)
   checkins  Checkin[]
   createdAt DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, data])
+  @@index([tenantId, ativo])
 }
 
 model Checkin {
@@ -574,6 +620,10 @@ model Checkin {
   telefone     String?
   comoConheceu String?
   createdAt    DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([cultoId])
+  @@index([tenantId, tipo])
 }
 
 model Escala {
@@ -587,6 +637,10 @@ model Escala {
   status      String         @default("ATIVA") // ATIVA | ENCERRADA | CANCELADA
   membros     EscalaMembro[]
   createdAt   DateTime       @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, data])
+  @@index([tenantId, ministerio])
 }
 
 model EscalaMembro {
@@ -613,6 +667,10 @@ model Patrimonio {
   estado        String    @default("BOM") // NOVO | BOM | REGULAR | DEFEITO | DESCARTADO
   foto          String?
   createdAt     DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, categoria])
+  @@index([tenantId, estado])
 }
 
 model Notificacao {
@@ -627,4 +685,7 @@ model Notificacao {
   enviadoEm     DateTime?
   totalEnviados Int       @default(0)
   createdAt     DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, enviadoEm])
 }
