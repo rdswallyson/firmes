@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("[LOGIN] Buscando usuário:", body.email);
+    console.log("[LOGIN] Iniciando login para:", body.email);
+    console.log("[LOGIN] JWT_SECRET definido:", !!process.env.JWT_SECRET);
+    console.log("[LOGIN] NEXTAUTH_SECRET definido:", !!process.env.NEXTAUTH_SECRET);
 
     const user = await prisma.user.findUnique({
       where: { email: body.email },
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
     console.error("[LOGIN] Erro inesperado:", error.message);
     console.error("[LOGIN] Stack:", error.stack);
     return NextResponse.json(
-      { error: "Erro interno no servidor" },
+      { error: "Erro interno no servidor: " + error.message },
       { status: 500 }
     );
   }
