@@ -42,8 +42,9 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch {
-      setError("Erro de conexão");
+    } catch (err: any) {
+      console.error("[LOGIN CLIENT] Erro:", err);
+      setError("Erro de conexão: " + (err.message || "Erro desconhecido"));
       setShakeKey((k) => k + 1);
     } finally {
       setLoading(false);
