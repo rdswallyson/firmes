@@ -147,8 +147,8 @@ function ProgressStatCard({ icon, label, value, goal, change, positive, color, d
   );
 }
 
-// ─── Carousel Component ────────────────────────────────
-function Carousel({ slides }: { slides: { type: string; content: React.ReactNode }[] }) {
+// ─── ImageCarousel Component (para banners/cartazes) ──
+function ImageCarousel({ slides }: { slides: { image?: string; title: string; subtitle?: string; action?: { label: string; href: string } }[] }) {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -162,13 +162,80 @@ function Carousel({ slides }: { slides: { type: string; content: React.ReactNode
   if (slides.length === 0) return null;
 
   return (
-    <div style={{ position: "relative", width: "100%", borderRadius: 12, overflow: "hidden" }}
+    <div style={{ position: "relative", width: "100%", borderRadius: 12, overflow: "hidden", minHeight: 280 }}
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div style={{ background: "linear-gradient(135deg, #0D2545 0%, #1A3C6E 60%, #1E4A84 100%)", padding: "1.5rem 2rem", minHeight: 160, display: "flex", alignItems: "center" }}>
+      <AnimatePresence mode="wait">
+        <motion.div key={idx} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
+          style={{ width: "100%", height: 280, position: "relative", background: slides[idx]?.image ? `url(${slides[idx].image}) center/cover` : "linear-gradient(135deg, #0D2545 0%, #1A3C6E 60%, #1E4A84 100%)" }}>
+          {/* Overlay escuro para legibilidade */}
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,37,69,0.9) 0%, rgba(13,37,69,0.3) 50%, transparent 100%)" }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.5rem", color: "white" }}>
+            <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "#C8922A", marginBottom: 6, fontWeight: 600 }}>
+              {slides[idx]?.subtitle || "MURAL"}
+            </div>
+            <div style={{ fontSize: "1.3rem", fontWeight: 700, marginBottom: 8 }}>{slides[idx]?.title}</div>
+            {slides[idx]?.action && (
+              <button onClick={() => { const action = slides[idx]?.action; if (action) window.location.href = action.href; }}
+                style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer" }}>
+                {slides[idx]?.action?.label}
+              </button>
+            )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+      {/* Navegação */}
+      {slides.length > 1 && (
+        <>
+          <button onClick={() => setIdx(p => (p - 1 + slides.length) % slides.length)}
+            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white", backdropFilter: "blur(4px)" }}>
+            <ChevronLeft size={18} />
+          </button>
+          <button onClick={() => setIdx(p => (p + 1) % slides.length)}
+            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white", backdropFilter: "blur(4px)" }}>
+            <ChevronRight size={18} />
+          </button>
+          <div style={{ position: "absolute", bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 5 }}>
+            {slides.map((_, i) => (
+              <button key={i} onClick={() => setIdx(i)}
+                style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 3, background: i === idx ? "#C8922A" : "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.25s" }} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── NoticeCarousel Component (para avisos textuais) ───
+function NoticeCarousel({ slides }: { slides: { title: string; content: React.ReactNode; icon?: React.ReactNode; color?: string }[] }) {
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (slides.length <= 1 || paused) return;
+    timerRef.current = setInterval(() => setIdx(p => (p + 1) % slides.length), 5000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [slides.length, paused]);
+
+  if (slides.length === 0) return null;
+
+  return (
+    <div style={{ position: "relative", width: "100%", borderRadius: 12, overflow: "hidden", minHeight: 280, background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div style={{ padding: "1.25rem", height: "100%", display: "flex", flexDirection: "column" }}>
         <AnimatePresence mode="wait">
-          <motion.div key={idx} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35 }}
-            style={{ width: "100%", color: "white" }}>
-            {slides[idx]?.content}
+          <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
+            style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+              {slides[idx]?.icon && <div style={{ color: slides[idx]?.color || "#1A3C6E" }}>{slides[idx]?.icon}</div>}
+              <div style={{ fontSize: "0.7rem", letterSpacing: "0.05em", textTransform: "uppercase", color: slides[idx]?.color || "#1A3C6E", fontWeight: 700 }}>
+                {slides[idx]?.title}
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              {slides[idx]?.content}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -176,17 +243,17 @@ function Carousel({ slides }: { slides: { type: string; content: React.ReactNode
       {slides.length > 1 && (
         <>
           <button onClick={() => setIdx(p => (p - 1 + slides.length) % slides.length)}
-            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white", backdropFilter: "blur(4px)" }}>
-            <ChevronLeft size={16} />
+            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#6B7280" }}>
+            <ChevronLeft size={14} />
           </button>
           <button onClick={() => setIdx(p => (p + 1) % slides.length)}
-            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white", backdropFilter: "blur(4px)" }}>
-            <ChevronRight size={16} />
+            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#6B7280" }}>
+            <ChevronRight size={14} />
           </button>
-          <div style={{ position: "absolute", bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 5 }}>
+          <div style={{ position: "absolute", bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 4 }}>
             {slides.map((_, i) => (
               <button key={i} onClick={() => setIdx(i)}
-                style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 3, background: i === idx ? "#C8922A" : "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.25s" }} />
+                style={{ width: i === idx ? 14 : 5, height: 5, borderRadius: 3, background: i === idx ? "#C8922A" : "#D1D5DB", border: "none", cursor: "pointer", transition: "all 0.25s" }} />
             ))}
           </div>
         </>
@@ -207,11 +274,11 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
     calc(); const id = setInterval(calc, 1000); return () => clearInterval(id);
   }, [targetDate]);
   return (
-    <div style={{ display: "flex", gap: "0.5rem" }}>
+    <div style={{ display: "flex", gap: "0.4rem" }}>
       {[{ v: timeLeft.d, l: "d" }, { v: timeLeft.h, l: "h" }, { v: timeLeft.m, l: "m" }, { v: timeLeft.s, l: "s" }].map(({ v, l }) => (
-        <div key={l} style={{ textAlign: "center", background: "rgba(255,255,255,0.1)", borderRadius: 6, padding: "4px 8px", minWidth: 36 }}>
-          <div style={{ fontSize: "1.1rem", fontWeight: 700, lineHeight: 1 }}>{String(v).padStart(2, "0")}</div>
-          <div style={{ fontSize: "0.6rem", opacity: 0.7, textTransform: "uppercase" }}>{l}</div>
+        <div key={l} style={{ textAlign: "center", background: "#F3F4F6", borderRadius: 6, padding: "3px 6px", minWidth: 30 }}>
+          <div style={{ fontSize: "0.9rem", fontWeight: 700, lineHeight: 1, color: "#1A3C6E" }}>{String(v).padStart(2, "0")}</div>
+          <div style={{ fontSize: "0.55rem", color: "#9CA3AF", textTransform: "uppercase" }}>{l}</div>
         </div>
       ))}
     </div>
@@ -363,114 +430,115 @@ export default function DashboardPage() {
     Arquivado: { bg: "#F3F4F6", color: "#6B7280" },
   };
 
-  // ─── Carousel Slides ─────────────────────────────────
+  // ─── Slides para os dois carrosséis ──────────────────
   const weekBirthdays = getWeekAniversariantes(birthdays);
   const nextEvent = eventos[0];
 
-  const slides = [
+  // Carrossel da ESQUERDA (maior) — Banners/Cartazes/Mural com imagens
+  const bannerSlides = [
     {
-      type: "culto",
-      content: (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 6, fontWeight: 600 }}>Próximo Culto</div>
-            <div style={{ fontSize: "1.4rem", fontWeight: 700 }}>Culto de Domingo</div>
-            <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
-              {nextCulto.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })} - 19h00
-            </div>
-            <div style={{ marginTop: "0.75rem" }}>
-              <CountdownTimer targetDate={nextCulto} />
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button onClick={() => window.location.href = "/eventos/checkin"}
-              style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              <ScanLineIcon size={15} strokeWidth={1.5} /> Abrir check-in
-            </button>
-          </div>
-        </div>
-      ),
+      image: nextEvent?.banner || undefined,
+      title: nextEvent?.title || "Culto de Domingo",
+      subtitle: nextEvent ? "EVENTO EM DESTAQUE" : "PRÓXIMO CULTO",
+      action: nextEvent ? { label: "Ver Detalhes →", href: `/eventos/${nextEvent.id}` } : { label: "Abrir Check-in", href: "/eventos/checkin" },
     },
+    ...eventos.slice(1, 3).map(e => ({
+      image: e.banner || undefined,
+      title: e.title,
+      subtitle: "EVENTO",
+      action: { label: "Inscrever-se →", href: `/eventos/${e.id}` },
+    })),
+    ...produtos.slice(0, 2).map(p => ({
+      image: p.foto || undefined,
+      title: p.nome,
+      subtitle: "LOJA",
+      action: { label: "Ver Produto →", href: "/vendas/produtos" },
+    })),
     {
-      type: "aniversariantes",
+      title: "EBD — Material do Trimestre",
+      subtitle: "ESCOLA BÍBLICA",
+      action: { label: "Acessar →", href: "/ensino" },
+    },
+  ].filter(s => s.title);
+
+  // Carrossel da DIREITA (menor) — Avisos textuais sem imagens
+  const noticeSlides = [
+    {
+      title: "Próximo Culto",
+      color: "#1A3C6E",
+      icon: <Calendar size={16} strokeWidth={1.5} />,
       content: (
         <div>
-          <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 10, fontWeight: 600 }}>Aniversariantes da Semana</div>
-          {weekBirthdays.length > 0 ? (
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-              {weekBirthdays.slice(0, 4).map((b, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "0.5rem 0.75rem" }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(232,184,75,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700, color: "#E8B84B" }}>
-                    {b.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "0.8rem", fontWeight: 600 }}>{b.name}</div>
-                    <div style={{ fontSize: "0.7rem", opacity: 0.7 }}>{b.date} {b.daysLeft === 0 ? "• Hoje!" : b.daysLeft === 1 ? "• Amanhã" : `• em ${b.daysLeft}d`}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ fontSize: "0.9rem", opacity: 0.7 }}>Nenhum aniversariante esta semana</div>
-          )}
+          <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#111827", marginBottom: 4 }}>Culto de Domingo</div>
+          <div style={{ fontSize: "0.8rem", color: "#6B7280", marginBottom: 8 }}>
+            {nextCulto.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })} — 19h00
+          </div>
+          <CountdownTimer targetDate={nextCulto} />
+          <div style={{ marginTop: 10 }}>
+            <button onClick={() => window.location.href = "/eventos/checkin"}
+              style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.4rem 0.875rem", color: "white", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <ScanLineIcon size={13} strokeWidth={1.5} /> Abrir check-in
+            </button>
+          </div>
         </div>
       ),
     },
     {
-      type: "evento",
-      content: nextEvent ? (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 6, fontWeight: 600 }}>Evento em Destaque</div>
-            <div style={{ fontSize: "1.3rem", fontWeight: 700 }}>{nextEvent.title}</div>
-            <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
-              {new Date(nextEvent.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })}
-              {nextEvent.location ? ` • ${nextEvent.location}` : ""}
+      title: "Aniversariantes",
+      color: "#C8922A",
+      icon: <Users size={16} strokeWidth={1.5} />,
+      content: weekBirthdays.length > 0 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {weekBirthdays.slice(0, 3).map((b, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(232,184,75,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, color: "#C8922A" }}>
+                {b.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
+              </div>
+              <div>
+                <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>{b.name}</div>
+                <div style={{ fontSize: "0.7rem", color: "#9CA3AF" }}>{b.date} {b.daysLeft === 0 ? "• Hoje!" : b.daysLeft === 1 ? "• Amanhã" : `• em ${b.daysLeft}d`}</div>
+              </div>
             </div>
-            <button onClick={() => window.location.href = `/eventos/${nextEvent.id}`}
-              style={{ marginTop: 12, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "0.4rem 0.875rem", color: "white", fontWeight: 500, fontSize: "0.8rem", cursor: "pointer" }}>
-              Ver Detalhes →
-            </button>
-          </div>
+          ))}
         </div>
       ) : (
-        <div style={{ fontSize: "0.9rem", opacity: 0.7 }}>Nenhum evento próximo</div>
+        <div style={{ fontSize: "0.85rem", color: "#9CA3AF" }}>Nenhum aniversariante esta semana</div>
       ),
     },
     {
-      type: "arte",
-      content: (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 6, fontWeight: 600 }}>Arte do Culto</div>
-            <div style={{ fontSize: "1.2rem", fontWeight: 700 }}>Culto de Domingo</div>
-            <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>Compartilhe nas redes sociais</div>
-            <button onClick={() => { const url = `${window.location.origin}/cultos`; navigator.clipboard.writeText(url); }}
-              style={{ marginTop: 12, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "0.4rem 0.875rem", color: "white", fontWeight: 500, fontSize: "0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-              <Copy size={14} /> Copiar link
-            </button>
-          </div>
-          <div style={{ width: 80, height: 80, borderRadius: 12, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Calendar size={36} strokeWidth={1.2} color="rgba(255,255,255,0.3)" />
-          </div>
+      title: "Avisos",
+      color: "#7C3AED",
+      icon: <Bell size={16} strokeWidth={1.5} />,
+      content: notices.length > 0 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          {notices.slice(0, 3).map((n, i) => (
+            <div key={i} style={{ padding: "0.4rem 0", borderBottom: i < notices.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+              <div style={{ fontSize: "0.8rem", fontWeight: 500, color: "#374151" }}>{n.title}</div>
+              <div style={{ fontSize: "0.7rem", color: "#9CA3AF" }}>{n.author} • {n.date}</div>
+            </div>
+          ))}
         </div>
+      ) : (
+        <div style={{ fontSize: "0.85rem", color: "#9CA3AF" }}>Nenhum aviso recente</div>
       ),
     },
     {
-      type: "ebd",
+      title: "Arte do Culto",
+      color: "#0EA5E9",
+      icon: <Calendar size={16} strokeWidth={1.5} />,
       content: (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
-          <div>
-            <div style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(200,146,42,0.9)", marginBottom: 6, fontWeight: 600 }}>EBD — Escola Bíblica Dominical</div>
-            <div style={{ fontSize: "1.2rem", fontWeight: 700 }}>Material do Trimestre</div>
-            <div style={{ fontSize: "0.875rem", color: "rgba(255,255,255,0.6)", marginTop: 4 }}>Lição 8 — O Fruto do Espírito</div>
-            <button onClick={() => window.location.href = "/ensino"}
-              style={{ marginTop: 12, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "0.4rem 0.875rem", color: "white", fontWeight: 500, fontSize: "0.8rem", cursor: "pointer" }}>
-              Acessar material →
+        <div>
+          <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "#374151", marginBottom: 4 }}>Culto de Domingo</div>
+          <div style={{ fontSize: "0.8rem", color: "#6B7280", marginBottom: 8 }}>Arte criada automaticamente para compartilhamento nas redes sociais.</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button onClick={() => { const url = `${window.location.origin}/cultos`; navigator.clipboard.writeText(url); }}
+              style={{ background: "#F3F4F6", border: "none", borderRadius: 6, padding: "0.35rem 0.65rem", color: "#374151", fontWeight: 500, fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              <Copy size={12} /> Copiar link
             </button>
-          </div>
-          <div style={{ width: 80, height: 80, borderRadius: 12, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Users size={36} strokeWidth={1.2} color="rgba(255,255,255,0.3)" />
+            <button onClick={() => window.location.href = "/cultos"}
+              style={{ background: "#1A3C6E", border: "none", borderRadius: 6, padding: "0.35rem 0.65rem", color: "white", fontWeight: 500, fontSize: "0.75rem", cursor: "pointer" }}>
+              Ver cultos
+            </button>
           </div>
         </div>
       ),
@@ -508,9 +576,12 @@ export default function DashboardPage() {
         </button>
       </motion.div>
 
-      {/* Carousel */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <Carousel slides={slides} />
+      {/* Dois Carrosséis lado a lado */}
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+        {/* ESQUERDA (maior) — Banners/Cartazes/Mural */}
+        <ImageCarousel slides={bannerSlides} />
+        {/* DIREITA (menor) — Avisos textuais */}
+        <NoticeCarousel slides={noticeSlides} />
       </div>
 
       {/* Links para Compartilhar */}
