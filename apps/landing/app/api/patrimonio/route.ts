@@ -13,12 +13,13 @@ export async function GET(req: NextRequest) {
 
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
-    const bens = await prisma.patrimonio.findMany({
-      where: { tenantId: user.tenantId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json(bens);
+    // TODO: Criar model Patrimonio no schema.prisma
+    // const bens = await prisma.patrimonio.findMany({
+    //   where: { tenantId: user.tenantId },
+    //   orderBy: { createdAt: "desc" },
+    // });
+    // return NextResponse.json(bens);
+    return NextResponse.json([]);
   } catch (error) {
     console.error("[GET /api/patrimonio]", error);
     return NextResponse.json({ error: "Erro ao buscar patrimônio" }, { status: 500 });
@@ -37,23 +38,14 @@ export async function POST(req: NextRequest) {
 
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
-    const body = await req.json();
-    const { nome, descricao, categoria, localizacao, valor, dataAquisicao, estado } = body;
-
-    const bem = await prisma.patrimonio.create({
-      data: {
-        tenantId: user.tenantId,
-        nome,
-        descricao,
-        categoria,
-        localizacao,
-        valor: valor || 0,
-        dataAquisicao: dataAquisicao ? new Date(dataAquisicao) : null,
-        estado: estado || "BOM",
-      },
-    });
-
-    return NextResponse.json(bem);
+    // TODO: Criar model Patrimonio no schema.prisma
+    // const body = await req.json();
+    // const { nome, descricao, categoria, localizacao, valor, dataAquisicao, estado } = body;
+    // const bem = await prisma.patrimonio.create({
+    //   data: { tenantId: user.tenantId, nome, descricao, categoria, localizacao, valor: valor || 0, dataAquisicao: dataAquisicao ? new Date(dataAquisicao) : null, estado: estado || "BOM" },
+    // });
+    // return NextResponse.json(bem);
+    return NextResponse.json({ message: "Patrimônio em desenvolvimento" }, { status: 501 });
   } catch (error) {
     console.error("[POST /api/patrimonio]", error);
     return NextResponse.json({ error: "Erro ao criar bem" }, { status: 500 });

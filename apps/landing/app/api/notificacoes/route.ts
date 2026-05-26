@@ -13,12 +13,13 @@ export async function GET(req: NextRequest) {
 
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
-    const notificacoes = await prisma.notificacao.findMany({
-      where: { tenantId: user.tenantId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json(notificacoes);
+    // TODO: Criar model Notificacao no schema.prisma
+    // const notificacoes = await prisma.notificacao.findMany({
+    //   where: { tenantId: user.tenantId },
+    //   orderBy: { createdAt: "desc" },
+    // });
+    // return NextResponse.json(notificacoes);
+    return NextResponse.json([]);
   } catch (error) {
     console.error("[GET /api/notificacoes]", error);
     return NextResponse.json({ error: "Erro ao buscar notificações" }, { status: 500 });
@@ -37,25 +38,14 @@ export async function POST(req: NextRequest) {
 
     if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
-    const body = await req.json();
-    const { titulo, mensagem, canal, destinatario, grupoId } = body;
-
-    if (!titulo || !mensagem || !canal || !destinatario) {
-      return NextResponse.json({ error: "Dados incompletos" }, { status: 400 });
-    }
-
-    const notificacao = await prisma.notificacao.create({
-      data: {
-        tenantId: user.tenantId,
-        titulo,
-        mensagem,
-        canal,
-        destinatario,
-        grupoId: grupoId || null,
-      },
-    });
-
-    return NextResponse.json(notificacao);
+    // TODO: Criar model Notificacao no schema.prisma
+    // const body = await req.json();
+    // const { titulo, mensagem, canal, destinatario, grupoId } = body;
+    // const notificacao = await prisma.notificacao.create({
+    //   data: { tenantId: user.tenantId, titulo, mensagem, canal, destinatario, grupoId: grupoId || null },
+    // });
+    // return NextResponse.json(notificacao);
+    return NextResponse.json({ message: "Notificações em desenvolvimento" }, { status: 501 });
   } catch (error) {
     console.error("[POST /api/notificacoes]", error);
     return NextResponse.json({ error: "Erro ao criar notificação" }, { status: 500 });

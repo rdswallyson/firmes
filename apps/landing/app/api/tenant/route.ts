@@ -28,7 +28,6 @@ export async function GET() {
         subscriptionStatus: true,
         customName: true,
         customDomain: true,
-        pixKey: true,
         onboardingCompleted: true,
         createdAt: true,
       },
@@ -56,7 +55,6 @@ export async function PUT(req: NextRequest) {
       domain,
       customName,
       customDomain,
-      pixKey,
     } = body;
 
     const tenant = await prisma.tenant.update({
@@ -68,7 +66,7 @@ export async function PUT(req: NextRequest) {
         ...(secondaryColor !== undefined && { secondaryColor }),
         ...(domain !== undefined && { domain }),
         ...(customName !== undefined && { customName }),
-        ...(pixKey !== undefined && { pixKey }),
+        ...(customDomain !== undefined && { customDomain }),
       },
     });
 

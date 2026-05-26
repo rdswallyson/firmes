@@ -1,22 +1,11 @@
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-enum Plan {
-  FREE
-  PRATA
-  OURO
-  DIAMANTE
-  ESMERALDA_STARTER
-  ESMERALDA_PRO
-  ESMERALDA_PLUS
-  ESMERALDA_ULTRA
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Tenant {
@@ -32,82 +21,80 @@ model Tenant {
   maxChurches          Int             @default(1)
   resellerId           String?
   isActive             Boolean         @default(true)
-  // Stripe fields
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  stripePriceId        String?
-  trialEndsAt          DateTime?
-  subscriptionStatus   String? // active, past_due, canceled, trialing
-  // Branding
-  customName           String? // Nome personalizado do sistema
-  customDomain         String? // subdominio.firmes.app
-  pixKey               String? // Chave PIX da igreja
-  onboardingCompleted  Boolean         @default(false)
   createdAt            DateTime        @default(now())
-  users                User[]
-  members              Member[]
-  groups               Group[]
-  events               Event[]
-  inscricoes           Inscricao[]
-  finances             Finance[]
-  contas               ContaBancaria[]
-  metas                Meta[]
-  produtos             Produto[]
-  pedidos              Pedido[]
-  cupons               Cupom[]
-  midias               Midia[]
-  cultos               Culto[]
+  customDomain         String?
+  customName           String?
+  stripeCustomerId     String?
+  stripePriceId        String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String?
+  trialEndsAt          DateTime?
+  onboardingCompleted  Boolean         @default(false)
   checkins             Checkin[]
+  contas               ContaBancaria[]
+  cultos               Culto[]
+  cupons               Cupom[]
   escalas              Escala[]
-  notificacoes         Notificacao[]
-  patrimonios          Patrimonio[]
-  churches             Tenant[]        @relation("ResellerChurches")
+  events               Event[]
+  finances             Finance[]
+  groups               Group[]
+  inscricoes           Inscricao[]
+  members              Member[]
+  metas                Meta[]
+  midias               Midia[]
+  pedidos              Pedido[]
+  produtos             Produto[]
   reseller             Tenant?         @relation("ResellerChurches", fields: [resellerId], references: [id])
+  churches             Tenant[]        @relation("ResellerChurches")
+  users                User[]
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("ADMIN")
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  avatar    String?
-  phone     String?
-  isActive  Boolean  @default(true)
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  password        String
+  role            String    @default("ADMIN")
+  tenantId        String
+  avatar          String?
+  phone           String?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
   acceptedTermsAt DateTime?
-  createdAt DateTime @default(now())
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([email])
 }
 
 model Member {
   id           String         @id @default(cuid())
   tenantId     String
-  tenant       Tenant         @relation(fields: [tenantId], references: [id])
   name         String
   email        String?
   phone        String?
   birthDate    DateTime?
-  baptismDate  DateTime?
   address      String?
-  cep          String?
-  city         String?
-  state        String?
-  neighborhood String?
-  number       String?
-  complement   String?
   photo        String?
   memberSince  DateTime       @default(now())
   status       String         @default("ACTIVE")
   role         String?
   groupId      String?
-  notes        String?
-  isActive     Boolean        @default(true)
   createdAt    DateTime       @default(now())
+  baptismDate  DateTime?
+  cep          String?
+  city         String?
+  complement   String?
+  isActive     Boolean        @default(true)
+  neighborhood String?
+  notes        String?
+  number       String?
+  state        String?
   updatedAt    DateTime       @default(now()) @updatedAt
-  groups       GroupMember[]
-  lideraGroups Group[]        @relation("GroupToLeader")
   escalas      EscalaMembro[]
+  lideraGroups Group[]        @relation("GroupToLeader")
+  groups       GroupMember[]
+  tenant       Tenant         @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -120,18 +107,18 @@ model Member {
 model Group {
   id          String            @id @default(cuid())
   tenantId    String
-  tenant      Tenant            @relation(fields: [tenantId], references: [id])
   name        String
   description String?
   leaderId    String?
-  leader      Member?           @relation("GroupToLeader", fields: [leaderId], references: [id])
   meetingDay  String?
   meetingTime String?
-  address     String?
   isActive    Boolean           @default(true)
   createdAt   DateTime          @default(now())
-  members     GroupMember[]
+  address     String?
+  leader      Member?           @relation("GroupToLeader", fields: [leaderId], references: [id])
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
   frequencias GroupFrequencia[]
+  members     GroupMember[]
 
   @@index([tenantId])
   @@index([tenantId, isActive])
@@ -140,10 +127,10 @@ model Group {
 model GroupMember {
   id       String   @id @default(cuid())
   groupId  String
-  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   memberId String
-  member   Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
   joinedAt DateTime @default(now())
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member   Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, memberId])
 }
@@ -151,13 +138,13 @@ model GroupMember {
 model GroupFrequencia {
   id         String   @id @default(cuid())
   groupId    String
-  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   date       DateTime
   presentes  Int      @default(0)
   ausentes   Int      @default(0)
   visitantes Int      @default(0)
   observacao String?
   createdAt  DateTime @default(now())
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@index([groupId, date])
 }
@@ -165,38 +152,38 @@ model GroupFrequencia {
 model Event {
   id                String               @id @default(cuid())
   tenantId          String
-  tenant            Tenant               @relation(fields: [tenantId], references: [id])
   title             String
-  slug              String?              @unique
   description       String?
   date              DateTime
   location          String?
-  banner            String?
-  maxVagas          Int?
-  isGratuito        Boolean              @default(true)
-  valor             Float?
-  linkExterno       String?
-  status            String               @default("ABERTO")
-  recorrente        Boolean              @default(false)
   isPublic          Boolean              @default(true)
-  avancado          Boolean              @default(false)
+  createdAt         DateTime             @default(now())
+  banner            String?
+  isGratuito        Boolean              @default(true)
+  linkExterno       String?
+  maxVagas          Int?
+  recorrente        Boolean              @default(false)
+  slug              String?              @unique
+  status            String               @default("ABERTO")
+  valor             Float?
   alimentacaoAtiva  Boolean              @default(false)
   alimentacaoModelo String?
-  endereco          String?
-  googleMapsLink    String?
+  avancado          Boolean              @default(false)
   cidadeExterna     String?
   enderecoRetirada  String?
   instrucaoRetirada String?
-  createdAt         DateTime             @default(now())
-  inscricoes        Inscricao[]
-  produtos          EventoProduto[]
-  refeicoes         EventoRefeicao[]
+  endereco          String?
+  googleMapsLink    String?
+  tenant            Tenant               @relation(fields: [tenantId], references: [id])
   checkinPontos     EventoCheckinPonto[]
-  fases             EventoFase[]
-  equipes           EventoEquipe[]
   checklist         EventoChecklist[]
+  equipes           EventoEquipe[]
+  fases             EventoFase[]
   marcos            EventoMarco[]
+  produtos          EventoProduto[]
   recursos          EventoRecurso[]
+  refeicoes         EventoRefeicao[]
+  inscricoes        Inscricao[]
 
   @@index([tenantId])
   @@index([tenantId, date])
@@ -207,9 +194,7 @@ model Event {
 model Inscricao {
   id              String                @id @default(cuid())
   tenantId        String
-  tenant          Tenant                @relation(fields: [tenantId], references: [id])
   eventId         String
-  event           Event                 @relation(fields: [eventId], references: [id])
   nome            String
   email           String
   telefone        String?
@@ -218,12 +203,14 @@ model Inscricao {
   status          String                @default("CONFIRMADO")
   qrCode          String                @unique
   checkinAt       DateTime?
-  formaPagamento  String?
-  pagamentoStatus String                @default("PENDENTE")
-  lancamentoId    String?
   createdAt       DateTime              @default(now())
-  itensPedido     InscricaoPedidoItem[]
+  formaPagamento  String?
+  lancamentoId    String?
+  pagamentoStatus String                @default("PENDENTE")
   scans           EventoCheckinScan[]
+  event           Event                 @relation(fields: [eventId], references: [id])
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
+  itensPedido     InscricaoPedidoItem[]
   refeicoesUsadas InscricaoRefeicao[]
 
   @@index([tenantId])
@@ -235,23 +222,23 @@ model Inscricao {
 model Finance {
   id            String         @id @default(cuid())
   tenantId      String
-  tenant        Tenant         @relation(fields: [tenantId], references: [id])
   type          String
   category      String
   amount        Float
   description   String?
   date          DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  contaId       String?
+  isActive      Boolean        @default(true)
   memberId      String?
   memberName    String?
-  contaId       String?
-  conta         ContaBancaria? @relation(fields: [contaId], references: [id])
   metaId        String?
-  meta          Meta?          @relation(fields: [metaId], references: [id])
   reciboNum     String?
   paymentMethod String?
   status        String         @default("CONFIRMADO")
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
+  conta         ContaBancaria? @relation(fields: [contaId], references: [id])
+  meta          Meta?          @relation(fields: [metaId], references: [id])
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([tenantId, createdAt])
@@ -262,7 +249,6 @@ model Finance {
 model ContaBancaria {
   id          String    @id @default(cuid())
   tenantId    String
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   nome        String
   banco       String?
   agencia     String?
@@ -270,6 +256,7 @@ model ContaBancaria {
   saldo       Float     @default(0)
   isAtiva     Boolean   @default(true)
   createdAt   DateTime  @default(now())
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   finances    Finance[]
 
   @@index([tenantId])
@@ -278,7 +265,6 @@ model ContaBancaria {
 model Meta {
   id         String    @id @default(cuid())
   tenantId   String
-  tenant     Tenant    @relation(fields: [tenantId], references: [id])
   titulo     String
   descricao  String?
   valorMeta  Float
@@ -287,6 +273,7 @@ model Meta {
   isAtiva    Boolean   @default(true)
   createdAt  DateTime  @default(now())
   finances   Finance[]
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
 }
@@ -298,8 +285,6 @@ model AuditLog {
   details   String
   createdAt DateTime @default(now())
 }
-
-// ── Alimentação ──────────────────────────────────────────
 
 model EventoRefeicao {
   id      String              @id @default(cuid())
@@ -326,8 +311,6 @@ model InscricaoRefeicao {
   @@unique([inscricaoId, refeicaoId, dia])
 }
 
-// ── Check-in Múltiplo por Pontos ─────────────────────────
-
 model EventoCheckinPonto {
   id      String              @id @default(cuid())
   eventId String
@@ -335,8 +318,8 @@ model EventoCheckinPonto {
   tipo    String
   qrToken String              @unique
   ativo   Boolean             @default(true)
-  scans   EventoCheckinScan[]
   event   Event               @relation(fields: [eventId], references: [id])
+  scans   EventoCheckinScan[]
 }
 
 model EventoCheckinScan {
@@ -345,11 +328,9 @@ model EventoCheckinScan {
   inscricaoId String
   dataHora    DateTime           @default(now())
   valido      Boolean            @default(true)
-  ponto       EventoCheckinPonto @relation(fields: [pontoId], references: [id])
   inscricao   Inscricao          @relation(fields: [inscricaoId], references: [id])
+  ponto       EventoCheckinPonto @relation(fields: [pontoId], references: [id])
 }
-
-// ── Módulo Vendas ────────────────────────────────────────
 
 model Produto {
   id             String            @id @default(cuid())
@@ -361,11 +342,11 @@ model Produto {
   categoria      String
   estoque        Int               @default(0)
   ativo          Boolean           @default(true)
-  variacoes      ProdutoVariacao[]
-  pedidoItens    PedidoItem[]
-  eventoProdutos EventoProduto[]
-  tenant         Tenant            @relation(fields: [tenantId], references: [id])
   createdAt      DateTime          @default(now())
+  eventoProdutos EventoProduto[]
+  pedidoItens    PedidoItem[]
+  tenant         Tenant            @relation(fields: [tenantId], references: [id])
+  variacoes      ProdutoVariacao[]
 
   @@index([tenantId])
   @@index([tenantId, ativo])
@@ -393,9 +374,9 @@ model Pedido {
   total          Float
   lancamentoId   String?
   eventId        String?
-  itens          PedidoItem[]
-  tenant         Tenant       @relation(fields: [tenantId], references: [id])
   createdAt      DateTime     @default(now())
+  tenant         Tenant       @relation(fields: [tenantId], references: [id])
+  itens          PedidoItem[]
 }
 
 model PedidoItem {
@@ -446,8 +427,6 @@ model Cupom {
   @@index([tenantId])
 }
 
-// ── Evento Avançado ──────────────────────────────────────
-
 model EventoFase {
   id         String    @id @default(cuid())
   eventId    String
@@ -465,8 +444,8 @@ model EventoEquipe {
   nome          String
   funcao        String
   responsavelId String?
-  membros       EventoMembro[]
   event         Event          @relation(fields: [eventId], references: [id])
+  membros       EventoMembro[]
 }
 
 model EventoMembro {
@@ -507,27 +486,24 @@ model EventoRecurso {
   event      Event   @relation(fields: [eventId], references: [id])
 }
 
-// ── Mídias ───────────────────────────────────────────────
-
 model Midia {
   id          String    @id @default(cuid())
   tenantId    String
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   titulo      String
-  tipo        String // AUDIO | VIDEO
-  categoria   String // SERMAO | LOUVOR | ESTUDO | OUTROS
+  tipo        String
+  categoria   String
   url         String
   pregador    String?
   data        DateTime?
   duracao     String?
   reproducoes Int       @default(0)
   createdAt   DateTime  @default(now())
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([tenantId, tipo])
 }
 
-// ── ENSINO & DISCIPULADO ──────────────────────────────
 model CursoCategoria {
   id        String   @id @default(cuid())
   tenantId  String
@@ -545,17 +521,14 @@ model Curso {
   titulo       String
   descricao    String?
   banner       String?
-  categoria    String           @default("ESTUDO") // ESTUDO | DISCIPULADO | ESCOLA | OUTROS
-  nivel        String           @default("INICIANTE") // INICIANTE | INTERMEDIARIO | AVANCADO
+  categoria    String           @default("ESTUDO")
+  nivel        String           @default("INICIANTE")
   publicado    Boolean          @default(false)
   cargaHoraria Int?
   instrutor    String?
+  createdAt    DateTime         @default(now())
   modulos      CursoModulo[]
   progressos   CursoProgresso[]
-  createdAt    DateTime         @default(now())
-
-  @@index([tenantId])
-  @@index([tenantId, publicado])
 }
 
 model CursoModulo {
@@ -563,16 +536,16 @@ model CursoModulo {
   cursoId String
   titulo  String
   ordem   Int         @default(0)
-  curso   Curso       @relation(fields: [cursoId], references: [id])
   aulas   CursoAula[]
+  curso   Curso       @relation(fields: [cursoId], references: [id])
 }
 
 model CursoAula {
   id         String           @id @default(cuid())
   moduloId   String
   titulo     String
-  tipo       String           @default("VIDEO") // VIDEO | PDF | TEXTO
-  conteudo   String? // URL do video ou PDF, ou texto
+  tipo       String           @default("VIDEO")
+  conteudo   String?
   duracao    String?
   ordem      Int              @default(0)
   modulo     CursoModulo      @relation(fields: [moduloId], references: [id])
@@ -586,8 +559,8 @@ model CursoProgresso {
   memberId  String
   concluido Boolean   @default(false)
   dataHora  DateTime  @default(now())
-  curso     Curso     @relation(fields: [cursoId], references: [id])
   aula      CursoAula @relation(fields: [aulaId], references: [id])
+  curso     Curso     @relation(fields: [cursoId], references: [id])
 
   @@unique([cursoId, aulaId, memberId])
 }
@@ -595,13 +568,13 @@ model CursoProgresso {
 model Culto {
   id        String    @id @default(cuid())
   tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
   titulo    String
   data      DateTime
   qrCode    String    @unique
   ativo     Boolean   @default(true)
-  checkins  Checkin[]
   createdAt DateTime  @default(now())
+  checkins  Checkin[]
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([tenantId, data])
@@ -611,15 +584,15 @@ model Culto {
 model Checkin {
   id           String   @id @default(cuid())
   cultoId      String
-  culto        Culto    @relation(fields: [cultoId], references: [id])
   tenantId     String
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
   nome         String
-  tipo         String // MEMBRO | VISITANTE
+  tipo         String
   memberId     String?
   telefone     String?
   comoConheceu String?
   createdAt    DateTime @default(now())
+  culto        Culto    @relation(fields: [cultoId], references: [id])
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([cultoId])
@@ -629,14 +602,14 @@ model Checkin {
 model Escala {
   id          String         @id @default(cuid())
   tenantId    String
-  tenant      Tenant         @relation(fields: [tenantId], references: [id])
   titulo      String
   data        DateTime
-  ministerio  String // LOUVOR | SOM | RECEPCAO | PORTARIA | INFANTIL
+  ministerio  String
   observacoes String?
-  status      String         @default("ATIVA") // ATIVA | ENCERRADA | CANCELADA
-  membros     EscalaMembro[]
+  status      String         @default("ATIVA")
   createdAt   DateTime       @default(now())
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  membros     EscalaMembro[]
 
   @@index([tenantId])
   @@index([tenantId, data])
@@ -646,46 +619,24 @@ model Escala {
 model EscalaMembro {
   id        String   @id @default(cuid())
   escalaId  String
-  escala    Escala   @relation(fields: [escalaId], references: [id])
   memberId  String
-  member    Member   @relation(fields: [memberId], references: [id])
-  funcao    String // ex: Baterista, Vocal, Recepcionista
-  status    String   @default("PENDENTE") // PENDENTE | CONFIRMADO | RECUSADO
+  funcao    String
+  status    String   @default("PENDENTE")
   createdAt DateTime @default(now())
+  escala    Escala   @relation(fields: [escalaId], references: [id], onDelete: Cascade)
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([escalaId])
+  @@index([memberId])
 }
 
-model Patrimonio {
-  id            String    @id @default(cuid())
-  tenantId      String
-  tenant        Tenant    @relation(fields: [tenantId], references: [id])
-  nome          String
-  descricao     String?
-  categoria     String    @default("Geral")
-  localizacao   String    @default("Igreja")
-  valor         Float     @default(0)
-  dataAquisicao DateTime?
-  estado        String    @default("BOM") // NOVO | BOM | REGULAR | DEFEITO | DESCARTADO
-  foto          String?
-  createdAt     DateTime  @default(now())
-
-  @@index([tenantId])
-  @@index([tenantId, categoria])
-  @@index([tenantId, estado])
-}
-
-model Notificacao {
-  id            String    @id @default(cuid())
-  tenantId      String
-  tenant        Tenant    @relation(fields: [tenantId], references: [id])
-  titulo        String
-  mensagem      String
-  canal         String // EMAIL | WHATSAPP | PUSH
-  destinatario  String // TODOS | GRUPO | ANIVERSARIANTES | AUSENTES | ESCALADOS
-  grupoId       String?
-  enviadoEm     DateTime?
-  totalEnviados Int       @default(0)
-  createdAt     DateTime  @default(now())
-
-  @@index([tenantId])
-  @@index([tenantId, enviadoEm])
+enum Plan {
+  FREE
+  PRATA
+  OURO
+  DIAMANTE
+  ESMERALDA_STARTER
+  ESMERALDA_PRO
+  ESMERALDA_PLUS
+  ESMERALDA_ULTRA
 }

@@ -2,6 +2,7 @@
 -- FIRMES — Row Level Security (RLS)
 -- Gerado pela Fase B-Zero
 -- Isola dados entre tenants no nível do banco de dados
+-- Tabelas existentes no banco de produção (após db pull)
 -- ============================================================
 
 -- PASSO 1: Habilitar RLS em todas as tabelas principais
@@ -14,14 +15,12 @@ ALTER TABLE "Produto" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Escala"  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Inscricao" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Checkin" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Patrimonio" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Midia" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Curso" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Cupom" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Pedido" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "ContaBancaria" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Meta" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "Notificacao" ENABLE ROW LEVEL SECURITY;
 
 -- PASSO 2: Policies para o service_role (usado pelo Prisma/backend)
 CREATE POLICY "service_role_all_member"
@@ -78,12 +77,6 @@ CREATE POLICY "service_role_all_checkin"
   USING (true)
   WITH CHECK (true);
 
-CREATE POLICY "service_role_all_patrimonio"
-  ON "Patrimonio" FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
 CREATE POLICY "service_role_all_midia"
   ON "Midia" FOR ALL
   TO service_role
@@ -116,12 +109,6 @@ CREATE POLICY "service_role_all_contabancaria"
 
 CREATE POLICY "service_role_all_meta"
   ON "Meta" FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
-CREATE POLICY "service_role_all_notificacao"
-  ON "Notificacao" FOR ALL
   TO service_role
   USING (true)
   WITH CHECK (true);
@@ -172,11 +159,6 @@ CREATE POLICY "block_anon_checkin"
   TO anon, authenticated
   USING (false);
 
-CREATE POLICY "block_anon_patrimonio"
-  ON "Patrimonio" FOR ALL
-  TO anon, authenticated
-  USING (false);
-
 CREATE POLICY "block_anon_midia"
   ON "Midia" FOR ALL
   TO anon, authenticated
@@ -204,10 +186,5 @@ CREATE POLICY "block_anon_contabancaria"
 
 CREATE POLICY "block_anon_meta"
   ON "Meta" FOR ALL
-  TO anon, authenticated
-  USING (false);
-
-CREATE POLICY "block_anon_notificacao"
-  ON "Notificacao" FOR ALL
   TO anon, authenticated
   USING (false);
