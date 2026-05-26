@@ -221,15 +221,15 @@ function NoticeCarousel({ slides }: { slides: { title: string; content: React.Re
   if (slides.length === 0) return null;
 
   return (
-    <div style={{ position: "relative", width: "100%", borderRadius: 12, overflow: "hidden", minHeight: 280, background: "white", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+    <div style={{ position: "relative", width: "100%", borderRadius: 12, overflow: "hidden", minHeight: 280, background: "linear-gradient(135deg, #C8922A 0%, #E8B84B 100%)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div style={{ padding: "1.25rem", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "1.25rem", height: "100%", display: "flex", flexDirection: "column", color: "white" }}>
         <AnimatePresence mode="wait">
           <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
             style={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-              {slides[idx]?.icon && <div style={{ color: slides[idx]?.color || "#1A3C6E" }}>{slides[idx]?.icon}</div>}
-              <div style={{ fontSize: "0.7rem", letterSpacing: "0.05em", textTransform: "uppercase", color: slides[idx]?.color || "#1A3C6E", fontWeight: 700 }}>
+              {slides[idx]?.icon && <div style={{ color: "white" }}>{slides[idx]?.icon}</div>}
+              <div style={{ fontSize: "0.7rem", letterSpacing: "0.05em", textTransform: "uppercase", color: "white", fontWeight: 700 }}>
                 {slides[idx]?.title}
               </div>
             </div>
@@ -243,17 +243,17 @@ function NoticeCarousel({ slides }: { slides: { title: string; content: React.Re
       {slides.length > 1 && (
         <>
           <button onClick={() => setIdx(p => (p - 1 + slides.length) % slides.length)}
-            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#6B7280" }}>
+            style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}>
             <ChevronLeft size={14} />
           </button>
           <button onClick={() => setIdx(p => (p + 1) % slides.length)}
-            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#6B7280" }}>
+            style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}>
             <ChevronRight size={14} />
           </button>
           <div style={{ position: "absolute", bottom: 10, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 4 }}>
             {slides.map((_, i) => (
               <button key={i} onClick={() => setIdx(i)}
-                style={{ width: i === idx ? 14 : 5, height: 5, borderRadius: 3, background: i === idx ? "#C8922A" : "#D1D5DB", border: "none", cursor: "pointer", transition: "all 0.25s" }} />
+                style={{ width: i === idx ? 14 : 5, height: 5, borderRadius: 3, background: i === idx ? "white" : "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.25s" }} />
             ))}
           </div>
         </>
@@ -469,14 +469,14 @@ export default function DashboardPage() {
       icon: <Calendar size={16} strokeWidth={1.5} />,
       content: (
         <div>
-          <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#111827", marginBottom: 4 }}>Culto de Domingo</div>
-          <div style={{ fontSize: "0.8rem", color: "#6B7280", marginBottom: 8 }}>
+          <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "white", marginBottom: 4 }}>Culto de Domingo</div>
+          <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)", marginBottom: 8 }}>
             {nextCulto.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })} — 19h00
           </div>
           <CountdownTimer targetDate={nextCulto} />
           <div style={{ marginTop: 10 }}>
             <button onClick={() => window.location.href = "/eventos/checkin"}
-              style={{ background: "#C8922A", border: "none", borderRadius: 8, padding: "0.4rem 0.875rem", color: "white", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              style={{ background: "white", border: "none", borderRadius: 8, padding: "0.4rem 0.875rem", color: "#C8922A", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
               <ScanLineIcon size={13} strokeWidth={1.5} /> Abrir check-in
             </button>
           </div>
@@ -491,18 +491,18 @@ export default function DashboardPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {weekBirthdays.slice(0, 3).map((b, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(232,184,75,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, color: "#C8922A" }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, color: "white" }}>
                 {b.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
               </div>
               <div>
-                <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>{b.name}</div>
-                <div style={{ fontSize: "0.7rem", color: "#9CA3AF" }}>{b.date} {b.daysLeft === 0 ? "• Hoje!" : b.daysLeft === 1 ? "• Amanhã" : `• em ${b.daysLeft}d`}</div>
+                <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "white" }}>{b.name}</div>
+                <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.7)" }}>{b.date} {b.daysLeft === 0 ? "• Hoje!" : b.daysLeft === 1 ? "• Amanhã" : `• em ${b.daysLeft}d`}</div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div style={{ fontSize: "0.85rem", color: "#9CA3AF" }}>Nenhum aniversariante esta semana</div>
+        <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)" }}>Nenhum aniversariante esta semana</div>
       ),
     },
     {
@@ -512,14 +512,14 @@ export default function DashboardPage() {
       content: notices.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
           {notices.slice(0, 3).map((n, i) => (
-            <div key={i} style={{ padding: "0.4rem 0", borderBottom: i < notices.length - 1 ? "1px solid #F3F4F6" : "none" }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 500, color: "#374151" }}>{n.title}</div>
-              <div style={{ fontSize: "0.7rem", color: "#9CA3AF" }}>{n.author} • {n.date}</div>
+            <div key={i} style={{ padding: "0.4rem 0", borderBottom: i < notices.length - 1 ? "1px solid rgba(255,255,255,0.15)" : "none" }}>
+              <div style={{ fontSize: "0.8rem", fontWeight: 500, color: "white" }}>{n.title}</div>
+              <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.7)" }}>{n.author} • {n.date}</div>
             </div>
           ))}
         </div>
       ) : (
-        <div style={{ fontSize: "0.85rem", color: "#9CA3AF" }}>Nenhum aviso recente</div>
+        <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)" }}>Nenhum aviso recente</div>
       ),
     },
     {
@@ -528,15 +528,15 @@ export default function DashboardPage() {
       icon: <Calendar size={16} strokeWidth={1.5} />,
       content: (
         <div>
-          <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "#374151", marginBottom: 4 }}>Culto de Domingo</div>
-          <div style={{ fontSize: "0.8rem", color: "#6B7280", marginBottom: 8 }}>Arte criada automaticamente para compartilhamento nas redes sociais.</div>
+          <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "white", marginBottom: 4 }}>Culto de Domingo</div>
+          <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)", marginBottom: 8 }}>Arte criada automaticamente para compartilhamento nas redes sociais.</div>
           <div style={{ display: "flex", gap: 6 }}>
             <button onClick={() => { const url = `${window.location.origin}/cultos`; navigator.clipboard.writeText(url); }}
-              style={{ background: "#F3F4F6", border: "none", borderRadius: 6, padding: "0.35rem 0.65rem", color: "#374151", fontWeight: 500, fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, padding: "0.35rem 0.65rem", color: "white", fontWeight: 500, fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
               <Copy size={12} /> Copiar link
             </button>
             <button onClick={() => window.location.href = "/cultos"}
-              style={{ background: "#1A3C6E", border: "none", borderRadius: 6, padding: "0.35rem 0.65rem", color: "white", fontWeight: 500, fontSize: "0.75rem", cursor: "pointer" }}>
+              style={{ background: "white", border: "none", borderRadius: 6, padding: "0.35rem 0.65rem", color: "#C8922A", fontWeight: 500, fontSize: "0.75rem", cursor: "pointer" }}>
               Ver cultos
             </button>
           </div>
@@ -547,30 +547,14 @@ export default function DashboardPage() {
 
   return (
     <div className="page-pad" style={{ maxWidth: "1400px", margin: "0 auto" }}>
-      {/* Trial Banner */}
-      {trialInfo?.isTrialing && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: "linear-gradient(135deg, #0D2545, #1A3C6E)", borderRadius: 12, padding: "14px 20px", marginBottom: "1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", color: "white" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Clock size={20} style={{ color: "#C8922A" }} />
-            <span style={{ fontSize: 14, fontWeight: 600 }}>
-              Seu trial termina em <strong style={{ color: "#C8922A" }}>{trialInfo.daysLeft} dias</strong> — Assine agora para manter o acesso.
-            </span>
-          </div>
-          <a href="/planos" style={{ padding: "8px 18px", background: "#C8922A", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
-            Assinar agora
-          </a>
-        </motion.div>
-      )}
-
-      {/* Header */}
+      {/* Header com Faixa Azul */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+        style={{ background: "linear-gradient(135deg, #0D2545 0%, #1A3C6E 100%)", borderRadius: 12, padding: "1.25rem 1.5rem", marginBottom: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", color: "white" }}>
         <div>
-          <h1 className="dashboard-greeting" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0D2545", margin: 0 }}>{getGreeting()}, {userName}!</h1>
-          <p style={{ color: "#6B7280", marginTop: 2, fontSize: "0.875rem", textTransform: "capitalize" }}>{formatDate()}</p>
+          <h1 className="dashboard-greeting" style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0, color: "white" }}>{getGreeting()}, {userName}!</h1>
+          <p style={{ color: "rgba(255,255,255,0.7)", marginTop: 2, fontSize: "0.875rem", textTransform: "capitalize" }}>{formatDate()}</p>
         </div>
-        <button style={{ background: "white", border: "1px solid #E5E7EB", borderRadius: 10, padding: "0.6rem 0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", color: "#374151", fontSize: "0.875rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+        <button style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, padding: "0.6rem 0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", color: "white", fontSize: "0.875rem", backdropFilter: "blur(4px)" }}>
           <Bell size={17} strokeWidth={1.5} />
           <span style={{ background: "#DC2626", color: "white", fontSize: "0.65rem", fontWeight: 700, borderRadius: 10, padding: "1px 5px" }}>3</span>
         </button>
@@ -584,21 +568,21 @@ export default function DashboardPage() {
         <NoticeCarousel slides={noticeSlides} />
       </div>
 
-      {/* Links para Compartilhar */}
+      {/* Links para Compartilhar — Mais fino */}
       {publicLinks.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
-          style={{ background: "white", borderRadius: 12, padding: "1rem 1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: "1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-            <LinkIcon size={15} strokeWidth={1.5} color="#1A3C6E" />
-            <h3 style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Links para Compartilhar</h3>
+          style={{ background: "white", borderRadius: 12, padding: "0.75rem 1rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+            <LinkIcon size={14} strokeWidth={1.5} color="#1A3C6E" />
+            <h3 style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, color: "#111827" }}>Links para Compartilhar</h3>
           </div>
-          <div className="links-row" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+          <div className="links-row" style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             {publicLinks.map((link, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.5rem 0.75rem", borderRadius: 8, background: "#FAFAFA", border: "1px solid #F3F4F6", minWidth: 0, flex: "1 1 260px" }}>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.35rem 0.5rem", borderRadius: 6, background: "#FAFAFA", border: "1px solid #F3F4F6", minWidth: 0, flex: "1 1 200px" }}>
                 {link.icon}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.label}</div>
-                  <div style={{ fontSize: "0.7rem", color: "#9CA3AF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.url}</div>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.label}</div>
+                  <div style={{ fontSize: "0.65rem", color: "#9CA3AF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{link.url}</div>
                 </div>
                 <CopyButton text={link.url} />
               </div>
@@ -607,22 +591,10 @@ export default function DashboardPage() {
         </motion.div>
       )}
 
-      {/* Stat Cards — 2 linhas de 3 */}
-      <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
-        <StatCard icon={<Users size={20} strokeWidth={1.5} />} label="Total Membros" value={totalMembers} change="+12%" positive color="#1A3C6E" delay={0.25} sparklineData={sparkMembers} />
-        <StatCard icon={<DollarSign size={20} strokeWidth={1.5} />} label="Saldo do Mês" value={totalFinances} change="+8%" positive color="#16A34A" delay={0.3} sparklineData={sparkFinances} />
-        <StatCard icon={<CheckSquare size={20} strokeWidth={1.5} />} label="Check-ins Hoje" value={checkinsHoje} change={`${checkins?.variacao && checkins.variacao >= 0 ? "+" : ""}${checkins?.variacao ?? -5}%`} positive={(checkins?.variacao ?? -5) >= 0} color="#7C3AED" delay={0.35} sparklineData={sparkCheckins} />
-      </div>
-      <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
-        <StatCard icon={<Calendar size={20} strokeWidth={1.5} />} label="Eventos Ativos" value={upcomingEvents} change="+2" positive color="#C8922A" delay={0.4} sparklineData={sparkEvents} />
-        <ProgressStatCard icon={<DollarSign size={20} strokeWidth={1.5} />} label="Dízimos (Mês)" value={Math.round(totalFinances * 0.73)} goal={8000} change="+15%" positive color="#1A3C6E" delay={0.45} />
-        <StatCard icon={<Users size={20} strokeWidth={1.5} />} label="Presença Média" value={68} change="+3pts" positive color="#0EA5E9" delay={0.5} sparklineData={[62, 64, 65, 63, 66, 67, 68]} />
-      </div>
-
-      {/* Gráficos — 3 colunas */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+      {/* Gráficos — 3 colunas (MOVIDO PARA CIMA) */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
         {/* Crescimento de Membros */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }}
           style={{ background: "white", borderRadius: 12, padding: "1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h3 style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Crescimento de Membros</h3>
@@ -641,7 +613,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Financeiro — Donut */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.4 }}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }}
           style={{ background: "white", borderRadius: 12, padding: "1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h3 style={{ margin: "0 0 1rem", fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Financeiro — Maio</h3>
           <ResponsiveContainer width="100%" height={160}>
@@ -666,7 +638,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Presença por Culto */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.4 }}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.4 }}
           style={{ background: "white", borderRadius: 12, padding: "1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h3 style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#111827" }}>Presença por Culto</h3>
@@ -682,6 +654,18 @@ export default function DashboardPage() {
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
+      </div>
+
+      {/* Stat Cards — 2 linhas de 3 (AGORA ABAIXO DOS GRÁFICOS) */}
+      <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
+        <StatCard icon={<Users size={20} strokeWidth={1.5} />} label="Total Membros" value={totalMembers} change="+12%" positive color="#1A3C6E" delay={0.45} sparklineData={sparkMembers} />
+        <StatCard icon={<DollarSign size={20} strokeWidth={1.5} />} label="Saldo do Mês" value={totalFinances} change="+8%" positive color="#16A34A" delay={0.5} sparklineData={sparkFinances} />
+        <StatCard icon={<CheckSquare size={20} strokeWidth={1.5} />} label="Check-ins Hoje" value={checkinsHoje} change={`${checkins?.variacao && checkins.variacao >= 0 ? "+" : ""}${checkins?.variacao ?? -5}%`} positive={(checkins?.variacao ?? -5) >= 0} color="#7C3AED" delay={0.55} sparklineData={sparkCheckins} />
+      </div>
+      <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+        <StatCard icon={<Calendar size={20} strokeWidth={1.5} />} label="Eventos Ativos" value={upcomingEvents} change="+2" positive color="#C8922A" delay={0.6} sparklineData={sparkEvents} />
+        <ProgressStatCard icon={<DollarSign size={20} strokeWidth={1.5} />} label="Dízimos (Mês)" value={Math.round(totalFinances * 0.73)} goal={8000} change="+15%" positive color="#1A3C6E" delay={0.65} />
+        <StatCard icon={<Users size={20} strokeWidth={1.5} />} label="Presença Média" value={68} change="+3pts" positive color="#0EA5E9" delay={0.7} sparklineData={[62, 64, 65, 63, 66, 67, 68]} />
       </div>
 
       {/* Seções Inferiores — 2 colunas */}
