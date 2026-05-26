@@ -86,7 +86,7 @@ export default function PessoasPage() {
     { label: "Total", value: total, icon: <Users size={20} strokeWidth={1.5} />, color: "#1A3C6E" },
     { label: "Ativos", value: members.filter(m => m.status === "ACTIVE").length, icon: <Users size={20} strokeWidth={1.5} />, color: "#16A34A" },
     { label: "Visitantes", value: members.filter(m => m.status === "VISITOR").length, icon: <Users size={20} strokeWidth={1.5} />, color: "#2563EB" },
-    { label: "Inativos", value: members.filter(m => m.status === "INACTIVE").length, icon: <UserX size={20} strokeWidth={1.5} />, color: "#DC2626" },
+    { label: "Pendentes", value: members.filter(m => m.status === "PENDING").length, icon: <Users size={20} strokeWidth={1.5} />, color: "#D97706" },
   ];
 
   return (
