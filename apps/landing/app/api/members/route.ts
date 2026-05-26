@@ -55,6 +55,12 @@ export async function GET(req: NextRequest) {
       isActive: true,
       memberSince: true,
       createdAt: true,
+      sexo: true,
+      estadoCivil: true,
+      whatsapp: true,
+      ministerios: true,
+      tags: true,
+      portalStatus: true,
     },
   });
 
@@ -100,6 +106,23 @@ export async function POST(req: NextRequest) {
       groupId: body.groupId as string | undefined,
       status: (body.status as string) ?? "ACTIVE",
       notes: body.notes as string | undefined,
+      // Campos expandidos
+      sexo: body.sexo as string | undefined,
+      estadoCivil: body.estadoCivil as string | undefined,
+      whatsapp: body.whatsapp as string | undefined,
+      dataBatismoEspirito: body.dataBatismoEspirito ? new Date(body.dataBatismoEspirito as string) : undefined,
+      ministerios: (body.ministerios as string[]) ?? [],
+      disponibilidadeDias: (body.disponibilidadeDias as string[]) ?? [],
+      disponibilidadeTurnos: (body.disponibilidadeTurnos as string[]) ?? [],
+      tags: (body.tags as string[]) ?? [],
+      conjugeId: body.conjugeId as string | undefined,
+      filhos: body.filhos as any,
+      indicadoPorId: body.indicadoPorId as string | undefined,
+      comoConheceu: body.comoConheceu as string | undefined,
+      observacoesPastorais: body.observacoesPastorais as string | undefined,
+      portalEmail: body.portalEmail as string | undefined,
+      portalPassword: body.portalPassword as string | undefined,
+      portalStatus: (body.portalStatus as string) ?? "PENDENTE",
     },
   });
 

@@ -96,12 +96,32 @@ model Member {
   groups       GroupMember[]
   tenant       Tenant         @relation(fields: [tenantId], references: [id])
 
+  // Campos expandidos
+  sexo                    String?   // "MASCULINO" | "FEMININO" | "OUTRO"
+  estadoCivil             String?   // "SOLTEIRO" | "CASADO" | "DIVORCIADO" | "VIUVO"
+  whatsapp                String?
+  dataBatismoEspirito     DateTime?
+  ministerios             String[]  @default([])
+  disponibilidadeDias     String[]  @default([])
+  disponibilidadeTurnos   String[]  @default([])
+  tags                    String[]  @default([])
+  conjugeId               String?
+  filhos                  Json?
+  indicadoPorId           String?
+  comoConheceu            String?
+  observacoesPastorais    String?
+  portalEmail             String?
+  portalPassword          String?
+  portalStatus            String?   @default("PENDENTE")
+  deletedAt               DateTime?
+
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([tenantId, groupId])
   @@index([name])
   @@index([email])
   @@index([birthDate])
+  @@index([portalStatus])
 }
 
 model Group {

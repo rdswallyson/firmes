@@ -47,6 +47,23 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       groupId: body.groupId as string | undefined,
       status: body.status as string | undefined,
       notes: body.notes as string | undefined,
+      // Campos expandidos
+      sexo: body.sexo as string | undefined,
+      estadoCivil: body.estadoCivil as string | undefined,
+      whatsapp: body.whatsapp as string | undefined,
+      dataBatismoEspirito: body.dataBatismoEspirito ? new Date(body.dataBatismoEspirito as string) : undefined,
+      ministerios: (body.ministerios as string[]) ?? undefined,
+      disponibilidadeDias: (body.disponibilidadeDias as string[]) ?? undefined,
+      disponibilidadeTurnos: (body.disponibilidadeTurnos as string[]) ?? undefined,
+      tags: (body.tags as string[]) ?? undefined,
+      conjugeId: body.conjugeId as string | undefined,
+      filhos: body.filhos as any,
+      indicadoPorId: body.indicadoPorId as string | undefined,
+      comoConheceu: body.comoConheceu as string | undefined,
+      observacoesPastorais: body.observacoesPastorais as string | undefined,
+      portalEmail: body.portalEmail as string | undefined,
+      portalPassword: body.portalPassword as string | undefined,
+      portalStatus: body.portalStatus as string | undefined,
     },
   });
 
