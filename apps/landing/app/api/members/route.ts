@@ -73,58 +73,66 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-  const { tenantId } = session;
-  const body = await req.json() as Record<string, unknown>;
+    const { tenantId } = session;
+    const body = await req.json() as Record<string, unknown>;
 
-  if (!body.name) return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+    console.log("[POST /api/members] body:", JSON.stringify(body, null, 2));
 
-  if (body.groupId) {
-    const group = await prisma.group.findFirst({ where: { id: body.groupId as string, tenantId } });
-    if (!group) return NextResponse.json({ error: "Grupo não encontrado" }, { status: 400 });
+    if (!body.name) return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+
+    if (body.groupId) {
+      const group = await prisma.group.findFirst({ where: { id: body.groupId as string, tenantId } });
+      if (!group) return NextResponse.json({ error: "Grupo não encontrado" }, { status: 400 });
+    }
+
+    const member = await prisma.member.create({
+      data: {
+        tenantId,
+        name: body.name as string,
+        email: body.email as string | undefined,
+        phone: body.phone as string | undefined,
+        birthDate: body.birthDate ? new Date(body.birthDate as string) : undefined,
+        baptismDate: body.baptismDate ? new Date(body.baptismDate as string) : undefined,
+        address: body.address as string | undefined,
+        cep: body.cep as string | undefined,
+        city: body.city as string | undefined,
+        state: body.state as string | undefined,
+        neighborhood: body.neighborhood as string | undefined,
+        number: body.number as string | undefined,
+        complement: body.complement as string | undefined,
+        photo: body.photo as string | undefined,
+        role: body.role as string | undefined,
+        groupId: body.groupId as string | undefined,
+        status: (body.status as string) ?? "ACTIVE",
+        notes: body.notes as string | undefined,
+        // Campos expandidos
+        sexo: body.sexo as string | undefined,
+        estadoCivil: body.estadoCivil as string | undefined,
+        whatsapp: body.whatsapp as string | undefined,
+        dataBatismoEspirito: body.dataBatismoEspirito ? new Date(body.dataBatismoEspirito as string) : undefined,
+        ministerios: (body.ministerios as string[]) ?? [],
+        disponibilidadeDias: (body.disponibilidadeDias as string[]) ?? [],
+        disponibilidadeTurnos: (body.disponibilidadeTurnos as string[]) ?? [],
+        tags: (body.tags as string[]) ?? [],
+        conjugeId: body.conjugeId as string | undefined,
+        filhos: body.filhos as any,
+        indicadoPorId: body.indicadoPorId as string | undefined,
+        comoConheceu: body.comoConheceu as string | undefined,
+        observacoesPastorais: body.observacoesPastorais as string | undefined,
+        portalEmail: body.portalEmail as string | undefined,
+        portalPassword: body.portalPassword as string | undefined,
+        portalStatus: (body.portalStatus as string) ?? "PENDENTE",
+      },
+    });
+
+    return NextResponse.json({ member }, { status: 201 });
+  } catch (error: any) {
+    console.error("[POST /api/members] ERROR:", error.message);
+    console.error("[POST /api/members] STACK:", error.stack);
+    return NextResponse.json({ error: "Erro interno: " + error.message }, { status: 500 });
   }
-
-  const member = await prisma.member.create({
-    data: {
-      tenantId,
-      name: body.name as string,
-      email: body.email as string | undefined,
-      phone: body.phone as string | undefined,
-      birthDate: body.birthDate ? new Date(body.birthDate as string) : undefined,
-      baptismDate: body.baptismDate ? new Date(body.baptismDate as string) : undefined,
-      address: body.address as string | undefined,
-      cep: body.cep as string | undefined,
-      city: body.city as string | undefined,
-      state: body.state as string | undefined,
-      neighborhood: body.neighborhood as string | undefined,
-      number: body.number as string | undefined,
-      complement: body.complement as string | undefined,
-      photo: body.photo as string | undefined,
-      role: body.role as string | undefined,
-      groupId: body.groupId as string | undefined,
-      status: (body.status as string) ?? "ACTIVE",
-      notes: body.notes as string | undefined,
-      // Campos expandidos
-      sexo: body.sexo as string | undefined,
-      estadoCivil: body.estadoCivil as string | undefined,
-      whatsapp: body.whatsapp as string | undefined,
-      dataBatismoEspirito: body.dataBatismoEspirito ? new Date(body.dataBatismoEspirito as string) : undefined,
-      ministerios: (body.ministerios as string[]) ?? [],
-      disponibilidadeDias: (body.disponibilidadeDias as string[]) ?? [],
-      disponibilidadeTurnos: (body.disponibilidadeTurnos as string[]) ?? [],
-      tags: (body.tags as string[]) ?? [],
-      conjugeId: body.conjugeId as string | undefined,
-      filhos: body.filhos as any,
-      indicadoPorId: body.indicadoPorId as string | undefined,
-      comoConheceu: body.comoConheceu as string | undefined,
-      observacoesPastorais: body.observacoesPastorais as string | undefined,
-      portalEmail: body.portalEmail as string | undefined,
-      portalPassword: body.portalPassword as string | undefined,
-      portalStatus: (body.portalStatus as string) ?? "PENDENTE",
-    },
-  });
-
-  return NextResponse.json({ member }, { status: 201 });
 }
