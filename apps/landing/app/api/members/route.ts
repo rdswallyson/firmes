@@ -73,6 +73,19 @@ export async function GET(req: NextRequest) {
   });
 }
 
+/* ── helpers ── */
+function pickString(v: unknown): string | undefined {
+  return typeof v === "string" && v.length > 0 ? v : undefined;
+}
+function pickDate(v: unknown): Date | undefined {
+  if (v === undefined || v === null || v === "") return undefined;
+  const d = new Date(v as string);
+  return isNaN(d.getTime()) ? undefined : d;
+}
+function pickArray(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((i): i is string => typeof i === "string") : [];
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
@@ -81,56 +94,67 @@ export async function POST(req: NextRequest) {
     const { tenantId } = session;
     const body = await req.json() as Record<string, unknown>;
 
-    console.log("[POST /api/members] body:", JSON.stringify(body, null, 2));
+    console.log("[POST /api/members] raw keys:", Object.keys(body));
 
-    if (!body.name) return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+    if (!body.name || typeof body.name !== "string") {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+    }
 
     if (body.groupId) {
-      const group = await prisma.group.findFirst({ where: { id: body.groupId as string, tenantId } });
+      const group = await prisma.group.findFirst({
+        where: { id: String(body.groupId), tenantId },
+      });
       if (!group) return NextResponse.json({ error: "Grupo não encontrado" }, { status: 400 });
     }
 
-    const hashedPassword = body.portalPassword
-      ? await bcrypt.hash(body.portalPassword as string, 10)
+    const hashedPw = body.portalPassword
+      ? await bcrypt.hash(String(body.portalPassword), 10)
       : undefined;
 
+    /* montar data APENAS com campos que existem no schema */
+    const data: any = {
+      tenantId,
+      name: body.name as string,
+      email: pickString(body.email),
+      phone: pickString(body.phone),
+      birthDate: pickDate(body.birthDate),
+      baptismDate: pickDate(body.baptismDate),
+      address: pickString(body.address),
+      cep: pickString(body.cep),
+      city: pickString(body.city),
+      state: pickString(body.state),
+      neighborhood: pickString(body.neighborhood),
+      number: pickString(body.number),
+      complement: pickString(body.complement),
+      photo: pickString(body.photo),
+      role: pickString(body.role),
+      groupId: pickString(body.groupId),
+      status: pickString(body.status) ?? "ACTIVE",
+      notes: pickString(body.notes),
+      sexo: pickString(body.sexo),
+      estadoCivil: pickString(body.estadoCivil),
+      whatsapp: pickString(body.whatsapp),
+      dataBatismoEspirito: pickDate(body.dataBatismoEspirito),
+      ministerios: pickArray(body.ministerios),
+      disponibilidadeDias: pickArray(body.disponibilidadeDias),
+      disponibilidadeTurnos: pickArray(body.disponibilidadeTurnos),
+      tags: pickArray(body.tags),
+      conjugeId: pickString(body.conjugeId),
+      indicadoPorId: pickString(body.indicadoPorId),
+      comoConheceu: pickString(body.comoConheceu),
+      observacoesPastorais: pickString(body.observacoesPastorais),
+      portalEmail: pickString(body.portalEmail),
+      portalPassword: hashedPw,
+      portalStatus: pickString(body.portalStatus) ?? "PENDENTE",
+    };
+
+    /* filhos — guardar como json para compatibilidade */
+    if (body.filhos) data.filhos = body.filhos;
+
+    console.log("[POST /api/members] prisma data keys:", Object.keys(data));
+
     const member = await prisma.member.create({
-      data: {
-        tenantId,
-        name: body.name as string,
-        email: body.email as string | undefined,
-        phone: body.phone as string | undefined,
-        birthDate: body.birthDate ? new Date(body.birthDate as string) : undefined,
-        baptismDate: body.baptismDate ? new Date(body.baptismDate as string) : undefined,
-        address: body.address as string | undefined,
-        cep: body.cep as string | undefined,
-        city: body.city as string | undefined,
-        state: body.state as string | undefined,
-        neighborhood: body.neighborhood as string | undefined,
-        number: body.number as string | undefined,
-        complement: body.complement as string | undefined,
-        photo: body.photo as string | undefined,
-        role: body.role as string | undefined,
-        groupId: body.groupId as string | undefined,
-        status: (body.status as string) ?? "ACTIVE",
-        notes: body.notes as string | undefined,
-        sexo: body.sexo as string | undefined,
-        estadoCivil: body.estadoCivil as string | undefined,
-        whatsapp: body.whatsapp as string | undefined,
-        dataBatismoEspirito: body.dataBatismoEspirito ? new Date(body.dataBatismoEspirito as string) : undefined,
-        ministerios: (body.ministerios as string[]) ?? [],
-        disponibilidadeDias: (body.disponibilidadeDias as string[]) ?? [],
-        disponibilidadeTurnos: (body.disponibilidadeTurnos as string[]) ?? [],
-        tags: (body.tags as string[]) ?? [],
-        conjugeId: body.conjugeId as string | undefined,
-        filhos: body.filhos as any,
-        indicadoPorId: body.indicadoPorId as string | undefined,
-        comoConheceu: body.comoConheceu as string | undefined,
-        observacoesPastorais: body.observacoesPastorais as string | undefined,
-        portalEmail: body.portalEmail as string | undefined,
-        portalPassword: hashedPassword,
-        portalStatus: (body.portalStatus as string) ?? "PENDENTE",
-      },
+      data,
       select: {
         id: true, name: true, email: true, phone: true, photo: true, status: true,
         role: true, groupId: true, birthDate: true, createdAt: true,

@@ -7,7 +7,7 @@ export default function ConfiguracoesPage() {
         {[
           { label: "Usuários e Permissões", href: "/configuracoes/usuarios", desc: "Gerencie quem tem acesso ao sistema" },
           { label: "Dados da Igreja", href: "/configuracoes/igreja", desc: "Nome, logo, endereço e contato" },
-          { label: "Planos e Assinatura", href: "/planos", desc: "Veja seu plano atual e faça upgrade" },
+          { label: "Planos e Assinatura", href: "/white-label/planos", desc: "Veja seu plano atual e faça upgrade" },
           { label: "Integrações", href: "/configuracoes/integracoes", desc: "Stripe, WhatsApp, e-mail" },
           { label: "Backup e Exportação", href: "/configuracoes/backup", desc: "Exporte seus dados em CSV/PDF" },
           { label: "Notificações", href: "/configuracoes/notificacoes", desc: "Configure alertas e lembretes" },

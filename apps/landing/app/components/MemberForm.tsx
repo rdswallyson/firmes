@@ -58,8 +58,7 @@ interface MemberFormProps {
   mode: "create" | "edit";
 }
 
-const CARGOS = ["Membro", "Congregado", "Diácono", "Diáconisa", "Presbítero", "Evangelista", "Missionário", "Pastor", "Pastora", "Líder", "Cooperador", "Auxiliar", "Visitante"];
-const CATEGORIAS = ["Congregado", "Visitante", "Novo Convertido", "Membro Ativo", "Membro Afastado"];
+const CARGOS = ["Visitante", "Congregado", "Novo Convertido", "Membro Ativo", "Membro Afastado", "Diácono", "Diáconisa", "Presbítero", "Evangelista", "Missionário", "Pastor", "Pastora", "Líder", "Cooperador", "Auxiliar", "Obreiro", "Músico", "Professor", "Tesoureiro", "Secretário", "Coordenador", "Membro"];
 const MINISTERIOS = ["Louvor", "Jovens", "EBD", "Intercessão", "Mídia", "Infantil", "Dança", "Teatro", "Outro"];
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const TURNOS = ["Manhã", "Tarde", "Noite"];
@@ -87,7 +86,6 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(initialData?.photo ?? null);
   const [cepLoading, setCepLoading] = useState(false);
   const [ministerios, setMinisterios] = useState<string[]>(initialData?.ministerios ?? []);
-  const [categorias, setCategorias] = useState<string[]>([]);
   const [disponibilidadeDias, setDisponibilidadeDias] = useState<string[]>(initialData?.disponibilidadeDias ?? []);
   const [disponibilidadeTurnos, setDisponibilidadeTurnos] = useState<string[]>(initialData?.disponibilidadeTurnos ?? []);
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
@@ -190,7 +188,6 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
           ...data,
           photo: photoPreview,
           ministerios,
-          categorias,
           disponibilidadeDias,
           disponibilidadeTurnos,
           tags,
@@ -285,9 +282,13 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
 
               {/* Foto */}
               <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.25rem" }}>
-                <div style={{ width: 72, height: 72, borderRadius: "50%", background: photoPreview ? `url(${photoPreview}) center/cover` : "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", border: "2px dashed #D1D5DB", flexShrink: 0 }}>
-                  {!photoPreview && <Upload size={20} strokeWidth={1.5} color="#9CA3AF" />}
-                </div>
+                {photoPreview ? (
+                  <img src={photoPreview} alt="Preview" style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "2px solid #D1D5DB", flexShrink: 0 }} />
+                ) : (
+                  <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #D1D5DB", flexShrink: 0 }}>
+                    <User size={28} strokeWidth={1.5} color="#9CA3AF" />
+                  </div>
+                )}
                 <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem", background: "#F3F4F6", borderRadius: "6px", cursor: "pointer", fontSize: "0.8rem", fontWeight: 500 }}>
                   <Upload size={14} strokeWidth={1.5} /> Escolher foto
                   <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
@@ -424,7 +425,7 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
           <div style={{ background: "white", borderRadius: "12px", padding: "1.5rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: "2rem" }}>
             <h2 style={sectionTitleStyle}><Church size={18} strokeWidth={1.5} color="#1A3C6E" /> Vida Eclesiástica</h2>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
               {/* Cargo/Função */}
               <div>
                 <label style={labelStyle}>Cargo / Função</label>
@@ -432,19 +433,6 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
                   {CARGOS.map(c => (
                     <button key={c} type="button" onClick={() => setValue("role", c)}
                       style={chipStyle(watch("role") === c, "#1A3C6E")}>
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Categorias */}
-              <div>
-                <label style={labelStyle}>Categorias</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {CATEGORIAS.map(c => (
-                    <button key={c} type="button" onClick={() => toggleArrayItem(categorias, c, setCategorias)}
-                      style={chipStyle(categorias.includes(c), "#C8922A")}>
                       {c}
                     </button>
                   ))}

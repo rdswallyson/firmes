@@ -124,7 +124,7 @@ const MENU: SectionGroup[] = [
           { label: "Novo cadastro", href: "/pessoas/novo" },
           { label: "Aniversariantes", href: "/pessoas/aniversariantes" },
           { label: "Cartão digital", href: "/pessoas" },
-          { label: "Auto-cadastro público", href: "/cadastro/igreja" },
+          { label: "Auto-cadastro público", href: "/cadastro/membro" },
           { label: "Importar via Excel", href: "/pessoas/importar" },
           { label: "Inativos / Ausentes", href: "/pessoas/inativos" },
         ],
