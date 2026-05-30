@@ -55,9 +55,23 @@ export async function POST(req: NextRequest) {
       name: body.name as string,
       description: body.description as string | undefined,
       leaderId: body.leaderId as string | undefined,
+      leaderId2: body.leaderId2 as string | undefined,
+      leaderId3: body.leaderId3 as string | undefined,
+      leaderId4: body.leaderId4 as string | undefined,
       meetingDay: body.meetingDay as string | undefined,
       meetingTime: body.meetingTime as string | undefined,
       address: body.address as string | undefined,
+      dataAbertura: body.dataAbertura ? new Date(body.dataAbertura as string) : undefined,
+      perfil: body.perfil as string | undefined,
+      categorias: (body.categorias as string[]) ?? [],
+      grupoOrigemId: body.grupoOrigemId as string | undefined,
+      members: (body.membros as string[])?.length
+        ? {
+            create: (body.membros as string[]).map((memberId: string) => ({
+              memberId,
+            })),
+          }
+        : undefined,
     },
   });
 

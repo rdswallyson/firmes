@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await request.json();
-    const { titulo, data } = body;
+    const { titulo, data, local, tipo, descricao, tema, serie, transmissaoUrl, pregadorId, liderLouvorId } = body;
     if (!titulo || !data) return NextResponse.json({ error: "Título e data obrigatórios" }, { status: 400 });
 
     const qrCode = randomUUID();
@@ -37,6 +37,14 @@ export async function POST(request: NextRequest) {
         titulo,
         data: new Date(data),
         qrCode,
+        local: local ?? null,
+        tipo: tipo ?? "DOMINICAL",
+        descricao: descricao ?? null,
+        tema: tema ?? null,
+        serie: serie ?? null,
+        transmissaoUrl: transmissaoUrl ?? null,
+        pregadorId: pregadorId ?? null,
+        liderLouvorId: liderLouvorId ?? null,
       },
     });
     return NextResponse.json({ culto }, { status: 201 });

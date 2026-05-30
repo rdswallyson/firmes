@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "../../../lib/auth";
 import { prisma } from "@firmes/db";
+import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -89,6 +90,10 @@ export async function POST(req: NextRequest) {
       if (!group) return NextResponse.json({ error: "Grupo não encontrado" }, { status: 400 });
     }
 
+    const hashedPassword = body.portalPassword
+      ? await bcrypt.hash(body.portalPassword as string, 10)
+      : undefined;
+
     const member = await prisma.member.create({
       data: {
         tenantId,
@@ -109,7 +114,6 @@ export async function POST(req: NextRequest) {
         groupId: body.groupId as string | undefined,
         status: (body.status as string) ?? "ACTIVE",
         notes: body.notes as string | undefined,
-        // Campos expandidos
         sexo: body.sexo as string | undefined,
         estadoCivil: body.estadoCivil as string | undefined,
         whatsapp: body.whatsapp as string | undefined,
@@ -124,8 +128,14 @@ export async function POST(req: NextRequest) {
         comoConheceu: body.comoConheceu as string | undefined,
         observacoesPastorais: body.observacoesPastorais as string | undefined,
         portalEmail: body.portalEmail as string | undefined,
-        portalPassword: body.portalPassword as string | undefined,
+        portalPassword: hashedPassword,
         portalStatus: (body.portalStatus as string) ?? "PENDENTE",
+      },
+      select: {
+        id: true, name: true, email: true, phone: true, photo: true, status: true,
+        role: true, groupId: true, birthDate: true, createdAt: true,
+        sexo: true, estadoCivil: true, whatsapp: true, ministerios: true, tags: true,
+        portalStatus: true, portalEmail: true,
       },
     });
 

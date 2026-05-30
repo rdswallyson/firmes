@@ -82,6 +82,17 @@ export async function POST(request: NextRequest) {
         endereco: endereco ?? null,
         googleMapsLink: googleMapsLink ?? null,
         status: "ABERTO",
+        organizadorId: body.organizadorId ?? null,
+        dataFim: body.dataFim ? new Date(body.dataFim) : null,
+        subtitulo: body.subtitulo ?? null,
+        telefoneObrigatorio: body.telefoneObrigatorio ?? false,
+        enderecoObrigatorio: body.enderecoObrigatorio ?? false,
+        emailObrigatorio: body.emailObrigatorio ?? false,
+        ocultarTelefone: body.ocultarTelefone ?? false,
+        ocultarEndereco: body.ocultarEndereco ?? false,
+        formaPagamento: body.formaPagamento ?? null,
+        ministerioResponsavel: body.ministerioResponsavel ?? null,
+        isPublic: body.visibilidade === "PUBLICO" ? true : body.visibilidade === "PRIVADO" ? false : true,
       },
     });
 

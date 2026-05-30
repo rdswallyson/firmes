@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { DollarSign, Plus, Search, Download, Pencil, Trash2, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { MemberSelector } from "../../../components/MemberSelector";
 
 interface Finance { id: string; type: string; category: string; amount: number; description: string | null; date: string; memberName: string | null; reciboNum: string | null; contaId: string | null; conta?: { nome: string } | null; metaId: string | null; meta?: { titulo: string } | null; }
 interface Conta { id: string; nome: string; }
@@ -26,7 +27,7 @@ export default function LancamentosPage() {
   const [contas, setContas] = useState<Conta[]>([]);
   const [metas, setMetas] = useState<Meta[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [form, setForm] = useState({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberName: "", contaId: "", metaId: "" });
+  const [form, setForm] = useState({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "" });
   const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -56,13 +57,13 @@ export default function LancamentosPage() {
     setSaving(false);
     setShowModal(false);
     setEditId(null);
-    setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberName: "", contaId: "", metaId: "" });
+    setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "" });
     fetchData();
   }
 
   function openEdit(f: Finance) {
     setEditId(f.id);
-    setForm({ type: f.type, category: f.category, amount: String(f.amount), description: f.description ?? "", date: f.date.split("T")[0], memberName: f.memberName ?? "", contaId: f.contaId ?? "", metaId: f.metaId ?? "" });
+    setForm({ type: f.type, category: f.category, amount: String(f.amount), description: f.description ?? "", date: f.date.split("T")[0], memberId: f.memberName ?? "", contaId: f.contaId ?? "", metaId: f.metaId ?? "" });
     setShowModal(true);
   }
 
@@ -94,7 +95,7 @@ export default function LancamentosPage() {
           <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.6rem 1rem", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", color: "#374151" }}>
             <Download size={16} strokeWidth={1.5} /> CSV
           </button>
-          <button onClick={() => { setEditId(null); setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberName: "", contaId: "", metaId: "" }); setShowModal(true); }}
+          <button onClick={() => { setEditId(null); setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "" }); setShowModal(true); }}
             style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.6rem 1rem", background: "linear-gradient(135deg, #1A3C6E 0%, #1E4A84 100%)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", fontWeight: 600 }}>
             <Plus size={16} strokeWidth={1.5} /> Novo Lançamento
           </button>
@@ -203,7 +204,11 @@ export default function LancamentosPage() {
                   </div>
                   <div>
                     <label style={labelStyle}>Membro (dizimista)</label>
-                    <input value={form.memberName} onChange={e => setForm({ ...form, memberName: e.target.value })} style={inputStyle} placeholder="Nome do membro" />
+                    <MemberSelector
+                      placeholder="Buscar membro..."
+                      value={form.memberId ? { id: form.memberId, name: "Membro selecionado" } : null}
+                      onSelect={(m) => setForm({ ...form, memberId: (m as any)?.id ?? "" })}
+                    />
                   </div>
                   <div>
                     <label style={labelStyle}>Conta bancária</label>

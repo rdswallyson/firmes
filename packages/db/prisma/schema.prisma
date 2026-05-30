@@ -115,6 +115,15 @@ model Member {
   portalStatus            String?   @default("PENDENTE")
   deletedAt               DateTime?
 
+  // Relações inversas adicionais
+  finances     Finance[]
+  lideraGroups2 Group[]       @relation("GroupToLeader2")
+  lideraGroups3 Group[]       @relation("GroupToLeader3")
+  lideraGroups4 Group[]       @relation("GroupToLeader4")
+  cultosPregador  Culto[]     @relation("CultoPregador")
+  cultosLouvor    Culto[]     @relation("CultoLiderLouvor")
+  eventosOrganizador Event[]  @relation("EventoOrganizador")
+
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([tenantId, groupId])
@@ -130,18 +139,32 @@ model Group {
   name        String
   description String?
   leaderId    String?
+  leaderId2   String?
+  leaderId3   String?
+  leaderId4   String?
   meetingDay  String?
   meetingTime String?
   isActive    Boolean           @default(true)
   createdAt   DateTime          @default(now())
   address     String?
+  dataAbertura DateTime?
+  perfil      String?
+  categorias  String[]          @default([])
+  grupoOrigemId String?
   leader      Member?           @relation("GroupToLeader", fields: [leaderId], references: [id])
+  leader2     Member?           @relation("GroupToLeader2", fields: [leaderId2], references: [id])
+  leader3     Member?           @relation("GroupToLeader3", fields: [leaderId3], references: [id])
+  leader4     Member?           @relation("GroupToLeader4", fields: [leaderId4], references: [id])
   tenant      Tenant            @relation(fields: [tenantId], references: [id])
   frequencias GroupFrequencia[]
   members     GroupMember[]
 
   @@index([tenantId])
   @@index([tenantId, isActive])
+  @@index([leaderId])
+  @@index([leaderId2])
+  @@index([leaderId3])
+  @@index([leaderId4])
 }
 
 model GroupMember {
@@ -194,7 +217,18 @@ model Event {
   instrucaoRetirada String?
   endereco          String?
   googleMapsLink    String?
+  organizadorId     String?
+  dataFim           DateTime?
+  subtitulo         String?
+  telefoneObrigatorio Boolean @default(false)
+  enderecoObrigatorio Boolean @default(false)
+  emailObrigatorio    Boolean @default(false)
+  ocultarTelefone     Boolean @default(false)
+  ocultarEndereco     Boolean @default(false)
+  formaPagamento      String?
+  ministerioResponsavel String?
   tenant            Tenant               @relation(fields: [tenantId], references: [id])
+  organizador       Member?              @relation("EventoOrganizador", fields: [organizadorId], references: [id])
   checkinPontos     EventoCheckinPonto[]
   checklist         EventoChecklist[]
   equipes           EventoEquipe[]
@@ -209,6 +243,7 @@ model Event {
   @@index([tenantId, date])
   @@index([tenantId, status])
   @@index([slug])
+  @@index([organizadorId])
 }
 
 model Inscricao {
@@ -258,12 +293,14 @@ model Finance {
   status        String         @default("CONFIRMADO")
   conta         ContaBancaria? @relation(fields: [contaId], references: [id])
   meta          Meta?          @relation(fields: [metaId], references: [id])
+  member        Member?        @relation(fields: [memberId], references: [id])
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([tenantId, createdAt])
   @@index([tenantId, type])
   @@index([tenantId, status])
+  @@index([memberId])
 }
 
 model ContaBancaria {
@@ -586,19 +623,31 @@ model CursoProgresso {
 }
 
 model Culto {
-  id        String    @id @default(cuid())
-  tenantId  String
-  titulo    String
-  data      DateTime
-  qrCode    String    @unique
-  ativo     Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  checkins  Checkin[]
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  id           String    @id @default(cuid())
+  tenantId     String
+  titulo       String
+  data         DateTime
+  qrCode       String    @unique
+  ativo        Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  pregadorId   String?
+  liderLouvorId String?
+  local        String?
+  tipo         String    @default("DOMINICAL")
+  descricao    String?
+  tema         String?
+  serie        String?
+  transmissaoUrl String?
+  checkins     Checkin[]
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  pregador     Member?   @relation("CultoPregador", fields: [pregadorId], references: [id])
+  liderLouvor  Member?   @relation("CultoLiderLouvor", fields: [liderLouvorId], references: [id])
 
   @@index([tenantId])
   @@index([tenantId, data])
   @@index([tenantId, ativo])
+  @@index([pregadorId])
+  @@index([liderLouvorId])
 }
 
 model Checkin {
