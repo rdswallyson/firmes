@@ -1,3 +1,7 @@
+"use client";
+
+import Link from "next/link";
+
 export default function ConfiguracoesPage() {
   return (
     <div className="page-pad" style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -12,7 +16,7 @@ export default function ConfiguracoesPage() {
           { label: "Backup e Exportação", href: "/configuracoes/backup", desc: "Exporte seus dados em CSV/PDF" },
           { label: "Notificações", href: "/configuracoes/notificacoes", desc: "Configure alertas e lembretes" },
         ].map((item, i) => (
-          <a
+          <Link
             key={i}
             href={item.href}
             style={{
@@ -35,7 +39,7 @@ export default function ConfiguracoesPage() {
               <p style={{ margin: "4px 0 0", fontSize: 14, color: "#6B7280" }}>{item.desc}</p>
             </div>
             <span style={{ fontSize: 20, color: "#9CA3AF" }}>→</span>
-          </a>
+          </Link>
         ))}
       </div>
     </div>
