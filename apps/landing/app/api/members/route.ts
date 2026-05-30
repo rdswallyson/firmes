@@ -86,84 +86,29 @@ export async function POST(req: NextRequest) {
     const { tenantId } = session;
     const body = await req.json() as Record<string, unknown>;
 
+    console.log("[POST /api/members] body:", JSON.stringify(body, null, 2));
+
     if (!body.name || typeof body.name !== "string") {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
     }
 
-    /* ─ dados básicos (sempre existem) ─ */
-    const baseData: any = {
-      tenantId,
-      name: body.name as string,
-      email: pickStr(body.email),
-      phone: pickStr(body.phone),
-      birthDate: pickDate(body.birthDate),
-      baptismDate: pickDate(body.baptismDate),
-      address: pickStr(body.address),
-      cep: pickStr(body.cep),
-      city: pickStr(body.city),
-      state: pickStr(body.state),
-      neighborhood: pickStr(body.neighborhood),
-      number: pickStr(body.number),
-      complement: pickStr(body.complement),
-      photo: pickStr(body.photo),
-      role: pickStr(body.role),
-      groupId: pickStr(body.groupId),
-      status: pickStr(body.status) ?? "ACTIVE",
-      notes: pickStr(body.notes),
-    };
+    const member = await prisma.member.create({
+      data: {
+        tenantId: session.tenantId,
+        name: body.name as string,
+        email: pickStr(body.email),
+        phone: pickStr(body.phone),
+        status: "ACTIVE",
+      },
+      select: { id: true, name: true, email: true, phone: true, status: true, createdAt: true },
+    });
 
-    /* ─ dados expandidos (podem precisar de migration) ─ */
-    const expandedData: any = {
-      sexo: pickStr(body.sexo),
-      estadoCivil: pickStr(body.estadoCivil),
-      whatsapp: pickStr(body.whatsapp),
-      dataBatismoEspirito: pickDate(body.dataBatismoEspirito),
-      ministerios: pickArr(body.ministerios),
-      disponibilidadeDias: pickArr(body.disponibilidadeDias),
-      disponibilidadeTurnos: pickArr(body.disponibilidadeTurnos),
-      tags: pickArr(body.tags),
-      conjugeId: pickStr(body.conjugeId),
-      indicadoPorId: pickStr(body.indicadoPorId),
-      comoConheceu: pickStr(body.comoConheceu),
-      observacoesPastorais: pickStr(body.observacoesPastorais),
-      portalEmail: pickStr(body.portalEmail),
-      portalStatus: pickStr(body.portalStatus) ?? "PENDENTE",
-      filhos: body.filhos ?? undefined,
-    };
-
-    if (body.portalPassword && typeof body.portalPassword === "string") {
-      expandedData.portalPassword = await bcrypt.hash(body.portalPassword, 10);
-    }
-
-    /* ─ tentativa 1: salvar COM tudo ─ */
-    try {
-      const member = await prisma.member.create({
-        data: { ...baseData, ...expandedData },
-        select: { id: true, name: true, email: true, phone: true, photo: true, status: true, createdAt: true },
-      });
-      return NextResponse.json({ member }, { status: 201 });
-    } catch (err1: any) {
-      /* se falhar porque algum campo expanded não existe no banco → fallback */
-      const msg = String(err1.message || "").toLowerCase();
-      const isMissingColumn = msg.includes("column") || msg.includes("field") || msg.includes("unknown") || msg.includes("does not exist");
-
-      if (isMissingColumn) {
-        console.warn("[POST /api/members] Fallback: salvando sem campos expandidos. Erro original:", err1.message);
-        const member = await prisma.member.create({
-          data: baseData,
-          select: { id: true, name: true, email: true, phone: true, photo: true, status: true, createdAt: true },
-        });
-        return NextResponse.json({
-          member,
-          warning: "Membro salvo, mas campos expandidos não foram salvos pois a migration ainda não foi aplicada.",
-        }, { status: 201 });
-      }
-
-      throw err1; /* outro erro não relacionado a coluna ─ re-throw */
-    }
+    return NextResponse.json({ member }, { status: 201 });
   } catch (error: any) {
-    console.error("[POST /api/members] ERRO CRÍTICO:", error.message);
+    console.error("[POST /api/members] ERRO COMPLETO:", error);
+    console.error("[POST /api/members] MESSAGE:", error.message);
+    console.error("[POST /api/members] CODE:", error.code);
     console.error("[POST /api/members] STACK:", error.stack);
-    return NextResponse.json({ error: "Erro ao salvar membro: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao salvar membro: " + error.message, code: error.code }, { status: 500 });
   }
 }
