@@ -3,26 +3,6 @@ import { getSession } from "../../../lib/auth";
 import { prisma } from "@firmes/db";
 import bcrypt from "bcryptjs";
 
-import { Prisma } from "@firmes/db";
-
-/* ── helpers ── */
-function pickStr(v: unknown): string | undefined {
-  return (typeof v === "string" && v.length > 0) ? v : undefined;
-}
-function pickDate(v: unknown): Date | undefined {
-  if (typeof v !== "string" || v === "") return undefined;
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? undefined : d;
-}
-function pickArr(v: unknown): string[] | undefined {
-  return (Array.isArray(v) && v.length > 0)
-    ? v.filter((i): i is string => typeof i === "string")
-    : undefined;
-}
-function pickBool(v: unknown): boolean | undefined {
-  return typeof v === "boolean" ? v : undefined;
-}
-
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
@@ -57,8 +37,6 @@ export async function GET(req: NextRequest) {
         id: true, name: true, email: true, phone: true, photo: true,
         status: true, role: true, groupId: true, birthDate: true,
         memberSince: true, createdAt: true,
-        sexo: true, estadoCivil: true, whatsapp: true,
-        ministerios: true, tags: true, portalStatus: true,
       },
     });
 
@@ -77,75 +55,120 @@ export async function POST(req: NextRequest) {
     const { tenantId } = session;
     const body = await req.json() as Record<string, unknown>;
 
-    console.log("[POST /api/members] body keys:", Object.keys(body));
+    console.log("[POST /api/members] raw keys:", Object.keys(body));
 
     if (!body.name || typeof body.name !== "string") {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
     }
 
-    const data: any = {
-      tenantId,
-      name:    body.name as string,
-      email:   pickStr(body.email),
-      phone:   pickStr(body.phone),
-      phone2:  pickStr(body.phone2),
-      birthDate:     pickDate(body.birthDate),
-      baptismDate:   pickDate(body.baptismDate),
-      address:       pickStr(body.address),
-      cep:           pickStr(body.cep),
-      city:          pickStr(body.city),
-      state:         pickStr(body.state),
-      neighborhood:  pickStr(body.neighborhood),
-      number:        pickStr(body.number),
-      complement:    pickStr(body.complement),
-      photo:         pickStr(body.photo),
-      role:          pickStr(body.role),
-      groupId:       pickStr(body.groupId),
-      status:        pickStr(body.status) ?? "ACTIVE",
-      notes:         pickStr(body.notes),
-      sexo:              pickStr(body.sexo),
-      estadoCivil:       pickStr(body.estadoCivil),
-      whatsapp:          pickStr(body.whatsapp),
-      dataBatismoEspirito: pickDate(body.dataBatismoEspirito),
-      ministerios:        pickArr(body.ministerios),
-      disponibilidadeDias:   pickArr(body.disponibilidadeDias),
-      disponibilidadeTurnos: pickArr(body.disponibilidadeTurnos),
-      tags: pickArr(body.tags),
-      conjugeId:     pickStr(body.conjugeId),
-      indicadoPorId: pickStr(body.indicadoPorId),
-      comoConheceu:  pickStr(body.comoConheceu),
-      observacoesPastorais: pickStr(body.observacoesPastorais),
-      portalEmail:    pickStr(body.portalEmail),
-      portalStatus:   pickStr(body.portalStatus) ?? "PENDENTE",
-      cpf:          pickStr(body.cpf),
-      rg:           pickStr(body.rg),
-      escolaridade: pickStr(body.escolaridade),
-      pais:         pickStr(body.pais),
-      batizado:     pickStr(body.batizado),
-      dataConversao: pickDate(body.dataConversao),
-      lgpdAceite:   pickBool(body.lgpdAceite) ?? false,
+    const pickStr = (v: unknown) => (typeof v === "string" && v.length > 0) ? v : undefined;
+    const pickDate = (v: unknown) => {
+      if (typeof v !== "string" || v === "") return undefined;
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? undefined : d;
+    };
+    const pickArr = (v: unknown) => {
+      if (!Array.isArray(v) || v.length === 0) return undefined;
+      return v.filter((i): i is string => typeof i === "string");
     };
 
-    if (body.filhos) data.filhos = body.filhos;
-    if (body.portalPassword && typeof body.portalPassword === "string") {
-      data.portalPassword = await bcrypt.hash(body.portalPassword, 10);
+    // ── DADOS BÁSICOS (sempre existem no banco) ──
+    const memberData: any = {
+      tenantId,
+      name: body.name as string,
+      email: pickStr(body.email),
+      phone: pickStr(body.phone),
+      birthDate: pickDate(body.birthDate),
+      baptismDate: pickDate(body.baptismDate),
+      address: pickStr(body.address),
+      cep: pickStr(body.cep),
+      city: pickStr(body.city),
+      state: pickStr(body.state),
+      neighborhood: pickStr(body.neighborhood),
+      number: pickStr(body.number),
+      complement: pickStr(body.complement),
+      photo: pickStr(body.photo),
+      role: pickStr(body.role),
+      groupId: pickStr(body.groupId),
+      status: pickStr(body.status) ?? "ACTIVE",
+      notes: pickStr(body.notes),
+    };
+
+    // ── CAMPOS EXPANDIDOS (só se existem no banco) ──
+    // Se der erro de coluna inexistente, descomente o try/catch abaixo
+    const expanded: any = {};
+
+    // Só adiciona se o valor existir (não envia undefined para não forçar a coluna)
+    const maybe = (key: string, val: unknown) => {
+      if (val !== undefined && val !== null && val !== "") expanded[key] = val;
+    };
+
+    maybe("sexo", pickStr(body.sexo));
+    maybe("estadoCivil", pickStr(body.estadoCivil));
+    maybe("whatsapp", pickStr(body.whatsapp));
+    maybe("dataBatismoEspirito", pickDate(body.dataBatismoEspirito));
+    maybe("ministerios", pickArr(body.ministerios));
+    maybe("disponibilidadeDias", pickArr(body.disponibilidadeDias));
+    maybe("disponibilidadeTurnos", pickArr(body.disponibilidadeTurnos));
+    maybe("tags", pickArr(body.tags));
+    maybe("conjugeId", pickStr(body.conjugeId));
+    maybe("indicadoPorId", pickStr(body.indicadoPorId));
+    maybe("comoConheceu", pickStr(body.comoConheceu));
+    maybe("observacoesPastorais", pickStr(body.observacoesPastorais));
+    maybe("portalEmail", pickStr(body.portalEmail));
+    maybe("portalStatus", pickStr(body.portalStatus) ?? "PENDENTE");
+    maybe("cpf", pickStr(body.cpf));
+    maybe("rg", pickStr(body.rg));
+    maybe("escolaridade", pickStr(body.escolaridade));
+    maybe("pais", pickStr(body.pais));
+    maybe("batizado", pickStr(body.batizado));
+    maybe("phone2", pickStr(body.phone2));
+    maybe("dataConversao", pickDate(body.dataConversao));
+
+    // filhos como JSONB
+    if (body.filhos && Array.isArray(body.filhos) && body.filhos.length > 0) {
+      expanded.filhos = body.filhos;
     }
 
-    // Remove campos undefined para evitar erros de validação Prisma
-    const cleanData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => v !== undefined)
-    );
+    // portalPassword hasheada
+    if (body.portalPassword && typeof body.portalPassword === "string") {
+      expanded.portalPassword = await bcrypt.hash(body.portalPassword, 10);
+    }
 
-    console.log("[POST /api/members] clean keys:", Object.keys(cleanData));
+    // lgpdAceite boolean
+    if (typeof body.lgpdAceite === "boolean") {
+      expanded.lgpdAceite = body.lgpdAceite;
+    }
 
-    const member = await prisma.member.create({
-      data: cleanData as any,
-      select: { id: true, name: true, email: true, phone: true, photo: true, status: true, createdAt: true },
-    });
+    console.log("[POST /api/members] expanded keys:", Object.keys(expanded));
 
-    return NextResponse.json({ member }, { status: 201 });
+    // ── TENTAR SALVAR COM TUDO ──
+    try {
+      const member = await prisma.member.create({
+        data: { ...memberData, ...expanded },
+        select: { id: true, name: true, email: true, phone: true, status: true, createdAt: true },
+      });
+      return NextResponse.json({ member }, { status: 201 });
+    } catch (err: any) {
+      const msg = String(err.message || "").toLowerCase();
+      const isMissingColumn = msg.includes("column") || msg.includes("does not exist") || msg.includes("field");
+
+      if (isMissingColumn) {
+        console.log("[POST /api/members] Coluna faltando. Salvando sem campos expandidos.");
+        const member = await prisma.member.create({
+          data: memberData,
+          select: { id: true, name: true, email: true, phone: true, status: true, createdAt: true },
+        });
+        return NextResponse.json({
+          member,
+          warning: "Campos expandidos não salvos: colunas ainda não existem no banco. Execute: ALTER TABLE Member ADD COLUMN ..."
+        }, { status: 201 });
+      }
+
+      throw err;
+    }
   } catch (error: any) {
-    console.error("[POST /api/members] ERRO:", error.message);
+    console.error("[POST /api/members] ERRO CRÍTICO:", error.message);
     console.error("[POST /api/members] CODE:", error.code);
     console.error("[POST /api/members] STACK:", error.stack);
     return NextResponse.json({

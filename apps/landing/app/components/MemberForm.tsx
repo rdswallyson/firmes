@@ -197,12 +197,16 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
           indicadoPorId: indicadoPor?.id || data.indicadoPorId,
         }),
       });
+      console.log("[MemberForm] response status:", res.status, res.statusText);
+      const resText = await res.text();
+      console.log("[MemberForm] response body:", resText);
       if (!res.ok) {
-        const err = await res.json() as { error?: string };
-        setError(err.error ?? "Erro ao salvar");
+        let err: any = { error: "Erro ao salvar" };
+        try { err = JSON.parse(resText); } catch { /* não é JSON */ }
+        setError(err.error ?? err.message ?? `Erro ${res.status}: ${res.statusText}`);
         return;
       }
-      const result = await res.json() as { member: { id: string } };
+      const result = JSON.parse(resText) as { member: { id: string } };
       router.push(`/pessoas/${result.member.id}`);
     } catch {
       setError("Erro de conexão");
