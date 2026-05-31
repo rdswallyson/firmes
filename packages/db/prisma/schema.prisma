@@ -97,8 +97,8 @@ model Member {
   tenant       Tenant         @relation(fields: [tenantId], references: [id])
 
   // Campos expandidos
-  sexo                    String?   // "MASCULINO" | "FEMININO" | "OUTRO"
-  estadoCivil             String?   // "SOLTEIRO" | "CASADO" | "DIVORCIADO" | "VIUVO"
+  sexo                    String?
+  estadoCivil             String?
   whatsapp                String?
   dataBatismoEspirito     DateTime?
   ministerios             String[]  @default([])
@@ -114,6 +114,14 @@ model Member {
   portalPassword          String?
   portalStatus            String?   @default("PENDENTE")
   deletedAt               DateTime?
+  phone2                  String?
+  cpf                     String?
+  rg                      String?
+  escolaridade            String?
+  pais                    String?
+  batizado                String?
+  dataConversao           DateTime?
+  lgpdAceite              Boolean   @default(false)
 
   // Relações inversas adicionais
   finances     Finance[]

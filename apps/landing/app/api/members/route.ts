@@ -3,32 +3,25 @@ import { getSession } from "../../../lib/auth";
 import { prisma } from "@firmes/db";
 import bcrypt from "bcryptjs";
 
+import { Prisma } from "@firmes/db";
+
 /* ── helpers ── */
-function pick<T extends string | Date | null>(v: unknown, fn: (s: string) => T): T | undefined {
-  if (v === undefined || v === null || v === "") return undefined;
-  if (typeof v === "string") return fn(v);
-  return undefined;
+function pickStr(v: unknown): string | undefined {
+  return (typeof v === "string" && v.length > 0) ? v : undefined;
 }
 function pickDate(v: unknown): Date | undefined {
-  return pick(v, s => { const d = new Date(s); return isNaN(d.getTime()) ? null! : d; });
-}
-function pickStr(v: unknown): string | undefined {
-  return pick(v, s => s);
+  if (typeof v !== "string" || v === "") return undefined;
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? undefined : d;
 }
 function pickArr(v: unknown): string[] | undefined {
-  return Array.isArray(v) && v.length > 0 ? v.filter((i): i is string => typeof i === "string") : undefined;
+  return (Array.isArray(v) && v.length > 0)
+    ? v.filter((i): i is string => typeof i === "string")
+    : undefined;
 }
-
-/* ── lista de campos expandidos (adicionados recentemente) ──
-   se uma migration ainda não rodou no banco, esses campos podem
-   não existir.  Usamos "safeCreate" que tenta salvá-los e cai
-   automaticamente para os campos básicos se falhar.   */
-const EXPANDED_FIELDS = [
-  "sexo", "estadoCivil", "whatsapp", "dataBatismoEspirito",
-  "ministerios", "disponibilidadeDias", "disponibilidadeTurnos", "tags",
-  "conjugeId", "filhos", "indicadoPorId", "comoConheceu",
-  "observacoesPastorais", "portalEmail", "portalPassword", "portalStatus"
-] as const;
+function pickBool(v: unknown): boolean | undefined {
+  return typeof v === "boolean" ? v : undefined;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,9 +51,7 @@ export async function GET(req: NextRequest) {
 
     const total = await prisma.member.count({ where });
     const members = await prisma.member.findMany({
-      where,
-      skip,
-      take: limit,
+      where, skip, take: limit,
       orderBy: { createdAt: "desc" },
       select: {
         id: true, name: true, email: true, phone: true, photo: true,
@@ -86,29 +77,80 @@ export async function POST(req: NextRequest) {
     const { tenantId } = session;
     const body = await req.json() as Record<string, unknown>;
 
-    console.log("[POST /api/members] body:", JSON.stringify(body, null, 2));
+    console.log("[POST /api/members] body keys:", Object.keys(body));
 
     if (!body.name || typeof body.name !== "string") {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
     }
 
+    const data: any = {
+      tenantId,
+      name:    body.name as string,
+      email:   pickStr(body.email),
+      phone:   pickStr(body.phone),
+      phone2:  pickStr(body.phone2),
+      birthDate:     pickDate(body.birthDate),
+      baptismDate:   pickDate(body.baptismDate),
+      address:       pickStr(body.address),
+      cep:           pickStr(body.cep),
+      city:          pickStr(body.city),
+      state:         pickStr(body.state),
+      neighborhood:  pickStr(body.neighborhood),
+      number:        pickStr(body.number),
+      complement:    pickStr(body.complement),
+      photo:         pickStr(body.photo),
+      role:          pickStr(body.role),
+      groupId:       pickStr(body.groupId),
+      status:        pickStr(body.status) ?? "ACTIVE",
+      notes:         pickStr(body.notes),
+      sexo:              pickStr(body.sexo),
+      estadoCivil:       pickStr(body.estadoCivil),
+      whatsapp:          pickStr(body.whatsapp),
+      dataBatismoEspirito: pickDate(body.dataBatismoEspirito),
+      ministerios:        pickArr(body.ministerios),
+      disponibilidadeDias:   pickArr(body.disponibilidadeDias),
+      disponibilidadeTurnos: pickArr(body.disponibilidadeTurnos),
+      tags: pickArr(body.tags),
+      conjugeId:     pickStr(body.conjugeId),
+      indicadoPorId: pickStr(body.indicadoPorId),
+      comoConheceu:  pickStr(body.comoConheceu),
+      observacoesPastorais: pickStr(body.observacoesPastorais),
+      portalEmail:    pickStr(body.portalEmail),
+      portalStatus:   pickStr(body.portalStatus) ?? "PENDENTE",
+      cpf:          pickStr(body.cpf),
+      rg:           pickStr(body.rg),
+      escolaridade: pickStr(body.escolaridade),
+      pais:         pickStr(body.pais),
+      batizado:     pickStr(body.batizado),
+      dataConversao: pickDate(body.dataConversao),
+      lgpdAceite:   pickBool(body.lgpdAceite) ?? false,
+    };
+
+    if (body.filhos) data.filhos = body.filhos;
+    if (body.portalPassword && typeof body.portalPassword === "string") {
+      data.portalPassword = await bcrypt.hash(body.portalPassword, 10);
+    }
+
+    // Remove campos undefined para evitar erros de validação Prisma
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    );
+
+    console.log("[POST /api/members] clean keys:", Object.keys(cleanData));
+
     const member = await prisma.member.create({
-      data: {
-        tenantId: session.tenantId,
-        name: body.name as string,
-        email: pickStr(body.email),
-        phone: pickStr(body.phone),
-        status: "ACTIVE",
-      },
-      select: { id: true, name: true, email: true, phone: true, status: true, createdAt: true },
+      data: cleanData as any,
+      select: { id: true, name: true, email: true, phone: true, photo: true, status: true, createdAt: true },
     });
 
     return NextResponse.json({ member }, { status: 201 });
   } catch (error: any) {
-    console.error("[POST /api/members] ERRO COMPLETO:", error);
-    console.error("[POST /api/members] MESSAGE:", error.message);
+    console.error("[POST /api/members] ERRO:", error.message);
     console.error("[POST /api/members] CODE:", error.code);
     console.error("[POST /api/members] STACK:", error.stack);
-    return NextResponse.json({ error: "Erro ao salvar membro: " + error.message, code: error.code }, { status: 500 });
+    return NextResponse.json({
+      error: "Erro ao salvar membro: " + error.message,
+      code: error.code,
+    }, { status: 500 });
   }
 }
