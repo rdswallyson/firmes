@@ -58,7 +58,7 @@ interface MemberFormProps {
   mode: "create" | "edit";
 }
 
-const CARGOS = ["Visitante", "Congregado", "Novo Convertido", "Membro Ativo", "Membro Afastado", "Diácono", "Diáconisa", "Presbítero", "Evangelista", "Missionário", "Pastor", "Pastora", "Líder", "Cooperador", "Auxiliar", "Obreiro", "Músico", "Professor", "Tesoureiro", "Secretário", "Coordenador", "Membro"];
+const CARGOS = ["Visitante", "Congregado", "Novo Convertido", "Membro Ativo", "Membro Afastado", "Diácono(a)", "Presbítero(a)", "Evangelista", "Missionário(a)", "Pastor(a)", "Líder", "Cooperador(a)", "Auxiliar", "Obreiro(a)", "Músico(a)", "Professor(a)", "Tesoureiro(a)", "Secretário(a)", "Coordenador(a)", "Membro"];
 const MINISTERIOS = ["Louvor", "Jovens", "EBD", "Intercessão", "Mídia", "Infantil", "Dança", "Teatro", "Outro"];
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const TURNOS = ["Manhã", "Tarde", "Noite"];

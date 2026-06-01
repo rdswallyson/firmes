@@ -554,10 +554,16 @@ export default function DashboardPage() {
           <h1 className="dashboard-greeting" style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0, color: "white" }}>{getGreeting()}, {userName}!</h1>
           <p style={{ color: "rgba(255,255,255,0.7)", marginTop: 2, fontSize: "0.875rem", textTransform: "capitalize" }}>{formatDate()}</p>
         </div>
-        <button style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, padding: "0.6rem 0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", color: "white", fontSize: "0.875rem", backdropFilter: "blur(4px)" }}>
-          <Bell size={17} strokeWidth={1.5} />
-          <span style={{ background: "#DC2626", color: "white", fontSize: "0.65rem", fontWeight: 700, borderRadius: 10, padding: "1px 5px" }}>3</span>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <button onClick={() => window.location.href = "/pessoas/novo"}
+            style={{ background: "rgba(200,146,42,0.25)", border: "1px solid rgba(200,146,42,0.5)", borderRadius: 10, padding: "0.6rem 0.875rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", color: "#FCD34D", fontSize: "0.875rem", backdropFilter: "blur(4px)" }}>
+            <UserPlus size={17} strokeWidth={1.5} /> Novo Membro
+          </button>
+          <button style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, padding: "0.6rem 0.75rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem", color: "white", fontSize: "0.875rem", backdropFilter: "blur(4px)" }}>
+            <Bell size={17} strokeWidth={1.5} />
+            <span style={{ background: "#DC2626", color: "white", fontSize: "0.65rem", fontWeight: 700, borderRadius: 10, padding: "1px 5px" }}>3</span>
+          </button>
+        </div>
       </motion.div>
 
       {/* Dois Carrosséis lado a lado */}
