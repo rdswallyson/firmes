@@ -376,7 +376,7 @@ export default function DashboardPage() {
       eventos.filter((e: any) => e.slug).forEach((e: any) => {
         links.push({ label: e.title, url: `${origin}/inscricao/${e.slug}`, icon: <Calendar size={14} strokeWidth={1.5} color="#1A3C6E" /> });
       });
-      links.push({ label: "Cadastro de Membro", url: `${origin}/cadastro/${tenantData?.slug || ""}`, icon: <UserPlus size={14} strokeWidth={1.5} color="#1A3C6E" /> });
+      links.push({ label: "Auto-cadastro Público", url: `${origin}/cadastro/membro`, icon: <UserPlus size={14} strokeWidth={1.5} color="#1A3C6E" /> });
       links.push({ label: "Loja pública", url: `${origin}/loja/${tenantData?.slug || ""}`, icon: <ShoppingBag size={14} strokeWidth={1.5} color="#1A3C6E" /> });
       setPublicLinks(links);
     }).catch(() => null);
