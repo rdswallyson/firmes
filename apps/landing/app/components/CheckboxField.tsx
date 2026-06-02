@@ -93,7 +93,7 @@ export interface CheckboxFieldProps {
 }
 
 /** Campo completo: título + lista de checkboxes */
-export function CheckboxField({ options, selected, onToggle, title, layout = "column", columns = 1 }: CheckboxFieldProps) {
+export function CheckboxField({ options, selected, onToggle, title, layout = "grid", columns = 2 }: CheckboxFieldProps) {
   return (
     <CheckboxGroup title={title} layout={layout} columns={columns}>
       {options.map((opt) => (
@@ -106,7 +106,7 @@ export function CheckboxField({ options, selected, onToggle, title, layout = "co
 /** Checkbox único (radio-style mas visual checkbox) — para seleção única como Cargo/Função */
 export function SingleCheckboxField({ options, selected, onChange, title }: { options: string[]; selected: string; onChange: (v: string) => void; title: string }) {
   return (
-    <CheckboxGroup title={title}>
+    <CheckboxGroup title={title} layout="grid" columns={2}>
       {options.map((opt) => (
         <CheckboxItem key={opt} label={opt} checked={selected === opt} onChange={() => onChange(opt)} />
       ))}
