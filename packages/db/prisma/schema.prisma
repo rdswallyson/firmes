@@ -707,6 +707,22 @@ model EscalaMembro {
   @@index([memberId])
 }
 
+model Notification {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String?
+  title     String
+  message   String?
+  type      String   @default("GENERAL")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, read])
+  @@index([userId])
+  @@index([createdAt])
+}
+
 enum Plan {
   FREE
   PRATA
