@@ -10,6 +10,7 @@ import {
   Save, ArrowLeft, Upload, MapPin, X, Plus, Lock, Eye, EyeOff,
   User, Phone, Mail, Calendar, Heart, Church, Users, Shield, FileText, CheckCircle,
 } from "lucide-react";
+import { CheckboxField, SingleCheckboxField } from "./CheckboxField";
 import { MemberSelector } from "./MemberSelector";
 
 const memberSchema = z.object({
@@ -429,20 +430,14 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
           <div style={{ background: "white", borderRadius: "12px", padding: "1.5rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: "2rem" }}>
             <h2 style={sectionTitleStyle}><Church size={18} strokeWidth={1.5} color="#1A3C6E" /> Vida Eclesiástica</h2>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-              {/* Cargo/Função */}
-              <div>
-                <label style={labelStyle}>Cargo / Função</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {CARGOS.map(c => (
-                    <button key={c} type="button" onClick={() => setValue("role", c)}
-                      style={chipStyle(watch("role") === c, "#1A3C6E")}>
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+            <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "1.5rem", marginBottom: "1.25rem" }}>
+              {/* Cargos múltiplos checkboxes */}
+              <SingleCheckboxField
+                title="Cargo / Função"
+                options={CARGOS}
+                selected={watch("role") || ""}
+                onChange={(v) => setValue("role", v)}
+              />
               {/* Grupo/Célula */}
               <div>
                 <label style={labelStyle}>Grupo / Célula</label>
@@ -453,7 +448,8 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.875rem", marginTop: "1.25rem" }}>
+            {/* Datas */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.875rem", marginBottom: "1.25rem", paddingTop: "1rem", borderTop: "1px solid #F3F4F6" }}>
               <div>
                 <label style={labelStyle}>Data de conversão</label>
                 <input {...register("dataConversao")} type="date" style={inputStyle} />
@@ -479,44 +475,34 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", marginTop: "1.25rem" }}>
-              <div>
-                <label style={labelStyle}>Ministérios</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {MINISTERIOS.map(m => (
-                    <button key={m} type="button" onClick={() => toggleArrayItem(ministerios, m, setMinisterios)}
-                      style={chipStyle(ministerios.includes(m), "#7C3AED")}>
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Disponibilidade — Dias</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {DIAS.map(d => (
-                    <button key={d} type="button" onClick={() => toggleArrayItem(disponibilidadeDias, d, setDisponibilidadeDias)}
-                      style={chipStyle(disponibilidadeDias.includes(d), "#C8922A")}>
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Disponibilidade — Turnos</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                  {TURNOS.map(t => (
-                    <button key={t} type="button" onClick={() => toggleArrayItem(disponibilidadeTurnos, t, setDisponibilidadeTurnos)}
-                      style={chipStyle(disponibilidadeTurnos.includes(t), "#16A34A")}>
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* Ministérios, Dias, Turnos */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", paddingTop: "1.25rem", borderTop: "1px solid #F3F4F6" }}>
+              <CheckboxField
+                title="Ministérios"
+                options={MINISTERIOS}
+                selected={ministerios}
+                onToggle={(v) => toggleArrayItem(ministerios, v, setMinisterios)}
+              />
+              <CheckboxField
+                title="Disponibilidade — Dias"
+                options={DIAS}
+                selected={disponibilidadeDias}
+                onToggle={(v) => toggleArrayItem(disponibilidadeDias, v, setDisponibilidadeDias)}
+                layout="grid"
+                columns={3}
+              />
+              <CheckboxField
+                title="Disponibilidade — Turnos"
+                options={TURNOS}
+                selected={disponibilidadeTurnos}
+                onToggle={(v) => toggleArrayItem(disponibilidadeTurnos, v, setDisponibilidadeTurnos)}
+                layout="grid"
+                columns={2}
+              />
             </div>
 
             {/* Tags */}
-            <div style={{ marginTop: "1.25rem" }}>
+            <div style={{ marginTop: "1.25rem", paddingTop: "1.25rem", borderTop: "1px solid #F3F4F6" }}>
               <label style={labelStyle}>Tags</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.5rem" }}>
                 {tags.map((tag, i) => (

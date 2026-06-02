@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Users, Save, Plus, X } from "lucide-react";
 import { MemberSelector } from "../../../components/MemberSelector";
+import { CheckboxField } from "../../../components/CheckboxField";
 
 interface Member {
   id: string;
@@ -175,16 +176,14 @@ export default function NovoGrupoPage() {
                     {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={labelStyle}>Categorias</label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                    {CATEGORIAS.map(c => (
-                      <button key={c} type="button" onClick={() => toggleCategoria(c)} style={chipStyle(form.categorias.includes(c))}>
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <CheckboxField
+                  title="Categorias"
+                  options={CATEGORIAS}
+                  selected={form.categorias}
+                  onToggle={(v) => toggleCategoria(v)}
+                  layout="grid"
+                  columns={2}
+                />
               </div>
             </div>
 
