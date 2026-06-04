@@ -42,9 +42,6 @@ model Tenant {
   members              Member[]
   metas                Meta[]
   midias               Midia[]
-  auditLogs            AuditLog[]
-  avisos               Aviso[]
-  patrimonios          Patrimonio[]
   pedidos              Pedido[]
   produtos             Produto[]
   reseller             Tenant?         @relation("ResellerChurches", fields: [resellerId], references: [id])
@@ -134,9 +131,6 @@ model Member {
   cultosPregador  Culto[]     @relation("CultoPregador")
   cultosLouvor    Culto[]     @relation("CultoLiderLouvor")
   eventosOrganizador Event[]  @relation("EventoOrganizador")
-  checkins            Checkin[]
-  progressos          CursoProgresso[]
-  pedidos             Pedido[]
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -354,59 +348,7 @@ model AuditLog {
   action    String
   targetId  String
   details   String
-  tenantId  String?
   createdAt DateTime @default(now())
-  userId    String?
-
-  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
-  @@index([tenantId])
-  @@index([createdAt])
-  @@index([action])
-}
-
-model Aviso {
-  id        String    @id @default(cuid())
-  tenantId  String
-  title     String
-  content   String
-  authorId  String?
-  dataInicio DateTime  @default(now())
-  dataFim    DateTime?
-  pinned    Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId])
-  @@index([tenantId, pinned])
-  @@index([dataInicio])
-  @@index([dataFim])
-}
-
-model Patrimonio {
-  id           String   @id @default(cuid())
-  tenantId     String
-  nome         String
-  descricao    String?
-  categoria    String?
-  localizacao  String?
-  dataAquisicao DateTime?
-  valor        Float?
-  estado       String   @default("NOVO")
-  responsavelId String?
-  qrCode       String?  @unique
-  foto         String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now()) @updatedAt
-
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId])
-  @@index([tenantId, categoria])
-  @@index([tenantId, estado])
-  @@index([tenantId, isActive])
 }
 
 model EventoRefeicao {
@@ -489,7 +431,6 @@ model Pedido {
   id             String       @id @default(cuid())
   tenantId       String
   memberId       String?
-  member         Member?      @relation(fields: [memberId], references: [id])
   nomeComprador  String
   telefone       String?
   email          String?
@@ -681,7 +622,6 @@ model CursoProgresso {
   cursoId   String
   aulaId    String
   memberId  String
-  member    Member   @relation(fields: [memberId], references: [id])
   concluido Boolean   @default(false)
   dataHora  DateTime  @default(now())
   aula      CursoAula @relation(fields: [aulaId], references: [id])
@@ -725,7 +665,6 @@ model Checkin {
   nome         String
   tipo         String
   memberId     String?
-  member       Member?  @relation(fields: [memberId], references: [id])
   telefone     String?
   comoConheceu String?
   createdAt    DateTime @default(now())
