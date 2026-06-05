@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Plus, Trash2, BookOpen, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
 import Link from "next/link";
+import { MemberSelector } from "../../../components/MemberSelector";
 
 const NAVY = "#1A3C6E";
 const GOLD = "#C8922A";
@@ -101,7 +102,20 @@ export default function NovoCursoPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div>
                 <label style={labelStyle}>Instrutor</label>
-                <input style={inputStyle} value={form.instrutor} onChange={e => setForm(f => ({ ...f, instrutor: e.target.value }))} placeholder="Nome do instrutor" />
+                <MemberSelector
+                  label="Selecionar instrutor"
+                  placeholder="Buscar membro instrutor..."
+                  filterStatus={["ACTIVE", "PENDENTE"]}
+                  onSelect={(selected) => {
+                    const member = selected as { id: string; name: string };
+                    if (member) setForm(f => ({ ...f, instrutor: member.name }));
+                  }}
+                />
+                {form.instrutor && (
+                  <div style={{ marginTop: 6, fontSize: 12, color: "#374151" }}>
+                    Instrutor: <strong>{form.instrutor}</strong>
+                  </div>
+                )}
               </div>
               <div>
                 <label style={labelStyle}>Carga Horaria (horas)</label>

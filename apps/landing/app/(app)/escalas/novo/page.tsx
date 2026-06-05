@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, Music, Mic, DoorOpen, Baby, Headphones, Users, X, Check } from "lucide-react";
+import { ArrowLeft, Plus, Music, Mic, DoorOpen, Baby, Headphones, Users, X } from "lucide-react";
 import Link from "next/link";
+import { MemberSelector } from "../../../components/MemberSelector";
 
 const NAVY = "#1A3C6E";
 const GOLD = "#C8922A";
@@ -28,8 +29,6 @@ export default function NovaEscalaPage() {
   const [form, setForm] = useState({ titulo: "", data: "", hora: "10:00", ministerio: "LOUVOR", observacoes: "" });
   const [membros, setMembros] = useState<Membro[]>([]);
   const [selecionados, setSelecionados] = useState<{ memberId: string; funcao: string }[]>([]);
-  const [busca, setBusca] = useState("");
-  const [loading, setLoading] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
@@ -37,15 +36,6 @@ export default function NovaEscalaPage() {
   }, []);
 
   const funcoes = MINISTERIOS.find(m => m.id === form.ministerio)?.funcoes || [];
-
-  const toggleMembro = (m: Membro) => {
-    const exists = selecionados.find(s => s.memberId === m.id);
-    if (exists) {
-      setSelecionados(selecionados.filter(s => s.memberId !== m.id));
-    } else {
-      setSelecionados([...selecionados, { memberId: m.id, funcao: funcoes[0] || "Participante" }]);
-    }
-  };
 
   const updateFuncao = (memberId: string, funcao: string) => {
     setSelecionados(selecionados.map(s => s.memberId === memberId ? { ...s, funcao } : s));
@@ -75,8 +65,6 @@ export default function NovaEscalaPage() {
       setSalvando(false);
     }
   };
-
-  const filtrados = membros.filter(m => !busca || m.name.toLowerCase().includes(busca.toLowerCase()));
 
   return (
     <div style={{ padding: "1.75rem 2rem", maxWidth: 800, margin: "0 auto", fontFamily: "var(--font-nunito), sans-serif" }}>
@@ -132,28 +120,37 @@ export default function NovaEscalaPage() {
         <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 20 }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: "#0D2545", margin: "0 0 14px" }}>Membros Escalados ({selecionados.length})</h2>
 
-          <input value={busca} onChange={ev => setBusca(ev.target.value)} placeholder="Buscar membro..."
-            style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box", marginBottom: 14 }} />
+          <MemberSelector
+            label="Selecionar membros"
+            placeholder="Buscar membro..."
+            filterStatus={["ACTIVE", "PENDENTE"]}
+            onSelect={(selected) => {
+              const member = selected as Membro;
+              if (!member) return;
+              if (!selecionados.some(s => s.memberId === member.id)) {
+                setSelecionados([...selecionados, { memberId: member.id, funcao: funcoes[0] || "Participante" }]);
+              }
+            }}
+          />
 
-          <div style={{ maxHeight: 280, overflowY: "auto", border: "1px solid #F3F4F6", borderRadius: 10, padding: "4px 0" }}>
-            {filtrados.slice(0, 50).map(m => {
-              const sel = selecionados.find(s => s.memberId === m.id);
+          <div style={{ maxHeight: 280, overflowY: "auto", border: "1px solid #F3F4F6", borderRadius: 10, padding: "4px 0", marginTop: 12 }}>
+            {selecionados.map(sel => {
+              const membro = membros.find(m => m.id === sel.memberId);
+              if (!membro) return null;
               return (
-                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", borderBottom: "1px solid #F9FAFB" }}>
-                  <button type="button" onClick={() => toggleMembro(m)}
-                    style={{ width: 22, height: 22, borderRadius: 6, border: sel ? "none" : "2px solid #D1D5DB", background: sel ? "#16A34A" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
-                    {sel && <Check size={14} color="#fff" />}
+                <div key={sel.memberId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", borderBottom: "1px solid #F9FAFB" }}>
+                  <button type="button" onClick={() => setSelecionados(selecionados.filter(s => s.memberId !== sel.memberId))}
+                    style={{ width: 22, height: 22, borderRadius: 6, border: "none", background: "#DC2626", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}>
+                    <X size={14} color="#fff" />
                   </button>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: "#0D2545" }}>{m.name}</div>
-                    {m.phone && <div style={{ fontSize: 11, color: "#9CA3AF" }}>{m.phone}</div>}
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "#0D2545" }}>{membro.name}</div>
+                    {membro.phone && <div style={{ fontSize: 11, color: "#9CA3AF" }}>{membro.phone}</div>}
                   </div>
-                  {sel && (
-                    <select value={sel.funcao} onChange={ev => updateFuncao(m.id, ev.target.value)}
-                      style={{ padding: "5px 10px", border: "1.5px solid #E5E7EB", borderRadius: 6, fontSize: 12, outline: "none", background: "#fff" }}>
-                      {funcoes.map(f => <option key={f} value={f}>{f}</option>)}
-                    </select>
-                  )}
+                  <select value={sel.funcao} onChange={ev => updateFuncao(sel.memberId, ev.target.value)}
+                    style={{ padding: "5px 10px", border: "1.5px solid #E5E7EB", borderRadius: 6, fontSize: 12, outline: "none", background: "#fff" }}>
+                    {funcoes.map(f => <option key={f} value={f}>{f}</option>)}
+                  </select>
                 </div>
               );
             })}
