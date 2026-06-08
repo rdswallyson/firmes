@@ -20,33 +20,25 @@ export default function PortalInicioPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar token do portal
-    const token = document.cookie.split("; ").find(c => c.startsWith("portal_token="))?.split("=")[1];
-    if (!token) {
-      router.push("/portal/login");
-      return;
-    }
-
-    // Buscar dados do membro logado
-    fetch("/api/portal/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    // Usar sessao unica (cookie 'session') via /api/portal/me
+    fetch("/api/portal/me")
       .then(r => {
-        if (!r.ok) throw new Error("Não autorizado");
+        if (!r.ok) throw new Error("Nao autorizado");
         return r.json();
       })
       .then((d: { member?: PortalMember }) => {
-        setMember(d.member ?? null);
+        if (d.member) setMember(d.member);
+        else throw new Error("Sem dados de membro");
       })
       .catch(() => {
-        router.push("/portal/login");
+        router.push("/login");
       })
       .finally(() => setLoading(false));
   }, [router]);
 
   function logout() {
-    document.cookie = "portal_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    router.push("/portal/login");
+    document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push("/login");
   }
 
   if (loading) {

@@ -24,10 +24,22 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { email: body.email },
       include: {
+        member: {
+          select: {
+            id: true,
+            tenant: {
+              select: {
+                id: true,
+                slug: true,
+              },
+            },
+          },
+        },
         tenant: {
           select: {
             id: true,
             name: true,
+            slug: true,
             plan: true,
             isWhiteLabel: true,
             isActive: true,
@@ -80,6 +92,7 @@ export async function POST(req: NextRequest) {
       role: user.role,
       plan: user.tenant.plan,
       isWhiteLabel: isEsmeraldaPlan(user.tenant.plan as Plan),
+      memberId: user.member ? user.member.id : undefined,
     });
 
     console.log("[LOGIN] Sessão criada com sucesso");
@@ -99,6 +112,7 @@ export async function POST(req: NextRequest) {
         name: user.name,
         email: user.email,
         role: user.role,
+        memberId: user.member ? user.member.id : undefined,
         tenant: user.tenant,
       },
     });

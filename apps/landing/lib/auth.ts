@@ -20,6 +20,7 @@ export interface SessionPayload {
   role: string;
   plan: string;
   isWhiteLabel: boolean;
+  memberId?: string;
 }
 
 export async function createSession(payload: SessionPayload): Promise<string> {

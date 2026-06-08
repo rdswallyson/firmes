@@ -59,12 +59,14 @@ model User {
   password        String
   role            String    @default("ADMIN")
   tenantId        String
+  memberId        String?   @unique
   avatar          String?
   phone           String?
   isActive        Boolean   @default(true)
   createdAt       DateTime  @default(now())
   acceptedTermsAt DateTime?
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  member          Member?   @relation(fields: [memberId], references: [id])
 
   @@index([tenantId])
   @@index([email])
@@ -125,6 +127,7 @@ model Member {
   batizado                String?
   dataConversao           DateTime?
   lgpdAceite              Boolean   @default(false)
+  user                    User?
 
   // Relações inversas adicionais
   finances     Finance[]

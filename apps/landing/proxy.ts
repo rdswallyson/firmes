@@ -18,6 +18,10 @@ const PUBLIC_PATHS = [
   "/",
   "/api",
   "/login",
+  "/portal",
+  "/portal/login",
+  "/api/portal/auth/login",
+  "/api/portal/me",
   "/superadmin",
   "/api/superadmin/login",
   "/api/auth/login",
@@ -100,6 +104,11 @@ export async function proxy(req: NextRequest) {
         { status: 403, headers: { "Content-Type": "application/json" } }
       );
     }
+  }
+
+  // ── MEMBRO: pode acessar /portal*, mas não /dashboard ──
+  if (payload.role === "MEMBRO" && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/portal", req.url));
   }
 
   const requestHeaders = new Headers(req.headers);

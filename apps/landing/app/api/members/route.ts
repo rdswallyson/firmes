@@ -187,6 +187,33 @@ export async function POST(req: NextRequest) {
         data: cleanData as any,
         select: { id: true, name: true, email: true, phone: true, status: true, createdAt: true },
       });
+
+      // Criar User MEMBRO vinculado se portalEmail + portalPassword enviados
+      if (cleanData.portalEmail && body.portalPassword) {
+        try {
+          const userEmail = (cleanData.portalEmail as string).toLowerCase().trim();
+          const existingUser = await prisma.user.findUnique({ where: { email: userEmail }, select: { id: true } });
+          if (!existingUser) {
+            await prisma.user.create({
+              data: {
+                name: cleanData.name as string,
+                email: userEmail,
+                password: await bcrypt.hash(body.portalPassword as string, 10),
+                role: "MEMBRO",
+                tenantId,
+                memberId: member.id,
+                isActive: true,
+              },
+            });
+            console.log("[POST /api/members] User MEMBRO criado:", userEmail);
+          } else {
+            console.log("[POST /api/members] E-mail já em uso,.User não criado:", userEmail);
+          }
+        } catch (userErr: any) {
+          console.error("[POST /api/members] Falha ao criar User MEMBRO:", userErr.message);
+        }
+      }
+
       return NextResponse.json({ member }, { status: 201 });
     } catch (err1: any) {
       const missingCol = extractMissingColumn(err1.message);

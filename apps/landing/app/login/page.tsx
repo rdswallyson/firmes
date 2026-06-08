@@ -28,7 +28,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json() as { error?: string; tenant?: { onboardingCompleted?: boolean } };
+      const data = await res.json() as { error?: string; tenant?: { onboardingCompleted?: boolean; slug?: string }; user?: { role?: string; memberId?: string } };
 
       if (!res.ok) {
         setError(data.error ?? "Erro ao fazer login");
@@ -36,8 +36,10 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirecionar para onboarding se não completou
-      if (data.tenant && !data.tenant.onboardingCompleted) {
+      // Redirecionar conforme tipo de usuário
+      if (data.user?.role === "MEMBRO" && data.user?.memberId) {
+        router.push(`/portal/${data.tenant?.slug || ""}/inicio`);
+      } else if (data.tenant && !data.tenant.onboardingCompleted) {
         router.push("/onboarding");
       } else {
         router.push("/dashboard");
@@ -274,6 +276,10 @@ export default function LoginPage() {
               {loading ? "Entrando..." : "Entrar"}
             </motion.button>
           </form>
+
+          <p style={{ textAlign: "center", marginTop: "1.25rem", fontSize: "0.875rem", color: "#6B7280" }}>
+            Membro da igreja? Entre com o email e senha cadastrados pelo seu pastor/administrador.
+          </p>
         </motion.div>
       </div>
 
