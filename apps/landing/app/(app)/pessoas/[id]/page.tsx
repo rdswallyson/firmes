@@ -45,8 +45,6 @@ interface MemberData {
   indicadoPorId: string | null;
   comoConheceu: string | null;
   observacoesPastorais: string | null;
-  portalEmail: string | null;
-  portalStatus: string | null;
 }
 
 const STATUS_LABEL: Record<string, { label: string; bg: string; color: string }> = {
@@ -54,12 +52,6 @@ const STATUS_LABEL: Record<string, { label: string; bg: string; color: string }>
   VISITOR: { label: "Visitante", bg: "#DBEAFE", color: "#2563EB" },
   INACTIVE: { label: "Inativo", bg: "#FEE2E2", color: "#DC2626" },
   PENDING: { label: "Pendente", bg: "#FEF3C7", color: "#D97706" },
-};
-
-const PORTAL_STATUS_LABEL: Record<string, { label: string; bg: string; color: string }> = {
-  PENDENTE: { label: "Pendente", bg: "#FEF3C7", color: "#D97706" },
-  ATIVO: { label: "Ativo", bg: "#DCFCE7", color: "#16A34A" },
-  BLOQUEADO: { label: "Bloqueado", bg: "#FEE2E2", color: "#DC2626" },
 };
 
 function formatDate(d: string | null) {
@@ -207,7 +199,6 @@ export default function PerfilMembroPage() {
   }
 
   const st = STATUS_LABEL[member.status] ?? { label: "Ativo", bg: "#DCFCE7", color: "#16A34A" };
-  const portalSt = member.portalStatus ? (PORTAL_STATUS_LABEL[member.portalStatus] ?? { label: "Pendente", bg: "#FEF3C7", color: "#D97706" }) : null;
 
   return (
     <div style={{ padding: "1.75rem 2rem", maxWidth: "1000px", margin: "0 auto" }}>
@@ -359,23 +350,6 @@ export default function PerfilMembroPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Portal do Membro */}
-          {portalSt && (
-            <div style={{ marginTop: "1.5rem", padding: "1rem", background: "#FFF8EE", borderRadius: "8px", border: "1px solid #FDE68A" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.5rem" }}>
-                <Lock size={14} strokeWidth={1.5} color="#92400E" />
-                <span style={{ fontSize: "0.75rem", color: "#92400E", fontWeight: 600, textTransform: "uppercase" }}>Portal do Membro</span>
-                <span style={{ background: portalSt.bg, color: portalSt.color, fontSize: "0.65rem", fontWeight: 600, borderRadius: 10, padding: "1px 6px" }}>{portalSt.label}</span>
-              </div>
-              {member.portalEmail && (
-                <div style={{ fontSize: "0.85rem", color: "#92400E" }}>
-                  <Globe size={12} style={{ display: "inline", marginRight: 4 }} />
-                  {member.portalEmail}
-                </div>
-              )}
             </div>
           )}
 
