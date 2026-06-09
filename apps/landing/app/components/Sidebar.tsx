@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -148,9 +148,13 @@ const MENU: SectionGroup[] = [
         id: "congregacoes",
         label: "Congregações",
         icon: <Church size={18} strokeWidth={1.5} />,
+        href: "/congregacoes",
         children: [
-          { label: "Todas as congregações", href: "/congregacoes" },
-          { label: "Nova congregação", href: "/congregacoes/novo" },
+          { label: "Membros", href: "/pessoas" },
+          { label: "Últimos Cultos", href: "/cultos" },
+          { label: "Financeiro do Mês", href: "/financeiro/lancamentos" },
+          { label: "Próximos Eventos", href: "/eventos" },
+          { label: "+ Nova congregação", href: "/congregacoes/novo" },
         ],
       },
     ],
@@ -358,39 +362,6 @@ export function Sidebar({
   const effectiveCollapsed = forceExpanded ? false : collapsed;
   const [openMenu, setOpenMenu] = useState<string | null>("dashboard");
 
-  // ── Congregações dinâmicas no submenu ──
-  const [congs, setCongs] = useState<{ id: string; name: string; pastor: { name: string } | null; _count: { members: number } }[]>([]);
-  useEffect(() => {
-    let active = true;
-    fetch("/api/congregacoes")
-      .then(r => (r.ok ? r.json() : { congregations: [] }))
-      .then((d: { congregations?: typeof congs }) => {
-        if (active && Array.isArray(d.congregations)) setCongs(d.congregations);
-      })
-      .catch(() => { /* silencioso */ });
-    return () => { active = false; };
-  }, []);
-
-  // Monta o MENU final injetando as congregações como subitens
-  const menu = useMemo<SectionGroup[]>(() => {
-    return MENU.map((group) => ({
-      ...group,
-      items: group.items.map((item) => {
-        if (item.id !== "congregacoes") return item;
-        const dyn: SubItem[] = [
-          { label: "Todas as congregações", href: "/congregacoes" },
-          ...congs.map((c) => ({
-            label: c.name,
-            href: `/congregacoes/${c.id}`,
-            subtitle: `${c._count?.members ?? 0} membro${(c._count?.members ?? 0) === 1 ? "" : "s"}${c.pastor?.name ? ` · ${c.pastor.name}` : ""}`,
-          })),
-          { label: "+ Nova congregação", href: "/congregacoes/novo" },
-        ];
-        return { ...item, children: dyn };
-      }),
-    }));
-  }, [congs]);
-
   // No drawer (forceExpanded), a sidebar ocupa 100% do container
   const sidebarWidth = forceExpanded ? "100%" : (effectiveCollapsed ? 72 : 260);
 
@@ -517,7 +488,7 @@ export function Sidebar({
 
       {/* Nav */}
       <nav style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.5rem 0", scrollbarWidth: "none" }}>
-        {menu.map((group, gi) => (
+        {MENU.map((group, gi) => (
           <div key={gi}>
             {group.section && !effectiveCollapsed && (
               <div style={{
@@ -604,7 +575,10 @@ export function Sidebar({
               return (
                 <div key={item.id}>
                   <motion.div
-                    onClick={() => !effectiveCollapsed && toggleMenu(item.id)}
+                    onClick={() => {
+                      if (!effectiveCollapsed) toggleMenu(item.id);
+                      if (item.href) handleNavigate(item.href);
+                    }}
                     style={{
                       display: "flex",
                       alignItems: "center",
