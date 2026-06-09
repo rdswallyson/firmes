@@ -108,7 +108,7 @@ export async function proxy(req: NextRequest) {
 
   // ── MEMBRO: pode acessar /portal*, mas não /dashboard ──
   if (payload.role === "MEMBRO" && pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/portal", req.url));
+    return NextResponse.redirect(new URL("/portal/inicio", req.url));
   }
 
   // ── PASTOR: usa /dashboard (dados filtrados), mas não acessa áreas restritas ──

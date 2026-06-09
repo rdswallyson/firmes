@@ -21,33 +21,43 @@ export async function POST(req: NextRequest) {
     console.log("[LOGIN] JWT_SECRET definido:", !!process.env.JWT_SECRET);
     console.log("[LOGIN] NEXTAUTH_SECRET definido:", !!process.env.NEXTAUTH_SECRET);
 
-    const user = await prisma.user.findUnique({
-      where: { email: body.email },
-      include: {
-        member: {
-          select: {
-            id: true,
-            tenant: {
-              select: {
-                id: true,
-                slug: true,
-              },
+    const includeOpts = {
+      member: {
+        select: {
+          id: true,
+          tenant: {
+            select: {
+              id: true,
+              slug: true,
             },
           },
         },
-        tenant: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            plan: true,
-            isWhiteLabel: true,
-            isActive: true,
-            onboardingCompleted: true,
-          },
+      },
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          plan: true,
+          isWhiteLabel: true,
+          isActive: true,
+          onboardingCompleted: true,
         },
       },
+    } as const;
+
+    let user = await prisma.user.findUnique({
+      where: { email: body.email },
+      include: includeOpts,
     });
+
+    // Fallback case-insensitive (membros têm email salvo em lowercase)
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { email: { equals: body.email.trim(), mode: "insensitive" } },
+        include: includeOpts,
+      });
+    }
 
     if (!user) {
       console.log("[LOGIN] Usuário não encontrado:", body.email);

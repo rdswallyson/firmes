@@ -38,7 +38,7 @@ export default function LoginPage() {
 
       // Redirecionar conforme tipo de usuário
       if (data.user?.role === "MEMBRO" && data.user?.memberId) {
-        router.push(`/portal/${data.tenant?.slug || ""}/inicio`);
+        router.push("/portal/inicio");
       } else if (data.tenant && !data.tenant.onboardingCompleted) {
         router.push("/onboarding");
       } else {
