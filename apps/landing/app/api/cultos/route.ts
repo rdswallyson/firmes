@@ -9,7 +9,10 @@ export async function GET() {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const cultos = await prisma.culto.findMany({
-      where: { tenantId: session.tenantId },
+      where: {
+        tenantId: session.tenantId,
+        ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+      },
       include: { _count: { select: { checkins: true } } },
       orderBy: { data: "desc" },
     });

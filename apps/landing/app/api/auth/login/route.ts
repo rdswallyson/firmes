@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       plan: user.tenant.plan,
       isWhiteLabel: isEsmeraldaPlan(user.tenant.plan as Plan),
       memberId: user.member ? user.member.id : undefined,
+      congregationId: user.congregationId ?? undefined,
     });
 
     console.log("[LOGIN] Sessão criada com sucesso");

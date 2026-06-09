@@ -8,7 +8,10 @@ export async function GET() {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const escalas = await prisma.escala.findMany({
-      where: { tenantId: session.tenantId },
+      where: {
+        tenantId: session.tenantId,
+        ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+      },
       include: {
         membros: { include: { member: { select: { id: true, name: true, photo: true, phone: true } } } },
         _count: { select: { membros: true } },

@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
   const where = {
     tenantId: session.tenantId,
     isActive: true,
+    ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
     ...(type ? { type } : {}),
     ...(category ? { category } : {}),
     ...(contaId ? { contaId } : {}),

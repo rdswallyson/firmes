@@ -21,6 +21,7 @@ export interface SessionPayload {
   plan: string;
   isWhiteLabel: boolean;
   memberId?: string;
+  congregationId?: string;
 }
 
 export async function createSession(payload: SessionPayload): Promise<string> {

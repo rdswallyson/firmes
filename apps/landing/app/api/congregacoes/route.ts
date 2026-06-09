@@ -17,21 +17,21 @@ export async function GET(req: NextRequest) {
       const congregation = await prisma.congregation.findFirst({
         where: { id, tenantId: session.tenantId, deletedAt: null },
         include: {
-          pastor: { select: { id: true, name: true } },
+          pastor: { select: { id: true, name: true, photo: true, role: true } },
           members: {
             where: { isActive: true },
-            select: { id: true, name: true, role: true, phone: true },
-            orderBy: { name: "asc" },
+            select: { id: true, name: true, role: true, phone: true, createdAt: true },
+            orderBy: { createdAt: "desc" },
           },
           cultos: {
             where: { ativo: true },
-            select: { id: true, titulo: true, data: true, tipo: true },
+            select: { id: true, titulo: true, data: true, tipo: true, _count: { select: { checkins: true } } },
             orderBy: { data: "desc" },
-            take: 10,
+            take: 20,
           },
           finances: {
             where: { isActive: true },
-            select: { id: true, type: true, amount: true },
+            select: { id: true, type: true, amount: true, date: true },
           },
           _count: { select: { members: true, finances: true, cultos: true } },
         },
@@ -47,11 +47,38 @@ export async function GET(req: NextRequest) {
         .filter((f) => f.type === "DESPESA")
         .reduce((s, f) => s + f.amount, 0);
 
+      // Resumo do mês atual
+      const now = new Date();
+      const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
+      const fimMes = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const finMes = congregation.finances.filter(
+        (f) => f.date && f.date >= inicioMes && f.date < fimMes
+      );
+      const receitasMes = finMes.filter((f) => f.type === "RECEITA").reduce((s, f) => s + f.amount, 0);
+      const despesasMes = finMes.filter((f) => f.type === "DESPESA").reduce((s, f) => s + f.amount, 0);
+
+      // Próximo culto agendado (data futura mais próxima)
+      const futuros = congregation.cultos
+        .filter((c) => new Date(c.data) >= now)
+        .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+      const proximoCulto = futuros[0] ?? null;
+
+      // Frequência média = média de check-ins por culto realizado
+      const realizados = congregation.cultos.filter((c) => new Date(c.data) < now);
+      const totalCheckins = realizados.reduce((s, c) => s + (c._count?.checkins ?? 0), 0);
+      const freqMedia = realizados.length > 0 ? Math.round(totalCheckins / realizados.length) : 0;
+
       const { finances, ...rest } = congregation;
       void finances;
 
       return NextResponse.json({
-        congregation: { ...rest, resumoFinanceiro: { receitas, despesas, saldo: receitas - despesas } },
+        congregation: {
+          ...rest,
+          resumoFinanceiro: { receitas, despesas, saldo: receitas - despesas },
+          resumoMes: { receitas: receitasMes, despesas: despesasMes, saldo: receitasMes - despesasMes },
+          proximoCulto,
+          freqMedia,
+        },
       });
     }
 

@@ -61,6 +61,7 @@ model User {
   role            String    @default("ADMIN")
   tenantId        String
   memberId        String?   @unique
+  congregationId  String?
   avatar          String?
   phone           String?
   isActive        Boolean   @default(true)
@@ -68,9 +69,11 @@ model User {
   acceptedTermsAt DateTime?
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   member          Member?   @relation(fields: [memberId], references: [id])
+  congregation    Congregation? @relation("CongregationUsers", fields: [congregationId], references: [id])
 
   @@index([tenantId])
   @@index([email])
+  @@index([congregationId])
 }
 
 model Member {
@@ -218,6 +221,7 @@ model GroupFrequencia {
 model Event {
   id                String               @id @default(cuid())
   tenantId          String
+  congregationId    String?
   title             String
   description       String?
   date              DateTime
@@ -378,6 +382,7 @@ model AuditLog {
 model Aviso {
   id        String    @id @default(cuid())
   tenantId  String
+  congregationId String?
   title     String
   content   String
   authorId  String?
@@ -653,6 +658,7 @@ model CursoCategoria {
 model Curso {
   id           String           @id @default(cuid())
   tenantId     String
+  congregationId String?
   titulo       String
   descricao    String?
   banner       String?
@@ -755,6 +761,7 @@ model Checkin {
 model Escala {
   id          String         @id @default(cuid())
   tenantId    String
+  congregationId String?
   titulo      String
   data        DateTime
   ministerio  String
@@ -815,6 +822,7 @@ model Congregation {
   members     Member[]
   finances    Finance[]
   cultos      Culto[]
+  pastorUsers User[]    @relation("CongregationUsers")
 
   @@index([tenantId])
   @@index([tenantId, deletedAt])

@@ -83,6 +83,9 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: any = { tenantId };
+    if (session.role === "PASTOR" && session.congregationId) {
+      where.congregationId = session.congregationId;
+    }
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },

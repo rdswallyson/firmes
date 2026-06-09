@@ -39,6 +39,7 @@ import {
   Banknote,
   PieChart,
   CheckSquare,
+  CalendarCheck,
   Church,
   SquarePlus,
   ScanLine,
@@ -216,7 +217,7 @@ const MENU: SectionGroup[] = [
       {
         id: "cultos",
         label: "Cultos & Check-in",
-        icon: <Church size={18} strokeWidth={1.5} />,
+        icon: <CalendarCheck size={18} strokeWidth={1.5} />,
         children: [
           { label: "Culto de hoje", href: "/cultos" },
           { label: "Novo culto", href: "/cultos/novo" },

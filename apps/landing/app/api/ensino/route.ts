@@ -8,7 +8,10 @@ export async function GET() {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const cursos = await prisma.curso.findMany({
-      where: { tenantId: session.tenantId },
+      where: {
+        tenantId: session.tenantId,
+        ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+      },
       orderBy: { createdAt: "desc" },
       include: {
         instrutorMembro: {

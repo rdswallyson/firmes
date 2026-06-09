@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
 
     const where = {
       tenantId: session.tenantId,
+      ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
       ...(pinned ? { pinned: pinned === "true" } : {}),
       ...(search
         ? {

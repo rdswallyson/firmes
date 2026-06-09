@@ -111,6 +111,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/portal", req.url));
   }
 
+  // ── PASTOR: usa /dashboard (dados filtrados), mas não acessa áreas restritas ──
+  if (payload.role === "PASTOR") {
+    const restritas = ["/congregacoes", "/patrimonio", "/configuracoes", "/vendas"];
+    if (restritas.some((p) => pathname.startsWith(p))) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
+
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-tenant-id", payload.tenantId);
   requestHeaders.set("x-user-id", payload.userId);

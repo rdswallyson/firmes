@@ -35,7 +35,10 @@ export async function GET(request: NextRequest) {
     }
 
     const eventos = await prisma.event.findMany({
-      where: { tenantId: session.tenantId },
+      where: {
+        tenantId: session.tenantId,
+        ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+      },
       orderBy: { date: "desc" },
       include: { _count: { select: { inscricoes: true } } },
     });
