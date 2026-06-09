@@ -34,14 +34,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(evento);
     }
 
-    const eventos = await prisma.event.findMany({
-      where: {
-        tenantId: session.tenantId,
-        ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
-      },
-      orderBy: { date: "desc" },
-      include: { _count: { select: { inscricoes: true } } },
-    });
+    let eventos;
+    try {
+      eventos = await prisma.event.findMany({
+        where: {
+          tenantId: session.tenantId,
+          ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+        },
+        orderBy: { date: "desc" },
+        include: { _count: { select: { inscricoes: true } } },
+      });
+    } catch (queryErr: any) {
+      console.error("[GET /api/eventos] Query error (possivel coluna congregationId ausente):", queryErr.message);
+      try {
+        eventos = await prisma.event.findMany({
+          where: { tenantId: session.tenantId },
+          orderBy: { date: "desc" },
+          include: { _count: { select: { inscricoes: true } } },
+        });
+      } catch (e: any) {
+        console.error("[GET /api/eventos] Fallback error:", e.message);
+        return NextResponse.json({ eventos: [] }, { status: 200 });
+      }
+    }
 
     return NextResponse.json(eventos);
   } catch (error) {

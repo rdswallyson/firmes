@@ -148,8 +148,8 @@ const MENU: SectionGroup[] = [
         id: "congregacoes",
         label: "Congregações",
         icon: <Church size={18} strokeWidth={1.5} />,
-        href: "/congregacoes",
         children: [
+          { label: "Todas as congregações", href: "/congregacoes" },
           { label: "Membros", href: "/pessoas" },
           { label: "Últimos Cultos", href: "/cultos" },
           { label: "Financeiro do Mês", href: "/financeiro/lancamentos" },
@@ -575,10 +575,7 @@ export function Sidebar({
               return (
                 <div key={item.id}>
                   <motion.div
-                    onClick={() => {
-                      if (!effectiveCollapsed) toggleMenu(item.id);
-                      if (item.href) handleNavigate(item.href);
-                    }}
+                    onClick={() => !effectiveCollapsed && toggleMenu(item.id)}
                     style={{
                       display: "flex",
                       alignItems: "center",
