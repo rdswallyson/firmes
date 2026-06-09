@@ -140,6 +140,7 @@ model Member {
   checkins            Checkin[]
   progressos          CursoProgresso[]
   pedidos             Pedido[]
+  cursosInstrutor     Curso[]       @relation("CursoInstrutor")
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -653,6 +654,8 @@ model Curso {
   publicado    Boolean          @default(false)
   cargaHoraria Int?
   instrutor    String?
+  instrutorId  String?
+  instrutorMembro Member?      @relation("CursoInstrutor", fields: [instrutorId], references: [id])
   createdAt    DateTime         @default(now())
   modulos      CursoModulo[]
   progressos   CursoProgresso[]

@@ -19,7 +19,16 @@ const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWe
 export default function NovoCursoPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ titulo: "", descricao: "", banner: "", categoria: "ESTUDO", nivel: "INICIANTE", cargaHoraria: "", instrutor: "" });
+  const [form, setForm] = useState({
+    titulo: "",
+    descricao: "",
+    banner: "",
+    categoria: "ESTUDO",
+    nivel: "INICIANTE",
+    cargaHoraria: "",
+    instrutor: "",
+    instrutorId: "",
+  });
   const [modulos, setModulos] = useState<Modulo[]>([{ titulo: "Modulo 1", aulas: [{ titulo: "", tipo: "VIDEO", conteudo: "", duracao: "" }] }]);
 
   function addModulo() {
@@ -44,14 +53,17 @@ export default function NovoCursoPage() {
     if (!form.titulo) { alert("Titulo obrigatorio"); return; }
     setSaving(true);
     try {
+      const payload: any = { ...form, modulos: modulos.filter(m => m.titulo) };
+      // Remove campos vazios para não poluir API
+      if (!payload.instrutorId) delete payload.instrutorId;
       const res = await fetch("/api/ensino", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, modulos: modulos.filter(m => m.titulo) }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         const data = await res.json();
-        router.push(`/ensino/${data.id}`);
+        router.push(`/ensino/${data.curso.id}`);
       } else {
         const d = await res.json();
         alert(d.error || "Erro ao criar curso");
@@ -108,12 +120,13 @@ export default function NovoCursoPage() {
                   filterStatus={["ACTIVE", "PENDENTE"]}
                   onSelect={(selected) => {
                     const member = selected as { id: string; name: string };
-                    if (member) setForm(f => ({ ...f, instrutor: member.name }));
+                    if (member) setForm(f => ({ ...f, instrutor: member.name, instrutorId: member.id }));
                   }}
                 />
                 {form.instrutor && (
                   <div style={{ marginTop: 6, fontSize: 12, color: "#374151" }}>
                     Instrutor: <strong>{form.instrutor}</strong>
+                    <input type="hidden" name="instrutorId" value={form.instrutorId} />
                   </div>
                 )}
               </div>

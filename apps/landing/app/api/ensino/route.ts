@@ -9,14 +9,17 @@ export async function GET() {
 
     const cursos = await prisma.curso.findMany({
       where: { tenantId: session.tenantId },
+      orderBy: { createdAt: "desc" },
       include: {
+        instrutorMembro: {
+          select: { id: true, name: true, photo: true },
+        },
         modulos: {
           orderBy: { ordem: "asc" },
           include: { aulas: { orderBy: { ordem: "asc" } } },
         },
         _count: { select: { progressos: true } },
       },
-      orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ cursos });
   } catch (error) {
@@ -31,8 +34,21 @@ export async function POST(request: NextRequest) {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await request.json();
-    const { titulo, descricao, banner, categoria, nivel, cargaHoraria, instrutor, modulos } = body;
+    const { titulo, descricao, banner, categoria, nivel, cargaHoraria, instrutor, instrutorId, modulos } = body;
     if (!titulo) return NextResponse.json({ error: "Titulo obrigatorio" }, { status: 400 });
+
+    // Se instrutorId foi enviado, buscar nome para manter compatibilidade legada
+    let nomeInstrutor = instrutor || "";
+    let idInstrutor = instrutorId || null;
+    if (idInstrutor && !nomeInstrutor) {
+      try {
+        const membro = await prisma.member.findUnique({
+          where: { id: idInstrutor },
+          select: { name: true },
+        });
+        if (membro) nomeInstrutor = membro.name;
+      } catch { /* ignora erro */ }
+    }
 
     const curso = await prisma.curso.create({
       data: {
@@ -43,7 +59,8 @@ export async function POST(request: NextRequest) {
         categoria: categoria ?? "ESTUDO",
         nivel: nivel ?? "INICIANTE",
         cargaHoraria: cargaHoraria ?? null,
-        instrutor: instrutor ?? null,
+        instrutor: nomeInstrutor || null,
+        instrutorId: idInstrutor,
         modulos: modulos?.length ? {
           create: modulos.map((m: { titulo: string; ordem?: number; aulas?: any[] }, i: number) => ({
             titulo: m.titulo,
@@ -60,6 +77,7 @@ export async function POST(request: NextRequest) {
         } : undefined,
       },
       include: {
+        instrutorMembro: { select: { id: true, name: true, photo: true } },
         modulos: {
           orderBy: { ordem: "asc" },
           include: { aulas: { orderBy: { ordem: "asc" } } },
