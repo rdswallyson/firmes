@@ -142,6 +142,15 @@ const MENU: SectionGroup[] = [
           { label: "Ranking de células", href: "/grupos/ranking" },
         ],
       },
+      {
+        id: "congregacoes",
+        label: "Congregações",
+        icon: <Church size={18} strokeWidth={1.5} />,
+        children: [
+          { label: "Todas as congregações", href: "/congregacoes" },
+          { label: "Nova congregação", href: "/congregacoes/novo" },
+        ],
+      },
     ],
   },
   {

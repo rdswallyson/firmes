@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const contaId = searchParams.get("contaId") || undefined;
   const metaId = searchParams.get("metaId") || undefined;
   const memberId = searchParams.get("memberId") || undefined;
+  const congregationId = searchParams.get("congregationId") || undefined;
 
   const where = {
     tenantId: session.tenantId,
@@ -23,6 +24,7 @@ export async function GET(req: NextRequest) {
     ...(contaId ? { contaId } : {}),
     ...(metaId ? { metaId } : {}),
     ...(memberId ? { memberId } : {}),
+    ...(congregationId ? { congregationId } : {}),
   };
 
   const total = await prisma.finance.count({ where });
@@ -85,6 +87,7 @@ export async function POST(req: NextRequest) {
       memberName: (body.memberName as string) || undefined,
       contaId: (body.contaId as string) || undefined,
       metaId: (body.metaId as string) || undefined,
+      congregationId: (body.congregationId as string) || undefined,
       reciboNum,
     },
   });

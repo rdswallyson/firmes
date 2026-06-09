@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, QrCode, Save } from "lucide-react";
@@ -30,8 +30,17 @@ export default function NovoCultoPage() {
   });
   const [pregador, setPregador] = useState<Member | null>(null);
   const [liderLouvor, setLiderLouvor] = useState<Member | null>(null);
+  const [congregacoes, setCongregacoes] = useState<{ id: string; name: string }[]>([]);
+  const [congregationId, setCongregationId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/congregacoes")
+      .then(r => r.json())
+      .then((d: { congregations?: { id: string; name: string }[] }) => setCongregacoes(d.congregations ?? []))
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +66,7 @@ export default function NovoCultoPage() {
           transmissaoUrl: form.transmissaoAtiva ? form.transmissaoUrl : undefined,
           pregadorId: pregador?.id,
           liderLouvorId: liderLouvor?.id,
+          congregationId: congregationId || undefined,
         }),
       });
       const data = await res.json();
@@ -126,6 +136,15 @@ export default function NovoCultoPage() {
                     {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
+                {congregacoes.length > 0 && (
+                  <div>
+                    <label style={labelStyle}>Congregação</label>
+                    <select value={congregationId} onChange={e => setCongregationId(e.target.value)} style={inputStyle}>
+                      <option value="">Sede (padrão)</option>
+                      {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label style={labelStyle}>Descrição</label>
                   <textarea value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="Detalhes do culto..." />

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await request.json();
-    const { titulo, data, local, tipo, descricao, tema, serie, transmissaoUrl, pregadorId, liderLouvorId } = body;
+    const { titulo, data, local, tipo, descricao, tema, serie, transmissaoUrl, pregadorId, liderLouvorId, congregationId } = body;
     if (!titulo || !data) return NextResponse.json({ error: "Título e data obrigatórios" }, { status: 400 });
 
     const qrCode = randomUUID();
@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
         transmissaoUrl: transmissaoUrl ?? null,
         pregadorId: pregadorId ?? null,
         liderLouvorId: liderLouvorId ?? null,
+        congregationId: congregationId ?? null,
       },
     });
     return NextResponse.json({ culto }, { status: 201 });

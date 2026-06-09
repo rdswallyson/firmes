@@ -9,7 +9,7 @@ import {
 import {
   Users, DollarSign, Calendar, Bell, ChevronRight, ChevronLeft,
   Link as LinkIcon, ShoppingBag, UserPlus, BookOpen, Copy, Check,
-  Star, Clock, MessageCircle, MapPin,
+  Star, Clock, MessageCircle, MapPin, Church,
 } from "lucide-react";
 
 // ─── Types ─────────────────────────────────────────────
@@ -90,6 +90,7 @@ export default function DashboardPage() {
   const [publicLinks, setPublicLinks] = useState<{ label: string; url: string; icon: React.ReactNode; desc?: string }[]>([]);
   const [dynamicLinks, setDynamicLinks] = useState<{ label: string; url: string; icon: React.ReactNode; desc: string }[]>([]);
   const [churchSlug, setChurchSlug] = useState("");
+  const [congregacoes, setCongregacoes] = useState<{ id: string; name: string; _count: { members: number } }[]>([]);
 
   const currentMonth = getMonthLabel();
   const currentMonthShort = getMonthShort();
@@ -122,6 +123,8 @@ export default function DashboardPage() {
     }).catch(() => null);
 
     fetch("/api/dashboard/notices").then(r => r.json()).then((d: { notices?: NoticeItem[] }) => { if (d.notices) setNotices(d.notices); }).catch(() => null);
+
+    fetch("/api/congregacoes").then(r => r.json()).then((d: { congregations?: { id: string; name: string; _count: { members: number } }[] }) => { if (Array.isArray(d.congregations)) setCongregacoes(d.congregations); }).catch(() => null);
 
     fetch("/api/dashboard/checkins").then(r => r.json()).then((d: { cultos?: { data: string; presentes: number }[] }) => {
       if (d.cultos && Array.isArray(d.cultos)) setPresencaData(d.cultos.slice(-4).map((c: any) => ({ dia: getDayLabel(c.data), presentes: c.presentes })));
@@ -456,6 +459,30 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </motion.div>
       </div>
+
+      {/* ══ SEÇÃO Congregações (somente se houver) ══ */}
+      {congregacoes.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}
+          style={{ background: "white", borderRadius: 12, padding: "1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.04)", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <Church size={16} strokeWidth={1.5} color="#1B2B6B" />
+              <h3 style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 700, color: "#111827" }}>Congregações ({congregacoes.length})</h3>
+            </div>
+            <button onClick={() => window.location.href = "/congregacoes"} style={{ background: "none", border: "none", color: "#1B2B6B", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}>
+              Ver todas <ChevronRight size={14} />
+            </button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
+            {congregacoes.map((c) => (
+              <div key={c.id} onClick={() => window.location.href = `/congregacoes/${c.id}`} style={{ cursor: "pointer", border: "1px solid #EEF2F7", borderRadius: 10, padding: "0.875rem 1rem", background: "#F8F9FC" }}>
+                <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "#1B2B6B", marginBottom: 4 }}>{c.name}</div>
+                <div style={{ fontSize: "0.75rem", color: "#6B7280" }}>{c._count.members} {c._count.members === 1 ? "membro" : "membros"}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* ══ SEÇÃO 4 — Eventos ══ */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}

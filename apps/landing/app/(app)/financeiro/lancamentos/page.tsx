@@ -9,6 +9,7 @@ import { MemberSelector } from "../../../components/MemberSelector";
 interface Finance { id: string; type: string; category: string; amount: number; description: string | null; date: string; memberName: string | null; reciboNum: string | null; contaId: string | null; conta?: { nome: string } | null; metaId: string | null; meta?: { titulo: string } | null; }
 interface Conta { id: string; nome: string; }
 interface Meta { id: string; titulo: string; }
+interface Congregacao { id: string; name: string; }
 
 const CATEGORIES_RECEITA = ["DIZIMO", "OFERTA", "DOACAO", "CAMPANHA", "OUTRO"];
 const CATEGORIES_DESPESA = ["ALUGUEL", "LUZ", "AGUA", "INTERNET", "SALARIO", "MANUTENCAO", "MATERIAL", "EVENTO", "OUTRO"];
@@ -26,8 +27,9 @@ export default function LancamentosPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [contas, setContas] = useState<Conta[]>([]);
   const [metas, setMetas] = useState<Meta[]>([]);
+  const [congregacoes, setCongregacoes] = useState<Congregacao[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [form, setForm] = useState({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "" });
+  const [form, setForm] = useState({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "", congregationId: "" });
   const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -46,6 +48,7 @@ export default function LancamentosPage() {
   useEffect(() => {
     fetch("/api/financeiro/contas").then(r => r.json()).then((d: { contas: Conta[] }) => setContas(d.contas ?? []));
     fetch("/api/financeiro/metas").then(r => r.json()).then((d: { metas: Meta[] }) => setMetas(d.metas ?? []));
+    fetch("/api/congregacoes").then(r => r.json()).then((d: { congregations?: Congregacao[] }) => setCongregacoes(d.congregations ?? [])).catch(() => {});
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -57,13 +60,13 @@ export default function LancamentosPage() {
     setSaving(false);
     setShowModal(false);
     setEditId(null);
-    setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "" });
+    setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "", congregationId: "" });
     fetchData();
   }
 
   function openEdit(f: Finance) {
     setEditId(f.id);
-    setForm({ type: f.type, category: f.category, amount: String(f.amount), description: f.description ?? "", date: f.date.split("T")[0], memberId: f.memberName ?? "", contaId: f.contaId ?? "", metaId: f.metaId ?? "" });
+    setForm({ type: f.type, category: f.category, amount: String(f.amount), description: f.description ?? "", date: f.date.split("T")[0], memberId: f.memberName ?? "", contaId: f.contaId ?? "", metaId: f.metaId ?? "", congregationId: (f as any).congregationId ?? "" });
     setShowModal(true);
   }
 
@@ -95,7 +98,7 @@ export default function LancamentosPage() {
           <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.6rem 1rem", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", color: "#374151" }}>
             <Download size={16} strokeWidth={1.5} /> CSV
           </button>
-          <button onClick={() => { setEditId(null); setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "" }); setShowModal(true); }}
+          <button onClick={() => { setEditId(null); setForm({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "", congregationId: "" }); setShowModal(true); }}
             style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.6rem 1rem", background: "linear-gradient(135deg, #1A3C6E 0%, #1E4A84 100%)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", fontWeight: 600 }}>
             <Plus size={16} strokeWidth={1.5} /> Novo Lançamento
           </button>
@@ -179,7 +182,7 @@ export default function LancamentosPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
                   <div>
                     <label style={labelStyle}>Tipo *</label>
-                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value, category: e.target.value === "RECEITA" ? "DIZIMO" : "ALUGUEL" })} style={inputStyle}>
+                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value, category: e.target.value === "RECEITA" ? "DIZIMO" : "ALUGUEL", memberId: e.target.value === "RECEITA" ? form.memberId : "" })} style={inputStyle}>
                       <option value="RECEITA">Receita</option>
                       <option value="DESPESA">Despesa</option>
                     </select>
@@ -202,14 +205,16 @@ export default function LancamentosPage() {
                     <label style={labelStyle}>Descrição</label>
                     <input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={inputStyle} placeholder="Detalhes do lançamento" />
                   </div>
-                  <div>
-                    <label style={labelStyle}>Membro (dizimista)</label>
-                    <MemberSelector
-                      placeholder="Buscar membro..."
-                      value={form.memberId ? { id: form.memberId, name: "Membro selecionado" } : null}
-                      onSelect={(m) => setForm({ ...form, memberId: (m as any)?.id ?? "" })}
-                    />
-                  </div>
+                  {form.type === "RECEITA" && (
+                    <div>
+                      <label style={labelStyle}>Membro (dizimista)</label>
+                      <MemberSelector
+                        placeholder="Buscar membro..."
+                        value={form.memberId ? { id: form.memberId, name: "Membro selecionado" } : null}
+                        onSelect={(m) => setForm({ ...form, memberId: (m as any)?.id ?? "" })}
+                      />
+                    </div>
+                  )}
                   <div>
                     <label style={labelStyle}>Conta bancária</label>
                     <select value={form.contaId} onChange={e => setForm({ ...form, contaId: e.target.value })} style={inputStyle}>
@@ -217,6 +222,15 @@ export default function LancamentosPage() {
                       {contas.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
                     </select>
                   </div>
+                  {congregacoes.length > 0 && (
+                    <div>
+                      <label style={labelStyle}>Congregação</label>
+                      <select value={form.congregationId} onChange={e => setForm({ ...form, congregationId: e.target.value })} style={inputStyle}>
+                        <option value="">Sede (padrão)</option>
+                        {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      </select>
+                    </div>
+                  )}
                   {form.type === "RECEITA" && (
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label style={labelStyle}>Vincular a meta</label>

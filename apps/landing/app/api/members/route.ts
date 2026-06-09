@@ -145,6 +145,7 @@ export async function POST(req: NextRequest) {
       photo:         pickStr(body.photo),
       role:          pickStr(body.role),
       groupId:       pickStr(body.groupId),
+      congregationId: pickStr(body.congregationId),
       status:        pickStr(body.status) ?? "ACTIVE",
       notes:         pickStr(body.notes),
       sexo:              pickStr(body.sexo),

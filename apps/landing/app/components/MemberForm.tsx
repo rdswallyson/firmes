@@ -94,6 +94,8 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
   const [filhos, setFilhos] = useState<{ nome: string; dataNascimento: string }[]>(initialData?.filhos ?? []);
   const [showPassword, setShowPassword] = useState(false);
   const [groupsList, setGroupsList] = useState<{ id: string; name: string }[]>([]);
+  const [congregacoesList, setCongregacoesList] = useState<{ id: string; name: string }[]>([]);
+  const [congregationId, setCongregationId] = useState<string>((initialData as any)?.congregationId ?? "");
   const [conjuge, setConjuge] = useState<{ id: string; name: string; photo?: string | null } | null>(null);
   const [indicadoPor, setIndicadoPor] = useState<{ id: string; name: string; photo?: string | null } | null>(null);
 
@@ -147,6 +149,12 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
         if (d.grupos) setGroupsList(d.grupos);
       })
       .catch(() => null);
+    fetch("/api/congregacoes")
+      .then(r => r.json())
+      .then((d: { congregations?: { id: string; name: string }[] }) => {
+        if (d.congregations) setCongregacoesList(d.congregations);
+      })
+      .catch(() => null);
   }, []);
 
   async function lookupCep(cep: string) {
@@ -194,6 +202,7 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
           tags,
           filhos: filhos.length > 0 ? filhos : undefined,
           portalPassword: data.portalPassword || undefined,
+          congregationId: congregationId || undefined,
           conjugeId: conjuge?.id || data.conjugeId,
           indicadoPorId: indicadoPor?.id || data.indicadoPorId,
         }),
@@ -446,6 +455,15 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
                   {groupsList.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                 </select>
               </div>
+              {congregacoesList.length > 0 && (
+                <div>
+                  <label style={labelStyle}>Congregação</label>
+                  <select value={congregationId} onChange={(e) => setCongregationId(e.target.value)} style={inputStyle}>
+                    <option value="">Sede (padrão)</option>
+                    {congregacoesList.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Datas */}

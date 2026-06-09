@@ -45,6 +45,7 @@ model Tenant {
   auditLogs            AuditLog[]
   avisos               Aviso[]
   patrimonios          Patrimonio[]
+  congregations        Congregation[]
   pedidos              Pedido[]
   produtos             Produto[]
   reseller             Tenant?         @relation("ResellerChurches", fields: [resellerId], references: [id])
@@ -128,6 +129,9 @@ model Member {
   dataConversao           DateTime?
   lgpdAceite              Boolean   @default(false)
   user                    User?
+  congregationId          String?
+  congregation            Congregation? @relation(fields: [congregationId], references: [id])
+  congregacoesPastor      Congregation[] @relation("CongregationPastor")
 
   // Relações inversas adicionais
   finances     Finance[]
@@ -149,6 +153,7 @@ model Member {
   @@index([email])
   @@index([birthDate])
   @@index([portalStatus])
+  @@index([congregationId])
 }
 
 model Group {
@@ -309,6 +314,8 @@ model Finance {
   reciboNum     String?
   paymentMethod String?
   status        String         @default("CONFIRMADO")
+  congregationId String?
+  congregation  Congregation?  @relation(fields: [congregationId], references: [id])
   conta         ContaBancaria? @relation(fields: [contaId], references: [id])
   meta          Meta?          @relation(fields: [metaId], references: [id])
   member        Member?        @relation(fields: [memberId], references: [id])
@@ -712,6 +719,8 @@ model Culto {
   tema         String?
   serie        String?
   transmissaoUrl String?
+  congregationId String?
+  congregation Congregation? @relation(fields: [congregationId], references: [id])
   checkins     Checkin[]
   tenant       Tenant    @relation(fields: [tenantId], references: [id])
   pregador     Member?   @relation("CultoPregador", fields: [pregadorId], references: [id])
@@ -788,6 +797,27 @@ model Notification {
   @@index([tenantId, read])
   @@index([userId])
   @@index([createdAt])
+}
+
+model Congregation {
+  id          String    @id @default(cuid())
+  tenantId    String
+  name        String
+  address     String?
+  city        String?
+  phone       String?
+  pastorId    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  deletedAt   DateTime?
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  pastor      Member?   @relation("CongregationPastor", fields: [pastorId], references: [id])
+  members     Member[]
+  finances    Finance[]
+  cultos      Culto[]
+
+  @@index([tenantId])
+  @@index([tenantId, deletedAt])
 }
 
 enum Plan {
