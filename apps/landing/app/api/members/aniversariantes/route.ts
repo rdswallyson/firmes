@@ -1,15 +1,23 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../../lib/auth";
 
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session?.tenantId) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     const hoje = new Date();
     const mesAtual = hoje.getMonth() + 1;
     const diaAtual = hoje.getDate();
 
     const members = await prisma.member.findMany({
       where: {
+        tenantId: session.tenantId,
         status: "ACTIVE",
+        ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
       },
       select: {
         id: true,

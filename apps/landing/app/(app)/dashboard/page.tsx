@@ -41,6 +41,7 @@ function Carousel({ slides, autoMs = 4000, showArrows = true, dotActive = "#C892
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => { if (slides.length <= 1 || paused) return; timerRef.current = setInterval(() => setIdx(p => (p + 1) % slides.length), autoMs); return () => { if (timerRef.current) clearInterval(timerRef.current); }; }, [slides.length, paused, autoMs]);
+  useEffect(() => { if (idx > slides.length - 1) setIdx(0); }, [slides.length, idx]);
   if (slides.length === 0) return null;
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
@@ -117,9 +118,14 @@ export default function DashboardPage() {
 
     fetch("/api/dashboard/growth").then(r => r.json()).then((d: { growth?: { mes: string; membros: number }[] }) => { if (d.growth) setGrowthData(d.growth); }).catch(() => null);
 
-    fetch("/api/dashboard/stats").then(r => r.json()).then((d: { totalFinances?: number }) => {
-      const total = d.totalFinances || 0; setFinanceTotal(total);
-      setFinanceBreakdown([{ name: "Receitas", value: Math.round(total * 0.73), color: "#1B2B6B" }, { name: "Despesas", value: Math.round(total * 0.27), color: "#94A3B8" }]);
+    fetch("/api/dashboard/stats").then(r => r.json()).then((d: { totalFinances?: number; receitas?: number; despesas?: number }) => {
+      const receitas = d.receitas ?? 0;
+      const despesas = d.despesas ?? 0;
+      setFinanceTotal(d.totalFinances ?? (receitas + despesas));
+      setFinanceBreakdown([
+        { name: "Receitas", value: Math.round(receitas), color: "#1B2B6B" },
+        { name: "Despesas", value: Math.round(despesas), color: "#94A3B8" },
+      ]);
     }).catch(() => null);
 
     fetch("/api/dashboard/notices").then(r => r.json()).then((d: { notices?: NoticeItem[] }) => { if (d.notices) setNotices(d.notices); }).catch(() => null);
@@ -205,8 +211,42 @@ export default function DashboardPage() {
     </div>
   ));
 
-  // Fallback se não houver mídia
-  if (mediaSlides.length === 0) mediaSlides.push(
+  // Eventos sem banner → slide textual sobre gradiente azul (garante rotação)
+  eventos.filter(e => !e.banner || e.banner.trim() === "").slice(0, 3).forEach(e => mediaSlides.push(
+    <div key={`evt-txt-${e.id}`} style={{ width: "100%", height: "100%", position: "relative", background: "linear-gradient(135deg, #0D2545 0%, #1B2B6B 100%)" }}>
+      <Calendar size={140} style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-50%)", opacity: 0.06, color: "white" }} />
+      <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%", padding: "1.5rem 2rem" }}>
+        <div style={{ fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#FCD34D", fontWeight: 700, marginBottom: 6 }}>PRÓXIMO EVENTO</div>
+        <h3 style={{ fontSize: "1.4rem", fontWeight: 700, margin: "0 0 0.5rem", color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.title}</h3>
+        <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", marginBottom: "1rem" }}>{new Date(e.date).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}{e.location ? ` — ${e.location}` : ""}</p>
+        <button onClick={() => window.location.href = `/eventos/${e.id}`} style={{ alignSelf: "flex-start", background: "white", border: "none", borderRadius: 8, padding: "0.5rem 1.25rem", color: "#1B2B6B", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer" }}>
+          Ver Detalhes →
+        </button>
+      </div>
+    </div>
+  ));
+
+  // Aniversariantes → slide no card azul (garante rotação EBD / eventos / aniversariantes)
+  if (birthdays.length > 0) mediaSlides.push(
+    <div key="aniv-blue" style={{ width: "100%", height: "100%", position: "relative", background: "linear-gradient(135deg, #1B2B6B 0%, #0D2545 100%)" }}>
+      <Star size={140} style={{ position: "absolute", right: -20, top: "50%", transform: "translateY(-50%)", opacity: 0.06, color: "#FCD34D" }} />
+      <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", padding: "1.5rem 2rem" }}>
+        <div style={{ fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#FCD34D", fontWeight: 700, marginBottom: 10 }}>ANIVERSARIANTES DO MÊS</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {birthdays.slice(0, 4).map((b, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(252,211,77,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", fontWeight: 700, color: "#FCD34D" }}>{b.name.split(" ").map(w => w[0]).slice(0, 2).join("")}</div>
+              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "white", flex: 1 }}>{b.name}</span>
+              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.7)" }}>{b.date}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Slide EBD sempre presente
+  mediaSlides.push(
     <div key="default" style={{ width: "100%", height: "100%", position: "relative" }}>
       <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 40%), radial-gradient(circle at 20% 80%, rgba(200,146,42,0.06) 0%, transparent 40%)" }} />
       <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", padding: "1.5rem 2rem" }}>

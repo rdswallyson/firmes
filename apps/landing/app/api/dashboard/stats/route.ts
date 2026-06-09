@@ -20,6 +20,14 @@ export async function GET() {
     where: { tenantId },
     _sum: { amount: true },
   });
+  const receitasAgg = await prisma.finance.aggregate({
+    where: { tenantId, type: "RECEITA" },
+    _sum: { amount: true },
+  });
+  const despesasAgg = await prisma.finance.aggregate({
+    where: { tenantId, type: "DESPESA" },
+    _sum: { amount: true },
+  });
 
   const recentMembers = await prisma.member.findMany({
     where: { tenantId },
@@ -39,6 +47,8 @@ export async function GET() {
     activeGroups: groups,
     upcomingEvents: events,
     totalFinances: finances._sum.amount ?? 0,
+    receitas: receitasAgg._sum.amount ?? 0,
+    despesas: despesasAgg._sum.amount ?? 0,
     recentMembers,
   });
 }
