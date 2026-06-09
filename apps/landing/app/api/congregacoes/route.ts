@@ -14,70 +14,98 @@ export async function GET(req: NextRequest) {
     const id = searchParams.get("id");
 
     if (id) {
-      const congregation = await prisma.congregation.findFirst({
+      // 1) Buscar a congregação base SEM includes pesados — 404 real só se não existir.
+      const base = await prisma.congregation.findFirst({
         where: { id, tenantId: session.tenantId, deletedAt: null },
-        include: {
-          pastor: { select: { id: true, name: true, photo: true, role: true } },
-          members: {
-            where: { isActive: true },
-            select: { id: true, name: true, role: true, phone: true, createdAt: true },
-            orderBy: { createdAt: "desc" },
-          },
-          cultos: {
-            where: { ativo: true },
-            select: { id: true, titulo: true, data: true, tipo: true, _count: { select: { checkins: true } } },
-            orderBy: { data: "desc" },
-            take: 20,
-          },
-          finances: {
-            where: { isActive: true },
-            select: { id: true, type: true, amount: true, date: true },
-          },
-          _count: { select: { members: true, finances: true, cultos: true } },
-        },
       });
-      if (!congregation) {
+      if (!base) {
         return NextResponse.json({ error: "Congregação não encontrada" }, { status: 404 });
       }
 
-      const receitas = congregation.finances
-        .filter((f) => f.type === "RECEITA")
-        .reduce((s, f) => s + f.amount, 0);
-      const despesas = congregation.finances
-        .filter((f) => f.type === "DESPESA")
-        .reduce((s, f) => s + f.amount, 0);
+      // 2) Carregar relações em blocos isolados que degradam para vazio
+      //    caso a coluna congregationId ainda não exista em alguma tabela.
+      let pastor: { id: string; name: string; photo: string | null; role: string | null } | null = null;
+      if (base.pastorId) {
+        try {
+          pastor = await prisma.member.findFirst({
+            where: { id: base.pastorId },
+            select: { id: true, name: true, photo: true, role: true },
+          });
+        } catch (e) { console.error("[congregacoes] pastor fail", e); }
+      }
+
+      let members: { id: string; name: string; role: string | null; phone: string | null; createdAt: Date }[] = [];
+      try {
+        members = await prisma.member.findMany({
+          where: { congregationId: id },
+          select: { id: true, name: true, role: true, phone: true, createdAt: true },
+          orderBy: { createdAt: "desc" },
+        });
+      } catch (e) { console.error("[congregacoes] members fail", e); }
+
+      let cultos: { id: string; titulo: string; data: Date; tipo: string; _count: { checkins: number } }[] = [];
+      try {
+        cultos = await prisma.culto.findMany({
+          where: { congregationId: id },
+          select: { id: true, titulo: true, data: true, tipo: true, _count: { select: { checkins: true } } },
+          orderBy: { data: "desc" },
+          take: 20,
+        });
+      } catch (e) { console.error("[congregacoes] cultos fail", e); }
+
+      let finances: { id: string; type: string; amount: number; date: Date | null }[] = [];
+      try {
+        finances = await prisma.finance.findMany({
+          where: { congregationId: id },
+          select: { id: true, type: true, amount: true, date: true },
+        });
+      } catch (e) { console.error("[congregacoes] finances fail", e); }
+
+      const receitas = finances.filter((f) => f.type === "RECEITA").reduce((s, f) => s + f.amount, 0);
+      const despesas = finances.filter((f) => f.type === "DESPESA").reduce((s, f) => s + f.amount, 0);
 
       // Resumo do mês atual
       const now = new Date();
       const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1);
       const fimMes = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      const finMes = congregation.finances.filter(
-        (f) => f.date && f.date >= inicioMes && f.date < fimMes
-      );
+      const finMes = finances.filter((f) => f.date && f.date >= inicioMes && f.date < fimMes);
       const receitasMes = finMes.filter((f) => f.type === "RECEITA").reduce((s, f) => s + f.amount, 0);
       const despesasMes = finMes.filter((f) => f.type === "DESPESA").reduce((s, f) => s + f.amount, 0);
 
       // Próximo culto agendado (data futura mais próxima)
-      const futuros = congregation.cultos
+      const futuros = cultos
         .filter((c) => new Date(c.data) >= now)
         .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
       const proximoCulto = futuros[0] ?? null;
 
       // Frequência média = média de check-ins por culto realizado
-      const realizados = congregation.cultos.filter((c) => new Date(c.data) < now);
+      const realizados = cultos.filter((c) => new Date(c.data) < now);
       const totalCheckins = realizados.reduce((s, c) => s + (c._count?.checkins ?? 0), 0);
       const freqMedia = realizados.length > 0 ? Math.round(totalCheckins / realizados.length) : 0;
 
-      const { finances, ...rest } = congregation;
-      void finances;
+      // Próximos eventos vinculados à congregação
+      let proximosEventos: { id: string; title: string; date: Date }[] = [];
+      try {
+        proximosEventos = await prisma.event.findMany({
+          where: { congregationId: id, date: { gte: now } },
+          select: { id: true, title: true, date: true },
+          orderBy: { date: "asc" },
+          take: 3,
+        });
+      } catch (e) { console.error("[congregacoes] eventos fail", e); }
 
       return NextResponse.json({
         congregation: {
-          ...rest,
+          ...base,
+          pastor,
+          members,
+          cultos,
+          proximosEventos,
           resumoFinanceiro: { receitas, despesas, saldo: receitas - despesas },
           resumoMes: { receitas: receitasMes, despesas: despesasMes, saldo: receitasMes - despesasMes },
           proximoCulto,
           freqMedia,
+          _count: { members: members.length, finances: finances.length, cultos: cultos.length },
         },
       });
     }

@@ -18,6 +18,7 @@ interface Detail {
   resumoFinanceiro: { receitas: number; despesas: number; saldo: number };
   resumoMes: { receitas: number; despesas: number; saldo: number };
   proximoCulto: { id: string; titulo: string; data: string; tipo: string } | null;
+  proximosEventos: { id: string; title: string; date: string }[];
   freqMedia: number;
   _count: { members: number; finances: number; cultos: number };
 }
@@ -31,6 +32,7 @@ export default function CongregacaoDetalhePage() {
   const id = params.id as string;
   const [data, setData] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errMsg, setErrMsg] = useState("");
   const [editing, setEditing] = useState(searchParams.get("edit") === "1");
   const [form, setForm] = useState({ name: "", address: "", city: "", phone: "", pastorId: "" });
   const [saving, setSaving] = useState(false);
@@ -44,9 +46,16 @@ export default function CongregacaoDetalhePage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setErrMsg("");
     try {
       const res = await fetch(`/api/congregacoes?id=${id}`);
-      if (!res.ok) { setData(null); return; }
+      if (!res.ok) {
+        let msg = "";
+        try { const j = await res.json() as { error?: string }; msg = j.error ?? ""; } catch { /* ignore */ }
+        setData(null);
+        setErrMsg(res.status === 404 ? "Congregação não encontrada." : `Erro ao carregar (${res.status}). ${msg}`);
+        return;
+      }
       const d = await res.json() as { congregation: Detail };
       setData(d.congregation);
       setForm({
@@ -121,7 +130,7 @@ export default function CongregacaoDetalhePage() {
   const cardStyle: React.CSSProperties = { background: "white", borderRadius: 12, padding: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" };
 
   if (loading) return <div className="page-pad" style={{ color: "#9CA3AF" }}>Carregando...</div>;
-  if (!data) return <div className="page-pad" style={{ color: "#9CA3AF" }}>Congregação não encontrada.</div>;
+  if (!data) return <div className="page-pad" style={{ color: "#9CA3AF" }}>{errMsg || "Congregação não encontrada."}</div>;
 
   const ultimosMembros = data.members.slice(0, 5);
   const ultimosCultos = data.cultos
@@ -278,6 +287,23 @@ export default function CongregacaoDetalhePage() {
             <div style={{ fontSize: 18, fontWeight: 800, color: "#0D2545" }}>{brl(data.resumoMes.saldo)}</div>
           </div>
         </div>
+      </div>
+
+      {/* Próximos eventos */}
+      <div style={{ ...cardStyle, marginBottom: 24 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}><Calendar size={18} /> Próximos eventos</h3>
+        {(!data.proximosEventos || data.proximosEventos.length === 0) ? (
+          <p style={{ color: "#9CA3AF", fontSize: 14 }}>Nenhum evento agendado.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {data.proximosEventos.map((ev) => (
+              <div key={ev.id} onClick={() => router.push(`/eventos/${ev.id}`)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #F3F4F6", cursor: "pointer" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#374151" }}>{ev.title}</div>
+                <div style={{ fontSize: 12, color: "#9CA3AF" }}>{new Date(ev.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Modal Definir Pastor */}
