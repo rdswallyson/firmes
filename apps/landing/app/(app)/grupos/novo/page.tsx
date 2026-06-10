@@ -233,7 +233,7 @@ export default function NovoGrupoPage() {
             <button type="button" onClick={() => router.push("/grupos")} style={{ padding: "0.65rem 2rem", background: "#F3F4F6", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 500, fontSize: "0.875rem" }}>
               Cancelar
             </button>
-            <button type="submit" disabled={loading}
+            <button type="button" onClick={handleSubmit} disabled={loading}
               style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.65rem 2.5rem", background: loading ? "#6B7280" : "linear-gradient(135deg, #1A3C6E 0%, #1E4A84 100%)", color: "white", border: "none", borderRadius: "8px", cursor: loading ? "not-allowed" : "pointer", fontWeight: 600, fontSize: "0.875rem" }}>
               <Save size={16} strokeWidth={1.5} />
               {loading ? "Salvando..." : "Salvar Grupo"}
