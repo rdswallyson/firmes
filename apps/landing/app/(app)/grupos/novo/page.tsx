@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowLeft, Users, Save, Plus, X } from "lucide-react";
+import { ArrowLeft, Users, Save, X } from "lucide-react";
 import { MemberSelector } from "../../../components/MemberSelector";
 import { CheckboxField } from "../../../components/CheckboxField";
 
@@ -63,7 +62,6 @@ export default function NovoGrupoPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!lider1) return alert("Selecione pelo menos o Líder 1");
     setLoading(true);
     try {
       const res = await fetch("/api/grupos", {
@@ -194,7 +192,7 @@ export default function NovoGrupoPage() {
               </h2>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <MemberSelector label="Líder 1 *" placeholder="Buscar líder principal..." value={lider1} onSelect={m => setLider1(m as Member | null)} required />
+                <MemberSelector label="Líder 1" placeholder="Buscar líder principal..." value={lider1} onSelect={m => setLider1(m as Member | null)} />
                 <MemberSelector label="Líder 2" placeholder="Buscar líder..." value={lider2} onSelect={m => setLider2(m as Member | null)} />
                 <MemberSelector label="Líder 3" placeholder="Buscar líder..." value={lider3} onSelect={m => setLider3(m as Member | null)} />
                 <MemberSelector label="Líder 4" placeholder="Buscar líder..." value={lider4} onSelect={m => setLider4(m as Member | null)} />
@@ -235,11 +233,11 @@ export default function NovoGrupoPage() {
             <button type="button" onClick={() => router.push("/grupos")} style={{ padding: "0.65rem 2rem", background: "#F3F4F6", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 500, fontSize: "0.875rem" }}>
               Cancelar
             </button>
-            <motion.button type="submit" disabled={loading} whileTap={{ scale: 0.97 }}
+            <button type="submit" disabled={loading}
               style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.65rem 2.5rem", background: loading ? "#6B7280" : "linear-gradient(135deg, #1A3C6E 0%, #1E4A84 100%)", color: "white", border: "none", borderRadius: "8px", cursor: loading ? "not-allowed" : "pointer", fontWeight: 600, fontSize: "0.875rem" }}>
               <Save size={16} strokeWidth={1.5} />
               {loading ? "Salvando..." : "Salvar Grupo"}
-            </motion.button>
+            </button>
           </div>
         </form>
       </div>
