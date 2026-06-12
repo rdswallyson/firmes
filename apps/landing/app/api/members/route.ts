@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
         { phone: { contains: search, mode: "insensitive" } },
       ];
     }
-    ["status", "role", "groupId"].forEach(f => {
+    ["status", "role", "groupId", "congregationId"].forEach(f => {
       const v = searchParams.get(f);
       if (v) where[f] = v;
     });

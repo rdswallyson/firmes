@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Users, UserPlus, Search, Download, ChevronLeft, ChevronRight,
@@ -31,6 +31,8 @@ const STATUS_LABEL: Record<string, { label: string; bg: string; color: string }>
 
 export default function PessoasPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const congregationIdFromUrl = searchParams.get("congregacao");
   const [members, setMembers] = useState<Member[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -47,6 +49,7 @@ export default function PessoasPage() {
     const params = new URLSearchParams({ page: String(page), limit: "20" });
     if (search) params.set("search", search);
     if (statusFilter) params.set("status", statusFilter);
+    if (congregationIdFromUrl) params.set("congregationId", congregationIdFromUrl);
 
     try {
       const res = await fetch(`/api/members?${params}`);
@@ -55,29 +58,27 @@ export default function PessoasPage() {
       setTotal(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
       // Buscar congregações para exibir nomes
-      if (data.members?.some((m: Member) => m.congregationId)) {
-        fetch("/api/congregacoes")
-          .then(r => r.json())
-          .then((d: { congregations?: { id: string; name: string }[] }) => {
-            const map: Record<string, string> = {};
-            d.congregations?.forEach((c: { id: string; name: string }) => { map[c.id] = c.name; });
-            setCongregationsMap(map);
-          })
-          .catch(() => null);
-      }
+      fetch("/api/congregacoes")
+        .then(r => r.json())
+        .then((d: { congregations?: { id: string; name: string }[] }) => {
+          const map: Record<string, string> = {};
+          d.congregations?.forEach((c: { id: string; name: string }) => { map[c.id] = c.name; });
+          setCongregationsMap(map);
+        })
+        .catch(() => null);
     } catch {
       setMembers([]);
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusFilter]);
+  }, [page, search, statusFilter, congregationIdFromUrl]);
 
   useEffect(() => { fetchMembers(); }, [fetchMembers]);
 
   useEffect(() => {
     const timer = setTimeout(() => { setPage(1); }, 0);
     return () => clearTimeout(timer);
-  }, [search, statusFilter]);
+  }, [search, statusFilter, congregationIdFromUrl]);
 
   async function handleInactivate(id: string) {
     await fetch(`/api/members/${id}`, { method: "DELETE" });
@@ -108,6 +109,16 @@ export default function PessoasPage() {
         <div>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0D2545", margin: 0 }}>Pessoas</h1>
           <p style={{ color: "#6B7280", fontSize: "0.875rem", margin: "2px 0 0" }}>Gerencie os membros da sua igreja</p>
+          {congregationIdFromUrl && congregationsMap[congregationIdFromUrl] && (
+            <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "0.8rem", color: "#1A3C6E", background: "#EFF6FF", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>
+                Filtrando por: {congregationsMap[congregationIdFromUrl]}
+              </span>
+              <button onClick={() => router.push("/pessoas")} style={{ background: "none", border: "none", color: "#DC2626", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: 2 }}>
+                <X size={12} /> remover
+              </button>
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", color: "#374151" }}>

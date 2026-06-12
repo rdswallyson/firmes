@@ -150,10 +150,6 @@ const MENU: SectionGroup[] = [
         icon: <Church size={18} strokeWidth={1.5} />,
         children: [
           { label: "Todas as congregações", href: "/congregacoes" },
-          { label: "Membros", href: "/pessoas" },
-          { label: "Últimos Cultos", href: "/cultos" },
-          { label: "Financeiro do Mês", href: "/financeiro/lancamentos" },
-          { label: "Próximos Eventos", href: "/eventos" },
           { label: "+ Nova congregação", href: "/congregacoes/novo" },
         ],
       },

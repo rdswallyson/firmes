@@ -233,7 +233,7 @@ export default function CongregacaoDetalhePage() {
         <div style={cardStyle}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", display: "flex", alignItems: "center", gap: 8 }}><Users size={18} /> Membros</h3>
-            <button onClick={() => router.push(`/pessoas?congregationId=${id}`)} style={{ background: "none", border: "none", color: "#1A3C6E", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Ver todos</button>
+            <button onClick={() => router.push(`/pessoas?congregacao=${id}`)} style={{ background: "none", border: "none", color: "#1A3C6E", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Ver todos</button>
           </div>
           {ultimosMembros.length === 0 ? (
             <p style={{ color: "#9CA3AF", fontSize: 14 }}>Nenhum membro vinculado.</p>
