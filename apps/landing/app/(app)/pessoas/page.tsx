@@ -17,6 +17,7 @@ interface Member {
   status: string;
   role: string | null;
   groupId: string | null;
+  congregationId: string | null;
   isActive: boolean;
   memberSince: string;
 }
@@ -36,6 +37,7 @@ export default function PessoasPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [congregationsMap, setCongregationsMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -52,6 +54,17 @@ export default function PessoasPage() {
       setMembers(data.members ?? []);
       setTotal(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
+      // Buscar congregações para exibir nomes
+      if (data.members?.some((m: Member) => m.congregationId)) {
+        fetch("/api/congregacoes")
+          .then(r => r.json())
+          .then((d: { congregations?: { id: string; name: string }[] }) => {
+            const map: Record<string, string> = {};
+            d.congregations?.forEach((c: { id: string; name: string }) => { map[c.id] = c.name; });
+            setCongregationsMap(map);
+          })
+          .catch(() => null);
+      }
     } catch {
       setMembers([]);
     } finally {
@@ -161,16 +174,16 @@ export default function PessoasPage() {
           <table className="responsive-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8375rem" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #F3F4F6" }}>
-                {["Membro", "Telefone", "Cargo", "Status", "Membro desde", "Ações"].map((h) => (
+                {["Membro", "Telefone", "Cargo", "Congregação", "Status", "Membro desde", "Ações"].map((h) => (
                   <th key={h} style={{ textAlign: "left", padding: "0.75rem 1rem", color: "#9CA3AF", fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} style={{ padding: "3rem", textAlign: "center", color: "#9CA3AF" }}>Carregando...</td></tr>
+                <tr><td colSpan={7} style={{ padding: "3rem", textAlign: "center", color: "#9CA3AF" }}>Carregando...</td></tr>
               ) : members.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: "3rem", textAlign: "center", color: "#9CA3AF" }}>Nenhum membro encontrado</td></tr>
+                <tr><td colSpan={7} style={{ padding: "3rem", textAlign: "center", color: "#9CA3AF" }}>Nenhum membro encontrado</td></tr>
               ) : members.map((m) => {
                 const st = STATUS_LABEL[m.status] ?? { label: m.status, bg: "#F3F4F6", color: "#6B7280" };
                 return (
@@ -191,6 +204,11 @@ export default function PessoasPage() {
                     </td>
                     <td data-label="Telefone" style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.phone ?? "—"}</td>
                     <td data-label="Cargo" style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.role ?? "—"}</td>
+                    <td data-label="Congregação" style={{ padding: "0.625rem 1rem" }}>
+                      <span style={{ background: congregationsMap[m.congregationId || ""] ? "#E0E7FF" : "#F3F4F6", color: congregationsMap[m.congregationId || ""] ? "#4338CA" : "#9CA3AF", fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "2px 8px" }}>
+                        {congregationsMap[m.congregationId || ""] ?? "Sede"}
+                      </span>
+                    </td>
                     <td data-label="Status" style={{ padding: "0.625rem 1rem" }}>
                       <span style={{ background: st.bg, color: st.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "2px 8px" }}>{st.label}</span>
                     </td>

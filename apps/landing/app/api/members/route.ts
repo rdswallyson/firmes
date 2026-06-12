@@ -49,6 +49,7 @@ const COLUMN_SQL: Record<string, string> = {
   disponibilidadeTurnos: `ALTER TABLE "Member" ADD COLUMN IF NOT EXISTS "disponibilidadeTurnos" TEXT[] DEFAULT '{}';`,
   tags: `ALTER TABLE "Member" ADD COLUMN IF NOT EXISTS "tags" TEXT[] DEFAULT '{}';`,
   lgpdAceite: `ALTER TABLE "Member" ADD COLUMN IF NOT EXISTS "lgpdAceite" BOOLEAN DEFAULT false;`,
+  congregationId: `ALTER TABLE "Member" ADD COLUMN IF NOT EXISTS "congregationId" TEXT;`,
 };
 
 async function createMissingColumn(colName: string): Promise<boolean> {
@@ -105,7 +106,7 @@ export async function GET(req: NextRequest) {
       select: {
         id: true, name: true, email: true, phone: true, photo: true,
         status: true, role: true, groupId: true, birthDate: true,
-        memberSince: true, createdAt: true,
+        congregationId: true, memberSince: true, createdAt: true,
       },
     });
 

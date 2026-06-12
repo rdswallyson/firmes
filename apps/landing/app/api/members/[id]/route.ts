@@ -45,6 +45,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       photo: body.photo as string | undefined,
       role: body.role as string | undefined,
       groupId: body.groupId as string | undefined,
+      congregationId: body.congregationId as string | undefined,
       status: body.status as string | undefined,
       notes: body.notes as string | undefined,
       // Campos expandidos
