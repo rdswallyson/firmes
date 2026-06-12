@@ -180,7 +180,7 @@ export function MemberForm({ initialData, mode }: MemberFormProps) {
       setError("As senhas do portal não conferem");
       return;
     }
-    if (!data.lgpdAceite) {
+    if (mode === "create" && !data.lgpdAceite) {
       setError("É necessário aceitar a declaração LGPD");
       return;
     }
