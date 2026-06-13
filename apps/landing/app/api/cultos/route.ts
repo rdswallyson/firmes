@@ -3,15 +3,19 @@ import { getSession } from "../../../lib/auth";
 import { prisma } from "@firmes/db";
 import { randomUUID } from "crypto";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
+    const { searchParams } = new URL(req.url);
+    const congregationIdParam = searchParams.get("congregationId") || undefined;
 
     const cultos = await prisma.culto.findMany({
       where: {
         tenantId: session.tenantId,
         ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+        ...(congregationIdParam ? { congregationId: congregationIdParam } : {}),
       },
       include: { _count: { select: { checkins: true } } },
       orderBy: { data: "desc" },

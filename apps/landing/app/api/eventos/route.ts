@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const slugParam = searchParams.get("slug");
+    const congregationIdParam = searchParams.get("congregationId") || undefined;
 
     if (slugParam) {
       const evento = await prisma.event.findFirst({
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
         where: {
           tenantId: session.tenantId,
           ...(session.role === "PASTOR" && session.congregationId ? { congregationId: session.congregationId } : {}),
+          ...(congregationIdParam ? { congregationId: congregationIdParam } : {}),
         },
         orderBy: { date: "desc" },
         include: { _count: { select: { inscricoes: true } } },
