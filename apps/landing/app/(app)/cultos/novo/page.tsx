@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, QrCode, Save } from "lucide-react";
 import { MemberSelector } from "../../../components/MemberSelector";
@@ -16,6 +16,8 @@ const TIPOS = ["Dominical", "Midweek", "Especial", "Jovens", "Infantil", "Outro"
 
 export default function NovoCultoPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const congregationIdFromUrl = searchParams.get("congregationId") || "";
   const [form, setForm] = useState({
     titulo: "",
     data: "",
@@ -31,7 +33,7 @@ export default function NovoCultoPage() {
   const [pregador, setPregador] = useState<Member | null>(null);
   const [liderLouvor, setLiderLouvor] = useState<Member | null>(null);
   const [congregacoes, setCongregacoes] = useState<{ id: string; name: string }[]>([]);
-  const [congregationId, setCongregationId] = useState("");
+  const [congregationId, setCongregationId] = useState(congregationIdFromUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -139,10 +141,19 @@ export default function NovoCultoPage() {
                 {congregacoes.length > 0 && (
                   <div>
                     <label style={labelStyle}>Congregação</label>
-                    <select value={congregationId} onChange={e => setCongregationId(e.target.value)} style={inputStyle}>
-                      <option value="">Sede (padrão)</option>
-                      {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    {congregationIdFromUrl ? (
+                      <div style={{ ...inputStyle, background: "#F3F4F6", display: "flex", alignItems: "center", gap: 6, color: "#374151" }}>
+                        <span>⛪</span>
+                        <span style={{ fontWeight: 600 }}>
+                          {congregacoes.find(c => c.id === congregationIdFromUrl)?.name ?? "Sede"} (fixo)
+                        </span>
+                      </div>
+                    ) : (
+                      <select value={congregationId} onChange={e => setCongregationId(e.target.value)} style={inputStyle}>
+                        <option value="">Sede (padrão)</option>
+                        {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      </select>
+                    )}
                   </div>
                 )}
                 <div>

@@ -251,7 +251,13 @@ export default function CongregacaoDetalhePage() {
 
         {/* Últimos cultos */}
         <div style={cardStyle}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}><Calendar size={18} /> Últimos cultos</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", display: "flex", alignItems: "center", gap: 8 }}><Calendar size={18} /> Últimos cultos</h3>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => router.push(`/cultos/novo?congregationId=${id}`)} style={{ background: "#EFF6FF", border: "none", borderRadius: 8, padding: "6px 12px", color: "#1A3C6E", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>+ Novo Culto</button>
+              <button onClick={() => router.push(`/congregacoes/cultos?id=${id}`)} style={{ background: "none", border: "none", color: "#1A3C6E", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Ver todos</button>
+            </div>
+          </div>
           {ultimosCultos.length === 0 ? (
             <p style={{ color: "#9CA3AF", fontSize: 14 }}>Nenhum culto realizado.</p>
           ) : (
@@ -272,7 +278,13 @@ export default function CongregacaoDetalhePage() {
 
       {/* Financeiro do mês */}
       <div style={{ ...cardStyle, marginBottom: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}><DollarSign size={18} /> Financeiro do mês</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", display: "flex", alignItems: "center", gap: 8 }}><DollarSign size={18} /> Financeiro do mês</h3>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => router.push(`/financeiro/lancamentos/novo?congregationId=${id}`)} style={{ background: "#EFF6FF", border: "none", borderRadius: 8, padding: "6px 12px", color: "#1A3C6E", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>+ Novo Lançamento</button>
+            <button onClick={() => router.push(`/congregacoes/financeiro?id=${id}`)} style={{ background: "none", border: "none", color: "#1A3C6E", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Ver todos</button>
+          </div>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
           <div style={{ background: "#F0FDF4", borderRadius: 10, padding: 16 }}>
             <div style={{ fontSize: 13, color: "#16A34A", marginBottom: 4 }}>Receitas</div>
@@ -291,7 +303,13 @@ export default function CongregacaoDetalhePage() {
 
       {/* Próximos eventos */}
       <div style={{ ...cardStyle, marginBottom: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}><Calendar size={18} /> Próximos eventos</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#0D2545", display: "flex", alignItems: "center", gap: 8 }}><Calendar size={18} /> Próximos eventos</h3>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => router.push(`/eventos/novo?congregationId=${id}`)} style={{ background: "#EFF6FF", border: "none", borderRadius: 8, padding: "6px 12px", color: "#1A3C6E", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>+ Novo Evento</button>
+            <button onClick={() => router.push(`/congregacoes/eventos?id=${id}`)} style={{ background: "none", border: "none", color: "#1A3C6E", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Ver todos</button>
+          </div>
+        </div>
         {(!data.proximosEventos || data.proximosEventos.length === 0) ? (
           <p style={{ color: "#9CA3AF", fontSize: 14 }}>Nenhum evento agendado.</p>
         ) : (

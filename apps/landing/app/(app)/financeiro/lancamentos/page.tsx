@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { DollarSign, Plus, Search, Download, Pencil, Trash2, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { MemberSelector } from "../../../components/MemberSelector";
@@ -16,6 +16,8 @@ const CATEGORIES_DESPESA = ["ALUGUEL", "LUZ", "AGUA", "INTERNET", "SALARIO", "MA
 
 export default function LancamentosPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const congregationIdFromUrl = searchParams.get("congregationId") || "";
   const [finances, setFinances] = useState<Finance[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -29,7 +31,7 @@ export default function LancamentosPage() {
   const [metas, setMetas] = useState<Meta[]>([]);
   const [congregacoes, setCongregacoes] = useState<Congregacao[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [form, setForm] = useState({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "", congregationId: "" });
+  const [form, setForm] = useState({ type: "RECEITA", category: "DIZIMO", amount: "", description: "", date: new Date().toISOString().split("T")[0], memberId: "", contaId: "", metaId: "", congregationId: congregationIdFromUrl });
   const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -225,10 +227,19 @@ export default function LancamentosPage() {
                   {congregacoes.length > 0 && (
                     <div>
                       <label style={labelStyle}>Congregação</label>
-                      <select value={form.congregationId} onChange={e => setForm({ ...form, congregationId: e.target.value })} style={inputStyle}>
-                        <option value="">Sede (padrão)</option>
-                        {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
+                      {congregationIdFromUrl ? (
+                        <div style={{ ...inputStyle, background: "#F3F4F6", display: "flex", alignItems: "center", gap: 6, color: "#374151" }}>
+                          <span>⛪</span>
+                          <span style={{ fontWeight: 600 }}>
+                            {congregacoes.find(c => c.id === congregationIdFromUrl)?.name ?? "Sede"} (fixo)
+                          </span>
+                        </div>
+                      ) : (
+                        <select value={form.congregationId} onChange={e => setForm({ ...form, congregationId: e.target.value })} style={inputStyle}>
+                          <option value="">Sede (padrão)</option>
+                          {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      )}
                     </div>
                   )}
                   {form.type === "RECEITA" && (

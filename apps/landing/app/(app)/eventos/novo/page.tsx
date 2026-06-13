@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { CalendarPlus, ArrowLeft, Upload, Link as LinkIcon, MapPin, Save } from "lucide-react";
 import { MemberSelector } from "../../../components/MemberSelector";
@@ -16,9 +16,12 @@ const MINISTERIOS = ["Louvor", "Jovens", "EBD", "Intercessão", "Mídia", "Infan
 
 export default function NovoEventoPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const congregationIdFromUrl = searchParams.get("congregationId") || "";
   const [saving, setSaving] = useState(false);
   const [bannerMode, setBannerMode] = useState<"url" | "upload">("url");
   const [organizador, setOrganizador] = useState<Member | null>(null);
+  const [congregacoes, setCongregacoes] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
     title: "", subtitulo: "", description: "",
     date: "", dataFim: "", location: "",
@@ -27,6 +30,7 @@ export default function NovoEventoPage() {
     telefoneObrigatorio: false, enderecoObrigatorio: false,
     emailObrigatorio: false, ocultarTelefone: false, ocultarEndereco: false,
     formaPagamento: "", ministerioResponsavel: "", visibilidade: "PUBLICO",
+    congregationId: congregationIdFromUrl,
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -43,11 +47,21 @@ export default function NovoEventoPage() {
           valor: !form.isGratuito && form.valor ? Number(form.valor) : undefined,
         }),
       });
-      if (res.ok) router.push("/eventos");
+      if (res.ok) {
+        if (congregationIdFromUrl) router.push(`/congregacoes/${congregationIdFromUrl}`);
+        else router.push("/eventos");
+      }
       else alert("Erro ao criar evento");
     } catch { alert("Erro de conexão"); }
     setSaving(false);
   }
+
+  useEffect(() => {
+    fetch("/api/congregacoes")
+      .then(r => r.json())
+      .then((d: { congregations?: { id: string; name: string }[] }) => setCongregacoes(d.congregations ?? []))
+      .catch(() => {});
+  }, []);
 
   async function handleBannerUpload(file: File) {
     const reader = new FileReader();
@@ -114,6 +128,24 @@ export default function NovoEventoPage() {
                   <label style={labelStyle}>Local</label>
                   <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={inputStyle} placeholder="Ex: Templo Principal" />
                 </div>
+                {congregacoes.length > 0 && (
+                  <div>
+                    <label style={labelStyle}>Congregação</label>
+                    {congregationIdFromUrl ? (
+                      <div style={{ ...inputStyle, background: "#F3F4F6", display: "flex", alignItems: "center", gap: 6, color: "#374151" }}>
+                        <span>⛪</span>
+                        <span style={{ fontWeight: 600 }}>
+                          {congregacoes.find(c => c.id === congregationIdFromUrl)?.name ?? "Sede"} (fixo)
+                        </span>
+                      </div>
+                    ) : (
+                      <select value={form.congregationId} onChange={e => setForm({ ...form, congregationId: e.target.value })} style={inputStyle}>
+                        <option value="">Sede (padrão)</option>
+                        {congregacoes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      </select>
+                    )}
+                  </div>
+                )}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
                   <div>
                     <label style={labelStyle}>Vagas</label>
