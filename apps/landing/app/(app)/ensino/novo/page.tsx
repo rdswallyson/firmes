@@ -163,14 +163,14 @@ export default function NovoCursoPage() {
               </div>
 
               {mod.aulas.map((aula, ai) => (
-                <div key={ai} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr 80px 30px", gap: 8, marginBottom: 8, alignItems: "center", paddingLeft: 24 }}>
+                <div key={ai} style={{ display: "grid", gridTemplateColumns: "2fr 110px 2fr 80px 30px", gap: 8, marginBottom: 8, alignItems: "center", paddingLeft: 24 }}>
                   <input style={{ ...inputStyle, fontSize: 13 }} value={aula.titulo} onChange={e => updateAula(mi, ai, "titulo", e.target.value)} placeholder="Titulo da aula" />
-                  <select style={{ ...inputStyle, fontSize: 13 }} value={aula.tipo} onChange={e => updateAula(mi, ai, "tipo", e.target.value)}>
-                    <option value="VIDEO">Video</option>
-                    <option value="PDF">PDF</option>
-                    <option value="TEXTO">Texto</option>
+                  <select style={{ ...inputStyle, fontSize: 13, minWidth: 110 }} value={aula.tipo} onChange={e => updateAula(mi, ai, "tipo", e.target.value)}>
+                    <option value="VIDEO">🎥 Video</option>
+                    <option value="PDF">📄 PDF</option>
+                    <option value="TEXTO">📝 Texto</option>
                   </select>
-                  <input style={{ ...inputStyle, fontSize: 13 }} value={aula.conteudo} onChange={e => updateAula(mi, ai, "conteudo", e.target.value)} placeholder="URL do video ou PDF" />
+                  <input style={{ ...inputStyle, fontSize: 13 }} value={aula.conteudo} onChange={e => updateAula(mi, ai, "conteudo", e.target.value)} placeholder={aula.tipo === "TEXTO" ? "Conteudo da aula..." : "URL do video ou PDF"} />
                   <input style={{ ...inputStyle, fontSize: 13 }} value={aula.duracao} onChange={e => updateAula(mi, ai, "duracao", e.target.value)} placeholder="10min" />
                   <button type="button" onClick={() => removeAula(mi, ai)} style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626" }}><Trash2 size={14} /></button>
                 </div>
