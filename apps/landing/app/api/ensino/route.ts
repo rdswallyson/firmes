@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         banner: banner ?? null,
         categoria: categoria ?? "ESTUDO",
         nivel: nivel ?? "INICIANTE",
-        cargaHoraria: cargaHoraria ?? null,
+        cargaHoraria: cargaHoraria ? parseInt(String(cargaHoraria), 10) : null,
         instrutor: nomeInstrutor || null,
         instrutorId: idInstrutor,
         modulos: modulos?.length ? {
