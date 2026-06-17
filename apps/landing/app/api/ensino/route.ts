@@ -69,11 +69,12 @@ export async function POST(request: NextRequest) {
             titulo: m.titulo,
             ordem: m.ordem ?? i,
             aulas: m.aulas?.length ? {
-              create: m.aulas.map((a: { titulo: string; ordem?: number; videoUrl?: string; materialUrl?: string }, j: number) => ({
+              create: m.aulas.map((a: { titulo: string; ordem?: number; tipo?: string; conteudo?: string; duracao?: string }, j: number) => ({
                 titulo: a.titulo,
                 ordem: a.ordem ?? j,
-                videoUrl: a.videoUrl ?? null,
-                materialUrl: a.materialUrl ?? null,
+                tipo: a.tipo ?? "VIDEO",
+                conteudo: a.conteudo ?? null,
+                duracao: a.duracao ?? null,
               })),
             } : undefined,
           })),
