@@ -91,6 +91,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ curso }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/ensino]", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
