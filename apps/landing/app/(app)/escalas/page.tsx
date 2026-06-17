@@ -45,7 +45,10 @@ export default function EscalasPage() {
 
   const filtrados = escalas.filter(e => {
     const d = new Date(e.data);
-    const noPeriodo = viewMode === "semana" ? d >= inicioSemana && d <= fimSemana : d >= inicioMes && d <= fimMes;
+    const dSemTimezone = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+    const noPeriodo = viewMode === "semana" 
+      ? dSemTimezone >= inicioSemana && dSemTimezone <= fimSemana 
+      : dSemTimezone >= inicioMes && dSemTimezone <= fimMes;
     const minOk = filtroMinisterio === "TODOS" || e.ministerio === filtroMinisterio;
     return noPeriodo && minOk;
   });
