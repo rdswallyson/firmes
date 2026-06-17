@@ -48,7 +48,7 @@ export default function CheckinPublicoPage() {
   const [erro, setErro] = useState("");
 
   useEffect(() => {
-    fetch(`/api/checkin/${qrCode}`)
+    fetch(`/api/checkin/registrar?qrCode=${qrCode}`)
       .then(r => r.json())
       .then(data => setCulto(data.culto))
       .catch(() => {})
@@ -81,10 +81,10 @@ export default function CheckinPublicoPage() {
     setErro("");
     try {
       const body = tipo === "MEMBRO"
-        ? { nome: membroSelecionado!.name, tipo: "MEMBRO", memberId: membroSelecionado!.id, telefone: membroSelecionado!.phone }
-        : { nome: form.nome, tipo: "VISITANTE", telefone: form.telefone, comoConheceu: form.comoConheceu };
+        ? { qrCode, nome: membroSelecionado!.name, tipo: "MEMBRO", memberId: membroSelecionado!.id, telefone: membroSelecionado!.phone }
+        : { qrCode, nome: form.nome, tipo: "VISITANTE", telefone: form.telefone, comoConheceu: form.comoConheceu };
 
-      const res = await fetch(`/api/checkin/${qrCode}`, {
+      const res = await fetch(`/api/checkin/registrar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
