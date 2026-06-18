@@ -48,7 +48,7 @@ export default function AulaPage() {
       await fetch(`/api/ensino/${cursoId}/progresso`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ aulaId, memberId: "current-user" }),
+        body: JSON.stringify({ aulaId }),
       });
       await fetchCurso();
     } catch { /* ignore */ }

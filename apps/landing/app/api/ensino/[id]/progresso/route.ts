@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@firmes/db";
+import { getSession } from "../../../../../lib/auth";
 
 // POST - mark aula as completed
 export async function POST(
@@ -8,11 +9,18 @@ export async function POST(
 ) {
   const { id: cursoId } = await params;
   try {
-    const body = await request.json();
-    const { aulaId, memberId } = body;
-    if (!aulaId || !memberId) {
-      return NextResponse.json({ error: "aulaId e memberId obrigatorios" }, { status: 400 });
+    const session = await getSession();
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
+
+    const body = await request.json();
+    const { aulaId } = body;
+    if (!aulaId) {
+      return NextResponse.json({ error: "aulaId obrigatorio" }, { status: 400 });
+    }
+
+    const memberId = session.userId;
 
     const progresso = await prisma.cursoProgresso.upsert({
       where: { cursoId_aulaId_memberId: { cursoId, aulaId, memberId } },
@@ -20,7 +28,6 @@ export async function POST(
       update: { concluido: true, dataHora: new Date() },
     });
 
-    // Calculate total progress
     const curso = await prisma.curso.findUnique({
       where: { id: cursoId },
       include: { modulos: { include: { aulas: true } } },
