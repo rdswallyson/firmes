@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Upload, ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { MemberSelector } from "../../../components/MemberSelector";
 
@@ -19,6 +19,7 @@ const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWe
 export default function NovoCursoPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     titulo: "",
     descricao: "",
@@ -48,13 +49,34 @@ export default function NovoCursoPage() {
     setModulos(modulos.map((m, i) => i === modIdx ? { ...m, aulas: m.aulas.map((a, j) => j === aulaIdx ? { ...a, [field]: value } : a) } : m));
   }
 
+  async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "banners");
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setForm(f => ({ ...f, banner: data.url }));
+      } else {
+        alert(data.error || "Erro ao fazer upload");
+      }
+    } catch {
+      alert("Erro de conexao no upload");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.titulo) { alert("Titulo obrigatorio"); return; }
     setSaving(true);
     try {
       const payload: any = { ...form, modulos: modulos.filter(m => m.titulo) };
-      // Remove campos vazios para não poluir API
       if (!payload.instrutorId) delete payload.instrutorId;
       const res = await fetch("/api/ensino", {
         method: "POST",
@@ -136,8 +158,21 @@ export default function NovoCursoPage() {
               </div>
             </div>
             <div>
-              <label style={labelStyle}>Banner (URL da imagem)</label>
-              <input style={inputStyle} value={form.banner} onChange={e => setForm(f => ({ ...f, banner: e.target.value }))} placeholder="https://..." />
+              <label style={labelStyle}>Banner</label>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ flex: 1 }}>
+                  <input style={inputStyle} value={form.banner} onChange={e => setForm(f => ({ ...f, banner: e.target.value }))} placeholder="https://... ou faca upload" />
+                </div>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 14px", background: "#EEF2FA", color: NAVY, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
+                  <Upload size={14} /> {uploading ? "Enviando..." : "Upload"}
+                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleBannerUpload} disabled={uploading} />
+                </label>
+              </div>
+              {form.banner && (
+                <div style={{ marginTop: 8, borderRadius: 8, overflow: "hidden", width: 120, height: 80, background: `url(${form.banner}) center/cover`, border: "1.5px solid #E5E7EB" }}>
+                  {!form.banner.startsWith("http") && <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#9CA3AF" }}><ImageIcon size={20} /></div>}
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
