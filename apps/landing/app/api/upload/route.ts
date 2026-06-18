@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "../../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import { getSession } from "../../../lib/auth";
+
+const supabaseUrl = "https://jygyljomepybajqqwbpw.supabase.co";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +11,12 @@ export async function POST(request: NextRequest) {
     if (!session?.tenantId) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
+
+    if (!supabaseKey) {
+      return NextResponse.json({ error: "Storage nao configurado (chave ausente)" }, { status: 500 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -17,7 +26,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Arquivo não enviado" }, { status: 400 });
     }
 
-    // Validar tipo e tamanho
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ error: "Apenas imagens são permitidas" }, { status: 400 });
     }
@@ -27,10 +35,6 @@ export async function POST(request: NextRequest) {
 
     const ext = file.name.split(".").pop() || "png";
     const path = `${folder}/${session.tenantId}/${Date.now()}.${ext}`;
-
-    if (!supabase) {
-      return NextResponse.json({ error: "Storage nao configurado" }, { status: 500 });
-    }
 
     const { data, error } = await supabase.storage
       .from("firmes-uploads")
@@ -42,10 +46,6 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("[POST /api/upload] Supabase error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    if (!supabase) {
-      return NextResponse.json({ error: "Storage nao configurado" }, { status: 500 });
     }
 
     const { data: publicUrl } = supabase.storage
