@@ -39,7 +39,7 @@ export default function DiscipuladosPage() {
               const percentual = Math.round((concluidas / totalAulas) * 100);
               discipuladosList.push({
                 id: `${curso.id}-${p.memberId}`,
-                nome: p.memberId === "current-user" ? "Aluno" : `Membro ${p.memberId.slice(0, 6)}`,
+                nome: p.member?.name || `Membro ${p.memberId.slice(0, 6)}`,
                 cursoTitulo: curso.titulo,
                 cursoId: curso.id,
                 percentual,

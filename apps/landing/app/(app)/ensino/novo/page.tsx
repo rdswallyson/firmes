@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Plus, Trash2, GripVertical, Upload, ImageIcon } from "lucide-react";
@@ -12,6 +12,7 @@ const GOLD = "#C8922A";
 
 interface Aula { titulo: string; tipo: string; conteudo: string; duracao: string; }
 interface Modulo { titulo: string; aulas: Aula[]; }
+interface Categoria { id: string; nome: string; cor: string; }
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14, outline: "none", fontFamily: "var(--font-nunito), sans-serif", boxSizing: "border-box" as const };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 4 };
@@ -20,17 +21,28 @@ export default function NovoCursoPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [form, setForm] = useState({
     titulo: "",
     descricao: "",
     banner: "",
-    categoria: "ESTUDO",
+    categoria: "",
     nivel: "INICIANTE",
     cargaHoraria: "",
     instrutor: "",
     instrutorId: "",
   });
   const [modulos, setModulos] = useState<Modulo[]>([{ titulo: "Modulo 1", aulas: [{ titulo: "", tipo: "VIDEO", conteudo: "", duracao: "" }] }]);
+
+  useEffect(() => {
+    fetch("/api/ensino/categorias").then(r => r.json()).then(data => {
+      const cats = data.categorias || [];
+      setCategorias(cats);
+      if (cats.length > 0 && !form.categoria) {
+        setForm(f => ({ ...f, categoria: cats[0].nome }));
+      }
+    });
+  }, []);
 
   function addModulo() {
     setModulos([...modulos, { titulo: `Modulo ${modulos.length + 1}`, aulas: [{ titulo: "", tipo: "VIDEO", conteudo: "", duracao: "" }] }]);
@@ -118,10 +130,10 @@ export default function NovoCursoPage() {
               <div>
                 <label style={labelStyle}>Categoria</label>
                 <select style={inputStyle} value={form.categoria} onChange={e => setForm(f => ({ ...f, categoria: e.target.value }))}>
-                  <option value="ESTUDO">Estudo</option>
-                  <option value="DISCIPULADO">Discipulado</option>
-                  <option value="ESCOLA">Escola</option>
-                  <option value="OUTROS">Outros</option>
+                  {categorias.length === 0 && <option value="">Carregando...</option>}
+                  {categorias.map(cat => (
+                    <option key={cat.id} value={cat.nome}>{cat.nome}</option>
+                  ))}
                 </select>
               </div>
               <div>

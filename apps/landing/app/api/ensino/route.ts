@@ -21,6 +21,11 @@ export async function GET() {
           orderBy: { ordem: "asc" },
           include: { aulas: { orderBy: { ordem: "asc" } } },
         },
+        progressos: {
+          include: {
+            member: { select: { id: true, name: true, photo: true } },
+          },
+        },
         _count: { select: { progressos: true } },
       },
     });

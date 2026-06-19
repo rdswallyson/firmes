@@ -150,6 +150,7 @@ model Member {
   cursosInstrutor     Curso[]       @relation("CursoInstrutor")
   escolasCoordenador  Escola[]      @relation("EscolaCoordenador")
   escolasAluno        EscolaAluno[]
+  certificados        Certificado[]
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -674,6 +675,7 @@ model Curso {
   createdAt    DateTime         @default(now())
   modulos      CursoModulo[]
   progressos   CursoProgresso[]
+  certificados Certificado[]
 }
 
 model CursoModulo {
@@ -709,6 +711,22 @@ model CursoProgresso {
   curso     Curso     @relation(fields: [cursoId], references: [id])
 
   @@unique([cursoId, aulaId, memberId])
+}
+
+model Certificado {
+  id          String    @id @default(cuid())
+  tenantId    String
+  cursoId     String
+  memberId    String
+  member      Member    @relation(fields: [memberId], references: [id])
+  curso       Curso     @relation(fields: [cursoId], references: [id])
+  codigo      String    @unique
+  emitidoEm   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  @@index([tenantId])
+  @@index([memberId])
+  @@index([cursoId])
 }
 
 model Escola {
