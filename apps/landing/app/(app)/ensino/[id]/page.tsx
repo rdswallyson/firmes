@@ -5,9 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, BookOpen, Play, FileText, CheckCircle, Circle,
-  Clock, GraduationCap, Award, ChevronDown, ChevronRight, Trash2, Edit3,
+  Clock, GraduationCap, Award, ChevronDown, ChevronRight, Trash2, Edit3, UserPlus,
 } from "lucide-react";
 import Link from "next/link";
+import { MemberSelector } from "../../../components/MemberSelector";
 
 const NAVY = "#1A3C6E";
 const GOLD = "#C8922A";
@@ -33,6 +34,7 @@ export default function CursoDetalhePage() {
   const [loading, setLoading] = useState(true);
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [matriculando, setMatriculando] = useState(false);
 
   useEffect(() => { if (cursoId) fetchCurso(); }, [cursoId]);
 
@@ -63,6 +65,26 @@ export default function CursoDetalhePage() {
       router.push("/ensino");
     } catch { alert("Erro ao excluir"); }
     finally { setDeleting(false); }
+  }
+
+  async function matricular(memberId: string) {
+    if (!cursoId || matriculando) return;
+    setMatriculando(true);
+    try {
+      const res = await fetch(`/api/ensino/${cursoId}/matricular`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId }),
+      });
+      if (res.ok || res.status === 409) {
+        alert(res.status === 409 ? "Membro ja matriculado" : "Membro matriculado com sucesso!");
+        fetchCurso();
+      } else {
+        const d = await res.json();
+        alert(d.error || "Erro ao matricular");
+      }
+    } catch { alert("Erro de conexao"); }
+    finally { setMatriculando(false); }
   }
 
   function isAulaConcluida(aulaId: string) {
@@ -119,6 +141,23 @@ export default function CursoDetalhePage() {
             <Award size={18} /> Curso concluido! Certificado disponivel em <Link href="/ensino/certificados" style={{ color: "#16A34A", fontWeight: 700 }}>Certificados</Link>
           </div>
         )}
+      </motion.div>
+
+      {/* Matricular */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+        style={{ background: "#fff", borderRadius: 14, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: NAVY, display: "flex", alignItems: "center", gap: 8 }}><UserPlus size={16} /> Matricular Aluno</span>
+        </div>
+        <MemberSelector
+          label="Selecionar membro"
+          placeholder="Buscar membro para matricular..."
+          filterStatus={["ACTIVE", "PENDENTE"]}
+          onSelect={(selected) => {
+            const member = selected as { id: string; name: string } | null;
+            if (member) matricular(member.id);
+          }}
+        />
       </motion.div>
 
       {/* Modules + Lessons */}
