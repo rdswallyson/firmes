@@ -18,6 +18,20 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Criar bucket se não existir
+    try {
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const bucketExists = buckets?.some(b => b.name === "firmes-uploads");
+      if (!bucketExists) {
+        await supabase.storage.createBucket("firmes-uploads", {
+          public: true,
+          fileSizeLimit: 5242880, // 5MB
+        });
+      }
+    } catch (bucketErr) {
+      console.error("[POST /api/upload] Bucket creation error:", bucketErr);
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const folder = (formData.get("folder") as string) || "banners";

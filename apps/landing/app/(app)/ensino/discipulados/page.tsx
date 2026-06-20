@@ -34,17 +34,26 @@ export default function DiscipuladosPage() {
         if (curso.progressos && curso.progressos.length > 0) {
           const totalAulas = curso.modulos?.reduce((a: number, m: any) => a + (m.aulas?.length || 0), 0) || 0;
           if (totalAulas > 0) {
+            // Agrupar progressos por memberId
+            const progressosPorMembro: Record<string, any[]> = {};
             curso.progressos.forEach((p: any) => {
-              const concluidas = curso.progressos.filter((pr: any) => pr.memberId === p.memberId && pr.concluido).length;
+              const mid = p.memberId || "unknown";
+              if (!progressosPorMembro[mid]) progressosPorMembro[mid] = [];
+              progressosPorMembro[mid].push(p);
+            });
+            
+            Object.entries(progressosPorMembro).forEach(([memberId, progressos]) => {
+              const concluidas = progressos.filter((pr: any) => pr.concluido).length;
               const percentual = Math.round((concluidas / totalAulas) * 100);
+              const primeiroProgresso = progressos[0];
               discipuladosList.push({
-                id: `${curso.id}-${p.memberId}`,
-                nome: p.member?.name || `Membro ${p.memberId.slice(0, 6)}`,
+                id: `${curso.id}-${memberId}`,
+                nome: primeiroProgresso?.member?.name || `Membro ${memberId.slice(0, 6)}`,
                 cursoTitulo: curso.titulo,
                 cursoId: curso.id,
                 percentual,
                 responsavel: curso.instrutor || undefined,
-                dataInicio: new Date(p.dataHora).toLocaleDateString("pt-BR"),
+                dataInicio: new Date(primeiroProgresso?.dataHora || Date.now()).toLocaleDateString("pt-BR"),
               });
             });
           }

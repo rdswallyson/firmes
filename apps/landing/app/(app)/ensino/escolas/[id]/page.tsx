@@ -23,6 +23,7 @@ interface Escola {
 
 export default function EditarEscolaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const [escolaId, setEscolaId] = useState<string | null>(null);
   const [escola, setEscola] = useState<Escola | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,30 +32,39 @@ export default function EditarEscolaPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     params.then(({ id }) => {
-      fetch(`/api/escolas`).then(r => r.json()).then(data => {
-        const e = (data.escolas || []).find((x: Escola) => x.id === id);
-        if (e) {
-          setEscola(e);
-          setForm({
-            nome: e.nome,
-            descricao: e.descricao || "",
-            coordenadorId: e.coordenadorId || "",
-            coordenadorNome: e.coordenador?.name || "",
-            status: e.status,
-          });
-        }
-        setLoading(false);
-      });
+      setEscolaId(id);
+      fetch(`/api/escolas`)
+        .then(r => {
+          if (!r.ok) throw new Error("Erro ao buscar escolas");
+          return r.json();
+        })
+        .then(data => {
+          const e = (data.escolas || []).find((x: Escola) => x.id === id);
+          if (e) {
+            setEscola(e);
+            setForm({
+              nome: e.nome || "",
+              descricao: e.descricao || "",
+              coordenadorId: e.coordenadorId || "",
+              coordenadorNome: e.coordenador?.name || "",
+              status: e.status || "ATIVA",
+            });
+          }
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoading(false);
+        });
     });
   }, [params]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.nome) { alert("Nome obrigatorio"); return; }
-    const { id } = await params;
+    if (!form.nome || !escolaId) { alert("Nome obrigatorio"); return; }
     setSaving(true);
     try {
-      const res = await fetch(`/api/escolas/${id}`, {
+      const res = await fetch(`/api/escolas/${escolaId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -75,10 +85,10 @@ export default function EditarEscolaPage({ params }: { params: Promise<{ id: str
   }
 
   async function addAluno(memberId: string) {
-    if (!escola) return;
+    if (!escola || !escolaId) return;
     setAddingAluno(true);
     try {
-      const res = await fetch(`/api/escolas/${escola.id}/alunos`, {
+      const res = await fetch(`/api/escolas/${escolaId}/alunos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ memberId }),
@@ -95,10 +105,10 @@ export default function EditarEscolaPage({ params }: { params: Promise<{ id: str
   }
 
   async function removeAluno(memberId: string) {
-    if (!escola) return;
+    if (!escola || !escolaId) return;
     if (!confirm("Remover aluno da escola?")) return;
     try {
-      const res = await fetch(`/api/escolas/${escola.id}/alunos?memberId=${memberId}`, { method: "DELETE" });
+      const res = await fetch(`/api/escolas/${escolaId}/alunos?memberId=${memberId}`, { method: "DELETE" });
       if (res.ok) {
         setEscola({ ...escola, alunos: escola.alunos.filter(a => a.member.id !== memberId) });
       }
@@ -185,11 +195,11 @@ export default function EditarEscolaPage({ params }: { params: Promise<{ id: str
             <div key={a.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#F9FAFB", borderRadius: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: NAVY }}>
-                  {a.member.name.charAt(0).toUpperCase()}
+                  {a.member?.name?.charAt(0)?.toUpperCase() || "?"}
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#0D2545" }}>{a.member.name}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#0D2545" }}>{a.member?.name || "Membro"}</span>
               </div>
-              <button type="button" onClick={() => removeAluno(a.member.id)} disabled={addingAluno}
+              <button type="button" onClick={() => removeAluno(a.member?.id)} disabled={addingAluno}
                 style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626", padding: 4 }}>
                 <UserMinus size={16} />
               </button>
