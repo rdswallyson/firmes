@@ -19,6 +19,7 @@ interface Escola {
   coordenador?: { id: string; name: string; photo?: string };
   status: string;
   alunos: { id: string; member: { id: string; name: string; photo?: string } }[];
+  cursos: { id: string; titulo: string; banner?: string; nivel: string; publicado: boolean }[];
 }
 
 export default function EditarEscolaPage({ params }: { params: Promise<{ id: string }> }) {
@@ -169,6 +170,32 @@ export default function EditarEscolaPage({ params }: { params: Promise<{ id: str
           </button>
         </div>
       </form>
+
+      {/* Cursos */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+        style={{ background: "#fff", borderRadius: 14, padding: 24, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: NAVY }}>Cursos Vinculados</h2>
+          <span style={{ fontSize: 12, color: "#6B7280" }}>{escola.cursos?.length || 0} curso(s)</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {escola.cursos?.map((curso) => (
+            <div key={curso.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#F9FAFB", borderRadius: 8, border: "1.5px solid #E5E7EB" }}>
+              <div style={{ width: 48, height: 36, borderRadius: 6, background: curso.banner ? `url(${curso.banner}) center/cover` : NAVY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                {!curso.banner && curso.titulo.charAt(0).toUpperCase()}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0D2545" }}>{curso.titulo}</div>
+                <div style={{ fontSize: 12, color: "#6B7280" }}>{curso.nivel} {curso.publicado ? "· Publicado" : "· Rascunho"}</div>
+              </div>
+              <Link href={`/ensino/${curso.id}`} style={{ fontSize: 12, fontWeight: 700, color: NAVY, textDecoration: "none", padding: "6px 10px", background: "#EEF2FA", borderRadius: 6 }}>Ver curso</Link>
+            </div>
+          ))}
+          {(!escola.cursos || escola.cursos.length === 0) && (
+            <div style={{ textAlign: "center", padding: 24, color: "#9CA3AF", fontSize: 13 }}>Nenhum curso vinculado a esta escola. Crie um curso e selecione esta escola no formulario.</div>
+          )}
+        </div>
+      </motion.div>
 
       {/* Alunos */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}

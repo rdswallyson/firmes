@@ -13,6 +13,7 @@ export async function GET() {
       include: {
         coordenador: { select: { id: true, name: true, photo: true } },
         alunos: { include: { member: { select: { id: true, name: true, photo: true } } } },
+        cursos: { select: { id: true, titulo: true, banner: true, nivel: true, publicado: true }, orderBy: { createdAt: "desc" } },
         _count: { select: { alunos: true } },
       },
     });
