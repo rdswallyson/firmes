@@ -1,0 +1,318 @@
+
+> build
+> turbo run build
+
+• turbo 2.8.20
+
+   • Packages in scope: @firmes/db, @repo/eslint-config, @repo/typescript-config, @repo/ui, landing
+   • Running build in 5 packages
+   • Remote caching disabled
+
+@firmes/db:build: cache miss, executing 5628fb8ef55b20be
+@firmes/db:build: 
+@firmes/db:build: > @firmes/db@0.1.0 build
+@firmes/db:build: > prisma generate
+@firmes/db:build: 
+@firmes/db:build: warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+@firmes/db:build: For more information, see: https://pris.ly/prisma-config
+@firmes/db:build: 
+@firmes/db:build: Environment variables loaded from .env
+@firmes/db:build: Prisma schema loaded from prisma\schema.prisma
+@firmes/db:build: 
+@firmes/db:build: ✔ Generated Prisma Client (v6.19.2) to .\..\..\node_modules\@prisma\client in 1.04s
+@firmes/db:build: 
+@firmes/db:build: Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+@firmes/db:build: 
+@firmes/db:build: Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+@firmes/db:build: 
+landing:build: cache miss, executing 67739b3b6ad59a2a
+landing:build: 
+landing:build: > landing@0.1.0 build
+landing:build: > prisma generate --schema=../../packages/db/prisma/schema.prisma && next build
+landing:build: 
+landing:build: Prisma schema loaded from ..\..\packages\db\prisma\schema.prisma
+landing:build: 
+landing:build: ✔ Generated Prisma Client (v6.19.2) to .\..\..\node_modules\@prisma\client in 1.07s
+landing:build: 
+landing:build: Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+landing:build: 
+landing:build: Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+landing:build: 
+landing:build: ▲ Next.js 16.2.0 (Turbopack)
+landing:build: 
+landing:build:   Creating an optimized production build ...
+landing:build: Turbopack build encountered 1 warnings:
+landing:build: [externals]/@prisma/client
+landing:build: unexpected export *
+landing:build: export * used with module [externals]/@prisma/client [external] (@prisma/client, cjs, [project]/node_modules/@prisma/client) which is a CommonJS module with exports only available at runtime
+landing:build: List all export names manually (`export { a, b, c } from "...") or rewrite the module to ESM, to avoid the additional runtime code.`
+landing:build: 
+landing:build: Import trace:
+landing:build:   external:
+landing:build:     [externals]/@prisma/client [external]
+landing:build:     ./packages/db/src/index.ts [App Route]
+landing:build:     ./apps/landing/app/api/webhooks/stripe/route.ts [App Route]
+landing:build: 
+landing:build: 
+landing:build: ✓ Compiled successfully in 30.1s
+landing:build:   Running TypeScript ...
+landing:build:   Finished TypeScript in 59s ...
+landing:build:   Collecting page data using 7 workers ...
+landing:build:   Generating static pages using 7 workers (0/180) ...
+landing:build:   Generating static pages using 7 workers (45/180) 
+landing:build:   Generating static pages using 7 workers (90/180) 
+landing:build:   Generating static pages using 7 workers (135/180) 
+landing:build: ✓ Generating static pages using 7 workers (180/180) in 1703ms
+landing:build:   Finalizing page optimization ...
+landing:build: 
+landing:build: Route (app)
+landing:build: ┌ ○ /
+landing:build: ├ ○ /_not-found
+landing:build: ├ ƒ /api/auth/login
+landing:build: ├ ƒ /api/auth/register
+landing:build: ├ ƒ /api/auth/session
+landing:build: ├ ƒ /api/avisos
+landing:build: ├ ƒ /api/backup
+landing:build: ├ ƒ /api/certificados
+landing:build: ├ ƒ /api/checkin/[id]
+landing:build: ├ ƒ /api/checkin/registrar
+landing:build: ├ ƒ /api/config/whatsapp
+landing:build: ├ ƒ /api/congregacoes
+landing:build: ├ ƒ /api/congregacoes/[id]/pastor
+landing:build: ├ ƒ /api/cron/relatorio-anual
+landing:build: ├ ƒ /api/cultos
+landing:build: ├ ƒ /api/cultos/[id]
+landing:build: ├ ƒ /api/cultos/assiduidade
+landing:build: ├ ƒ /api/cultos/faltas
+landing:build: ├ ƒ /api/cultos/frequencia
+landing:build: ├ ƒ /api/cultos/presenca
+landing:build: ├ ƒ /api/cultos/stats
+landing:build: ├ ƒ /api/cupons
+landing:build: ├ ƒ /api/cupons/[id]
+landing:build: ├ ƒ /api/cupons/validar
+landing:build: ├ ƒ /api/dashboard/activity
+landing:build: ├ ƒ /api/dashboard/checkins
+landing:build: ├ ƒ /api/dashboard/growth
+landing:build: ├ ƒ /api/dashboard/notices
+landing:build: ├ ƒ /api/dashboard/stats
+landing:build: ├ ƒ /api/debug
+landing:build: ├ ƒ /api/emails/welcome
+landing:build: ├ ƒ /api/ensino
+landing:build: ├ ƒ /api/ensino/[id]
+landing:build: ├ ƒ /api/ensino/[id]/progresso
+landing:build: ├ ƒ /api/ensino/categorias
+landing:build: ├ ƒ /api/ensino/categorias/[id]
+landing:build: ├ ƒ /api/escalas
+landing:build: ├ ƒ /api/escalas/[id]
+landing:build: ├ ƒ /api/escolas
+landing:build: ├ ƒ /api/escolas/[id]
+landing:build: ├ ƒ /api/escolas/[id]/alunos
+landing:build: ├ ƒ /api/eventos
+landing:build: ├ ƒ /api/eventos/[id]
+landing:build: ├ ƒ /api/eventos/[id]/avancado
+landing:build: ├ ƒ /api/eventos/[id]/refeicao
+landing:build: ├ ƒ /api/eventos/[id]/relatorio
+landing:build: ├ ƒ /api/eventos/[id]/scan
+landing:build: ├ ƒ /api/financeiro
+landing:build: ├ ƒ /api/financeiro/[id]
+landing:build: ├ ƒ /api/financeiro/[id]/recibo
+landing:build: ├ ƒ /api/financeiro/contas
+landing:build: ├ ƒ /api/financeiro/contas/[id]/extrato
+landing:build: ├ ƒ /api/financeiro/dizimos
+landing:build: ├ ƒ /api/financeiro/dizimos/meus
+landing:build: ├ ƒ /api/financeiro/export
+landing:build: ├ ƒ /api/financeiro/metas
+landing:build: ├ ƒ /api/financeiro/metas/[id]
+landing:build: ├ ƒ /api/financeiro/pix/gerar
+landing:build: ├ ƒ /api/grupos
+landing:build: ├ ƒ /api/grupos/[id]
+landing:build: ├ ƒ /api/grupos/[id]/frequencia
+landing:build: ├ ƒ /api/grupos/[id]/membros
+landing:build: ├ ƒ /api/grupos/[id]/relatorio
+landing:build: ├ ƒ /api/inscricoes
+landing:build: ├ ƒ /api/inscricoes-code
+landing:build: ├ ƒ /api/inscricoes-code/checkin-ponto
+landing:build: ├ ƒ /api/inscricoes-code/entregar-produto
+landing:build: ├ ƒ /api/inscricoes-code/refeicao
+landing:build: ├ ƒ /api/inscricoes/[id]/confirmar-pagamento
+landing:build: ├ ƒ /api/loja/[slug]
+landing:build: ├ ƒ /api/members
+landing:build: ├ ƒ /api/members/[id]
+landing:build: ├ ƒ /api/members/aniversariantes
+landing:build: ├ ƒ /api/members/export
+landing:build: ├ ƒ /api/members/public-register
+landing:build: ├ ƒ /api/midias
+landing:build: ├ ƒ /api/midias/[id]
+landing:build: ├ ƒ /api/notificacoes
+landing:build: ├ ƒ /api/patrimonio
+landing:build: ├ ƒ /api/pedidos
+landing:build: ├ ƒ /api/pedidos/[id]
+landing:build: ├ ƒ /api/pedidos/[id]/confirmar-pagamento
+landing:build: ├ ƒ /api/portal/auth/login
+landing:build: ├ ƒ /api/portal/me
+landing:build: ├ ƒ /api/produtos
+landing:build: ├ ƒ /api/produtos/[id]
+landing:build: ├ ƒ /api/public/members
+landing:build: ├ ƒ /api/stripe/checkout
+landing:build: ├ ƒ /api/superadmin/dashboard
+landing:build: ├ ƒ /api/superadmin/login
+landing:build: ├ ƒ /api/superadmin/logout
+landing:build: ├ ƒ /api/superadmin/metricas
+landing:build: ├ ƒ /api/superadmin/tenants
+landing:build: ├ ƒ /api/superadmin/tenants/[id]
+landing:build: ├ ƒ /api/superadmin/tenants/[id]/status
+landing:build: ├ ƒ /api/tenant
+landing:build: ├ ƒ /api/tenant/me
+landing:build: ├ ƒ /api/tenant/onboarding
+landing:build: ├ ƒ /api/tenant/trial
+landing:build: ├ ƒ /api/tenants
+landing:build: ├ ƒ /api/tenants/[id]
+landing:build: ├ ƒ /api/tenants/[id]/branding
+landing:build: ├ ƒ /api/upload
+landing:build: ├ ƒ /api/users
+landing:build: ├ ƒ /api/users/[id]
+landing:build: ├ ƒ /api/webhooks/stripe
+landing:build: ├ ƒ /avisos
+landing:build: ├ ƒ /avisos/novo
+landing:build: ├ ○ /cadastro
+landing:build: ├ ƒ /cadastro/[slug]
+landing:build: ├ ○ /cadastro/membro
+landing:build: ├ ƒ /checkin/[qrCode]
+landing:build: ├ ƒ /comunicacao
+landing:build: ├ ƒ /comunicacao/aniversario
+landing:build: ├ ƒ /comunicacao/ausentes
+landing:build: ├ ƒ /comunicacao/email
+landing:build: ├ ƒ /comunicacao/historico
+landing:build: ├ ƒ /comunicacao/whatsapp
+landing:build: ├ ƒ /configuracoes
+landing:build: ├ ƒ /configuracoes/backup
+landing:build: ├ ƒ /configuracoes/igreja
+landing:build: ├ ƒ /configuracoes/integracoes
+landing:build: ├ ƒ /configuracoes/notificacoes
+landing:build: ├ ƒ /configuracoes/pix
+landing:build: ├ ƒ /configuracoes/plano
+landing:build: ├ ƒ /configuracoes/seguranca
+landing:build: ├ ƒ /configuracoes/usuarios
+landing:build: ├ ƒ /congregacoes
+landing:build: ├ ƒ /congregacoes/[id]
+landing:build: ├ ƒ /congregacoes/cultos
+landing:build: ├ ƒ /congregacoes/eventos
+landing:build: ├ ƒ /congregacoes/financeiro
+landing:build: ├ ƒ /congregacoes/membros
+landing:build: ├ ƒ /congregacoes/novo
+landing:build: ├ ƒ /cultos
+landing:build: ├ ƒ /cultos/[id]
+landing:build: ├ ƒ /cultos/analise
+landing:build: ├ ƒ /cultos/faltas
+landing:build: ├ ƒ /cultos/historico
+landing:build: ├ ƒ /cultos/novo
+landing:build: ├ ƒ /cultos/presenca
+landing:build: ├ ƒ /cultos/qrcode
+landing:build: ├ ƒ /cultos/visitantes
+landing:build: ├ ƒ /cupons
+landing:build: ├ ƒ /dashboard
+landing:build: ├ ○ /em-breve
+landing:build: ├ ƒ /ensino
+landing:build: ├ ƒ /ensino/[id]
+landing:build: ├ ƒ /ensino/[id]/aula/[aulaId]
+landing:build: ├ ƒ /ensino/categorias
+landing:build: ├ ƒ /ensino/certificados
+landing:build: ├ ƒ /ensino/discipulados
+landing:build: ├ ƒ /ensino/escolas
+landing:build: ├ ƒ /ensino/escolas/[id]
+landing:build: ├ ƒ /ensino/escolas/novo
+landing:build: ├ ƒ /ensino/novo
+landing:build: ├ ƒ /escalas
+landing:build: ├ ƒ /escalas/[id]
+landing:build: ├ ƒ /escalas/[id]/editar
+landing:build: ├ ƒ /escalas/confirmacoes
+landing:build: ├ ƒ /escalas/novo
+landing:build: ├ ƒ /eventos
+landing:build: ├ ƒ /eventos/[id]
+landing:build: ├ ƒ /eventos/[id]/avancado
+landing:build: ├ ƒ /eventos/[id]/checkin
+landing:build: ├ ƒ /eventos/[id]/relatorio
+landing:build: ├ ƒ /eventos/checkin
+landing:build: ├ ƒ /eventos/espera
+landing:build: ├ ƒ /eventos/inscricoes
+landing:build: ├ ƒ /eventos/novo
+landing:build: ├ ƒ /eventos/pagos
+landing:build: ├ ƒ /eventos/relatorio
+landing:build: ├ ƒ /financeiro
+landing:build: ├ ƒ /financeiro/contas
+landing:build: ├ ƒ /financeiro/dizimistas
+landing:build: ├ ƒ /financeiro/dizimos
+landing:build: ├ ƒ /financeiro/lancamentos
+landing:build: ├ ƒ /financeiro/metas
+landing:build: ├ ƒ /financeiro/recibos
+landing:build: ├ ƒ /financeiro/relatorios
+landing:build: ├ ƒ /grupos
+landing:build: ├ ƒ /grupos/[id]
+landing:build: ├ ƒ /grupos/frequencia
+landing:build: ├ ƒ /grupos/novo
+landing:build: ├ ƒ /grupos/ranking
+landing:build: ├ ƒ /grupos/relatorio
+landing:build: ├ ƒ /grupos/sem-lider
+landing:build: ├ ƒ /inscricao/[slug]
+landing:build: ├ ○ /login
+landing:build: ├ ƒ /loja/[slug]
+landing:build: ├ ƒ /midias
+landing:build: ├ ƒ /midias/certificados
+landing:build: ├ ƒ /midias/documentos
+landing:build: ├ ƒ /midias/fotos
+landing:build: ├ ƒ /midias/videos
+landing:build: ├ ○ /obrigado
+landing:build: ├ ○ /onboarding
+landing:build: ├ ƒ /patrimonio
+landing:build: ├ ƒ /patrimonio/categorias
+landing:build: ├ ƒ /patrimonio/localizacao
+landing:build: ├ ƒ /patrimonio/manutencao
+landing:build: ├ ƒ /patrimonio/novo
+landing:build: ├ ƒ /pedidos
+landing:build: ├ ƒ /pessoas
+landing:build: ├ ƒ /pessoas/[id]
+landing:build: ├ ƒ /pessoas/[id]/cartao
+landing:build: ├ ƒ /pessoas/[id]/editar
+landing:build: ├ ƒ /pessoas/[id]/frequencia
+landing:build: ├ ƒ /pessoas/aniversariantes
+landing:build: ├ ƒ /pessoas/inativos
+landing:build: ├ ƒ /pessoas/novo
+landing:build: ├ ○ /plano-expirado
+landing:build: ├ ○ /politica-de-privacidade
+landing:build: ├ ƒ /portal/[tenantSlug]/inicio
+landing:build: ├ ○ /portal/inicio
+landing:build: ├ ○ /portal/login
+landing:build: ├ ƒ /produtos
+landing:build: ├ ○ /relatorios/anual
+landing:build: ├ ○ /status
+landing:build: ├ ○ /superadmin
+landing:build: ├ ○ /superadmin/clientes
+landing:build: ├ ƒ /superadmin/clientes/[id]
+landing:build: ├ ○ /superadmin/dashboard
+landing:build: ├ ○ /superadmin/metricas
+landing:build: ├ ○ /termos-de-uso
+landing:build: ├ ƒ /vendas
+landing:build: ├ ƒ /vendas/cupons
+landing:build: ├ ƒ /vendas/pdv
+landing:build: ├ ƒ /vendas/pedidos
+landing:build: ├ ƒ /vendas/produtos
+landing:build: ├ ƒ /vendas/produtos/novo
+landing:build: ├ ƒ /white-label
+landing:build: ├ ƒ /white-label/igrejas
+landing:build: ├ ƒ /white-label/igrejas/[id]
+landing:build: ├ ƒ /white-label/igrejas/nova
+landing:build: ├ ƒ /white-label/personalizar
+landing:build: └ ƒ /white-label/planos
+landing:build: 
+landing:build: 
+landing:build: ƒ Proxy (Middleware)
+landing:build: 
+landing:build: ○  (Static)   prerendered as static content
+landing:build: ƒ  (Dynamic)  server-rendered on demand
+landing:build: 
+
+ Tasks:    2 successful, 2 total
+Cached:    0 cached, 2 total
+  Time:    1m55.988s 
+
+ WARNING  no output files found for task @firmes/db#build. Please check your `outputs` key in `turbo.json`

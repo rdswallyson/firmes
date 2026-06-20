@@ -13,6 +13,7 @@ const GOLD = "#C8922A";
 interface Aula { titulo: string; tipo: string; conteudo: string; duracao: string; }
 interface Modulo { titulo: string; aulas: Aula[]; }
 interface Categoria { id: string; nome: string; cor: string; }
+interface Escola { id: string; nome: string; }
 
 const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 12px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 14, outline: "none", fontFamily: "var(--font-nunito), sans-serif", boxSizing: "border-box" as const };
 const labelStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 4 };
@@ -22,6 +23,7 @@ export default function NovoCursoPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [escolas, setEscolas] = useState<Escola[]>([]);
   const [form, setForm] = useState({
     titulo: "",
     descricao: "",
@@ -31,6 +33,7 @@ export default function NovoCursoPage() {
     cargaHoraria: "",
     instrutor: "",
     instrutorId: "",
+    escolaId: "",
   });
   const [modulos, setModulos] = useState<Modulo[]>([{ titulo: "Modulo 1", aulas: [{ titulo: "", tipo: "VIDEO", conteudo: "", duracao: "" }] }]);
 
@@ -41,6 +44,10 @@ export default function NovoCursoPage() {
       if (cats.length > 0 && !form.categoria) {
         setForm(f => ({ ...f, categoria: cats[0].nome }));
       }
+    });
+    fetch("/api/escolas").then(r => r.json()).then(data => {
+      const escs = data.escolas || [];
+      setEscolas(escs);
     });
   }, []);
 
@@ -137,6 +144,17 @@ export default function NovoCursoPage() {
                 </select>
               </div>
               <div>
+                <label style={labelStyle}>Escola</label>
+                <select style={inputStyle} value={form.escolaId} onChange={e => setForm(f => ({ ...f, escolaId: e.target.value }))}>
+                  <option value="">(Nenhuma)</option>
+                  {escolas.map(esc => (
+                    <option key={esc.id} value={esc.id}>{esc.nome}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
                 <label style={labelStyle}>Nivel</label>
                 <select style={inputStyle} value={form.nivel} onChange={e => setForm(f => ({ ...f, nivel: e.target.value }))}>
                   <option value="INICIANTE">Iniciante</option>
@@ -144,8 +162,6 @@ export default function NovoCursoPage() {
                   <option value="AVANCADO">Avancado</option>
                 </select>
               </div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div>
                 <label style={labelStyle}>Instrutor</label>
                 <MemberSelector

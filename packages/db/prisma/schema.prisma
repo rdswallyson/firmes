@@ -672,6 +672,8 @@ model Curso {
   instrutor    String?
   instrutorId  String?
   instrutorMembro Member?      @relation("CursoInstrutor", fields: [instrutorId], references: [id])
+  escolaId     String?
+  escola       Escola?        @relation("EscolaCursos", fields: [escolaId], references: [id])
   createdAt    DateTime         @default(now())
   modulos      CursoModulo[]
   progressos   CursoProgresso[]
@@ -741,6 +743,7 @@ model Escola {
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
   alunos        EscolaAluno[]
+  cursos        Curso[]        @relation("EscolaCursos")
 
   @@index([tenantId])
   @@index([tenantId, status])

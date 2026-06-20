@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (!session?.tenantId) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await request.json();
-    const { titulo, descricao, banner, categoria, nivel, cargaHoraria, instrutor, instrutorId, modulos } = body;
+    const { titulo, descricao, banner, categoria, nivel, cargaHoraria, instrutor, instrutorId, escolaId, modulos } = body;
     if (!titulo) return NextResponse.json({ error: "Titulo obrigatorio" }, { status: 400 });
 
     // Se instrutorId foi enviado, buscar nome para manter compatibilidade legada
@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
         cargaHoraria: cargaHoraria ? parseInt(String(cargaHoraria), 10) : null,
         instrutor: nomeInstrutor || null,
         instrutorId: idInstrutor,
+        escolaId: escolaId || null,
         modulos: modulos?.length ? {
           create: modulos.map((m: { titulo: string; ordem?: number; aulas?: any[] }, i: number) => ({
             titulo: m.titulo,
