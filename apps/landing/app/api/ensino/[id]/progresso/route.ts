@@ -38,7 +38,28 @@ export async function POST(
     });
     const percentual = totalAulas > 0 ? Math.round((concluidas / totalAulas) * 100) : 0;
 
-    return NextResponse.json({ progresso, percentual, concluidas, totalAulas });
+    // Se concluiu 100%, gerar certificado automaticamente (se ainda nao existir)
+    let certificado = null;
+    if (percentual === 100 && curso) {
+      const existente = await prisma.certificado.findFirst({
+        where: { cursoId, memberId, deletedAt: null },
+      });
+      if (!existente) {
+        const codigo = `CERT-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        certificado = await prisma.certificado.create({
+          data: {
+            tenantId: session.tenantId,
+            cursoId,
+            memberId,
+            codigo,
+          },
+        });
+      } else {
+        certificado = existente;
+      }
+    }
+
+    return NextResponse.json({ progresso, percentual, concluidas, totalAulas, certificado });
   } catch (error) {
     console.error("[POST /api/ensino/id/progresso]", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
