@@ -14,7 +14,8 @@ const GOLD = "#C8922A";
 
 interface Aula { id: string; titulo: string; tipo: string; conteudo?: string; duracao?: string; ordem: number; }
 interface Modulo { id: string; titulo: string; ordem: number; aulas: Aula[]; }
-interface Curso { id: string; titulo: string; modulos: Modulo[]; progressos: { aulaId: string; concluido: boolean }[]; }
+interface Curso { id: string; titulo: string; modulos: Modulo[]; progressos: { aulaId: string; memberId: string; concluido: boolean }[]; }
+interface SessionUser { role: string; memberId?: string | null }
 
 export default function AulaPage() {
   const params = useParams();
@@ -24,8 +25,15 @@ export default function AulaPage() {
   const [curso, setCurso] = useState<Curso | null>(null);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
+  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
 
-  useEffect(() => { if (cursoId) fetchCurso(); }, [cursoId]);
+  useEffect(() => {
+    if (cursoId) fetchCurso();
+    fetch("/api/auth/session")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setSessionUser(d?.user ?? null))
+      .catch(() => setSessionUser(null));
+  }, [cursoId]);
 
   async function fetchCurso() {
     try {
@@ -40,15 +48,23 @@ export default function AulaPage() {
   const aula = currentIdx >= 0 ? allAulas[currentIdx] : null;
   const prevAula = currentIdx > 0 ? allAulas[currentIdx - 1] : null;
   const nextAula = currentIdx < allAulas.length - 1 ? allAulas[currentIdx + 1] : null;
-  const isConcluida = curso?.progressos?.some(p => p.aulaId === aulaId && p.concluido) ?? false;
+  const myMemberId = sessionUser?.memberId;
+  const isAdmin = sessionUser?.role === "ADMIN";
+  const isConcluida = myMemberId
+    ? curso?.progressos?.some(p => p.aulaId === aulaId && p.concluido && p.memberId === myMemberId) ?? false
+    : false;
 
   async function marcarConcluida() {
+    if (!myMemberId) {
+      alert("Vinculo de membro nao encontrado. Entre em contato com a administracao.");
+      return;
+    }
     setMarking(true);
     try {
       const res = await fetch(`/api/ensino/${cursoId}/progresso`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ aulaId }),
+        body: JSON.stringify({ aulaId, memberId: myMemberId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -70,7 +86,8 @@ export default function AulaPage() {
   if (!aula || !curso) return <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF" }}>Aula nao encontrada</div>;
 
   const totalAulas = allAulas.length;
-  const concluidas = curso.progressos?.filter(p => p.concluido).length ?? 0;
+  const memberProgressos = curso?.progressos?.filter(p => p.memberId === myMemberId) ?? [];
+  const concluidas = memberProgressos.filter(p => p.concluido).length;
   const percentual = totalAulas > 0 ? Math.round((concluidas / totalAulas) * 100) : 0;
 
   function getYouTubeId(url: string) {
@@ -159,10 +176,17 @@ export default function AulaPage() {
           ) : <div />}
         </div>
 
-        <button onClick={marcarConcluida} disabled={marking || isConcluida}
-          style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 20px", background: isConcluida ? "#DCFCE7" : NAVY, color: isConcluida ? "#16A34A" : "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: isConcluida ? "default" : "pointer", opacity: marking ? 0.7 : 1 }}>
-          {isConcluida ? <><CheckCircle size={18} /> Concluida</> : <><Circle size={18} /> Marcar como Concluida</>}
-        </button>
+        {isAdmin ? (
+          <span
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 20px", background: isConcluida ? "#DCFCE7" : "#F3F4F6", color: isConcluida ? "#16A34A" : "#6B7280", borderRadius: 10, fontSize: 14, fontWeight: 700 }}>
+            {isConcluida ? <><CheckCircle size={18} /> Concluida</> : <><Circle size={18} /> Nao concluida (somente leitura)</>}
+          </span>
+        ) : (
+          <button onClick={marcarConcluida} disabled={marking || isConcluida}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 20px", background: isConcluida ? "#DCFCE7" : NAVY, color: isConcluida ? "#16A34A" : "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: isConcluida ? "default" : "pointer", opacity: marking ? 0.7 : 1 }}>
+            {isConcluida ? <><CheckCircle size={18} /> Concluida</> : <><Circle size={18} /> Marcar como Concluida</>}
+          </button>
+        )}
 
         <div>
           {nextAula ? (

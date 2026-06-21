@@ -35,5 +35,10 @@ export async function GET() {
     return NextResponse.json({ user: null }, { status: 200 });
   }
 
-  return NextResponse.json({ user });
+  const member = await prisma.member.findFirst({
+    where: { user: { id: session.userId } },
+    select: { id: true },
+  });
+
+  return NextResponse.json({ user: { ...user, memberId: member?.id ?? null } });
 }

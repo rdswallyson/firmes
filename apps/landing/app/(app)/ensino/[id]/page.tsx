@@ -23,8 +23,9 @@ interface Curso {
   id: string; titulo: string; descricao?: string; banner?: string; categoria: string;
   nivel: string; cargaHoraria?: number; instrutor?: string; publicado: boolean;
   modulos: Modulo[];
-  progressos: { aulaId: string; concluido: boolean }[];
+  progressos: { aulaId: string; memberId: string; concluido: boolean }[];
 }
+interface SessionUser { role: string; memberId?: string | null }
 
 export default function CursoDetalhePage() {
   const params = useParams();
@@ -35,8 +36,15 @@ export default function CursoDetalhePage() {
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [matriculando, setMatriculando] = useState(false);
+  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
 
-  useEffect(() => { if (cursoId) fetchCurso(); }, [cursoId]);
+  useEffect(() => {
+    if (cursoId) fetchCurso();
+    fetch("/api/auth/session")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setSessionUser(d?.user ?? null))
+      .catch(() => setSessionUser(null));
+  }, [cursoId]);
 
   async function fetchCurso() {
     try {
@@ -88,24 +96,32 @@ export default function CursoDetalhePage() {
   }
 
   function isAulaConcluida(aulaId: string) {
-    return curso?.progressos?.some(p => p.aulaId === aulaId && p.concluido) ?? false;
+    const myMemberId = sessionUser?.memberId;
+    return myMemberId
+      ? curso?.progressos?.some(p => p.aulaId === aulaId && p.concluido && p.memberId === myMemberId) ?? false
+      : false;
   }
 
   if (loading) return <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF" }}>Carregando...</div>;
   if (!curso) return <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF" }}>Curso nao encontrado</div>;
 
+  const myMemberId = sessionUser?.memberId;
+  const memberProgressos = myMemberId ? curso?.progressos?.filter(p => p.memberId === myMemberId) ?? [] : [];
+  const aulasConcluidas = memberProgressos.filter(p => p.concluido).length;
   const totalAulas = curso.modulos.reduce((a, m) => a + m.aulas.length, 0);
-  const aulasConcluidas = curso.progressos?.filter(p => p.concluido).length ?? 0;
   const percentual = totalAulas > 0 ? Math.round((aulasConcluidas / totalAulas) * 100) : 0;
+  const isAdmin = sessionUser?.role === "ADMIN";
 
   return (
     <div style={{ padding: "1.75rem 2rem", maxWidth: 1000, margin: "0 auto", fontFamily: "var(--font-nunito), sans-serif" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <Link href="/ensino" style={{ color: NAVY }}><ArrowLeft size={20} /></Link>
         <h1 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0D2545", margin: 0, flex: 1 }}>{curso.titulo}</h1>
-        <button onClick={handleDelete} disabled={deleting} style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", background: "#FEE2E2", color: "#DC2626", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-          <Trash2 size={14} /> Excluir
-        </button>
+        {isAdmin && (
+          <button onClick={handleDelete} disabled={deleting} style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", background: "#FEE2E2", color: "#DC2626", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            <Trash2 size={14} /> Excluir
+          </button>
+        )}
       </div>
 
       {/* Banner + Info */}
@@ -144,21 +160,23 @@ export default function CursoDetalhePage() {
       </motion.div>
 
       {/* Matricular */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-        style={{ background: "#fff", borderRadius: 14, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: NAVY, display: "flex", alignItems: "center", gap: 8 }}><UserPlus size={16} /> Matricular Aluno</span>
-        </div>
-        <MemberSelector
-          label="Selecionar membro"
-          placeholder="Buscar membro para matricular..."
-          filterStatus={["ACTIVE", "PENDENTE"]}
-          onSelect={(selected) => {
-            const member = selected as { id: string; name: string } | null;
-            if (member) matricular(member.id);
-          }}
-        />
-      </motion.div>
+      {isAdmin && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+          style={{ background: "#fff", borderRadius: 14, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: NAVY, display: "flex", alignItems: "center", gap: 8 }}><UserPlus size={16} /> Matricular Aluno</span>
+          </div>
+          <MemberSelector
+            label="Selecionar membro"
+            placeholder="Buscar membro para matricular..."
+            filterStatus={["ACTIVE", "PENDENTE"]}
+            onSelect={(selected) => {
+              const member = selected as { id: string; name: string } | null;
+              if (member) matricular(member.id);
+            }}
+          />
+        </motion.div>
+      )}
 
       {/* Modules + Lessons */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
