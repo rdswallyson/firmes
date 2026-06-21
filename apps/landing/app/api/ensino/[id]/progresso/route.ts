@@ -15,12 +15,23 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { aulaId } = body;
+    const { aulaId, memberId: requestedMemberId } = body;
     if (!aulaId) {
       return NextResponse.json({ error: "aulaId obrigatorio" }, { status: 400 });
     }
 
-    const memberId = session.userId;
+    // Resolver memberId: body > session.memberId > lookup por userId
+    let memberId = requestedMemberId || session.memberId || null;
+    if (!memberId) {
+      const member = await prisma.member.findFirst({
+        where: { user: { id: session.userId } },
+        select: { id: true },
+      });
+      memberId = member?.id || null;
+    }
+    if (!memberId) {
+      return NextResponse.json({ error: "memberId obrigatorio" }, { status: 400 });
+    }
 
     const progresso = await prisma.cursoProgresso.upsert({
       where: { cursoId_aulaId_memberId: { cursoId, aulaId, memberId } },
@@ -61,7 +72,7 @@ export async function POST(
 
     return NextResponse.json({ progresso, percentual, concluidas, totalAulas, certificado });
   } catch (error) {
-    console.error("[POST /api/ensino/id/progresso]", error);
+    console.error("[POST /api/ensino/id/progresso] ERROR:", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }

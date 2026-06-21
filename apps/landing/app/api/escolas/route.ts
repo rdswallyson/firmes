@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@firmes/db";
+import { prisma, Prisma } from "@firmes/db";
 import { getSession } from "../../../lib/auth";
 
 export async function GET() {
@@ -17,6 +17,18 @@ export async function GET() {
         _count: { select: { alunos: true } },
       },
     });
+
+    // Agregar alunos matriculados nos cursos (CursoProgresso distintos)
+    const escolaIds = escolas.map(e => e.id);
+    const alunosPorEscolaRaw = await prisma.$queryRaw<{ escolaId: string; alunos: bigint }[]>`
+      SELECT e.id as "escolaId", COUNT(DISTINCT cp."memberId") as alunos
+      FROM "Escola" e
+      LEFT JOIN "Curso" c ON c."escolaId" = e.id
+      LEFT JOIN "CursoProgresso" cp ON cp."cursoId" = c.id
+      WHERE e.id IN (${Prisma.join(escolaIds)})
+      GROUP BY e.id
+    `;
+    const alunosPorEscola = Object.fromEntries(alunosPorEscolaRaw.map(r => [r.escolaId, Number(r.alunos)]));
     return NextResponse.json({ escolas });
   } catch (error) {
     console.error("[GET /api/escolas]", error);

@@ -45,14 +45,25 @@ export default function AulaPage() {
   async function marcarConcluida() {
     setMarking(true);
     try {
-      await fetch(`/api/ensino/${cursoId}/progresso`, {
+      const res = await fetch(`/api/ensino/${cursoId}/progresso`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ aulaId }),
       });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("[MarcarConcluida] API error:", data);
+        alert(data.error || "Erro ao marcar aula como concluida");
+        return;
+      }
+      console.log("[MarcarConcluida] success:", data);
       await fetchCurso();
-    } catch { /* ignore */ }
-    finally { setMarking(false); }
+    } catch (e) {
+      console.error("[MarcarConcluida] network error:", e);
+      alert("Erro de conexao ao marcar como concluida");
+    } finally {
+      setMarking(false);
+    }
   }
 
   if (loading) return <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF" }}>Carregando...</div>;
