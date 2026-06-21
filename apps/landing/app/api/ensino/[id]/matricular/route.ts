@@ -15,22 +15,33 @@ export async function POST(
     const { memberId } = body;
     if (!memberId) return NextResponse.json({ error: "memberId obrigatorio" }, { status: 400 });
 
-    // Cria progresso inicial (0 aulas concluidas) para que o membro apareca nos discipulados
+    // Buscar a primeira aula do curso para criar o progresso de matricula
+    const curso = await prisma.curso.findUnique({
+      where: { id: cursoId },
+      include: { modulos: { include: { aulas: { orderBy: { ordem: "asc" } } } } },
+    });
+    if (!curso) return NextResponse.json({ error: "Curso nao encontrado" }, { status: 404 });
+
+    const primeiraAula = curso.modulos.flatMap(m => m.aulas)[0];
+    if (!primeiraAula) {
+      return NextResponse.json({ error: "Curso nao possui aulas para matricula" }, { status: 400 });
+    }
+
     const progresso = await prisma.cursoProgresso.create({
       data: {
         cursoId,
         memberId,
-        aulaId: "inicio",
+        aulaId: primeiraAula.id,
         concluido: false,
       },
     });
 
     return NextResponse.json({ progresso }, { status: 201 });
   } catch (error: any) {
-    if (error?.code === "P2002") {
-      return NextResponse.json({ error: "Membro ja matriculado neste curso" }, { status: 409 });
-    }
-    console.error("[POST /api/ensino/id/matricular]", error);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    console.error("[POST /api/ensino/id/matricular] ERROR DETAIL:", error);
+    return NextResponse.json(
+      { error: error?.message || "Erro interno", stack: error?.stack },
+      { status: 500 }
+    );
   }
 }
