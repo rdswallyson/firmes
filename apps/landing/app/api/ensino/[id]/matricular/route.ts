@@ -40,7 +40,7 @@ export async function POST(
   } catch (error: any) {
     console.error("[POST /api/ensino/id/matricular] ERROR DETAIL:", error);
     return NextResponse.json(
-      { error: error?.message || "Erro interno", stack: error?.stack },
+      { error: error?.message || "Erro interno" },
       { status: 500 }
     );
   }
