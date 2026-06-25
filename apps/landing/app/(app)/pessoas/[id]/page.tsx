@@ -7,7 +7,7 @@ import {
   ArrowLeft, Pencil, CreditCard, Calendar, Phone, Mail, MapPin,
   Clock, UserCheck, Church, FileText, Users, Heart, Tag, Briefcase,
   Smartphone, Lock, Globe, Baby, UserPlus, DollarSign, TrendingUp, TrendingDown,
-  ChevronRight, BarChart3, Award, BookOpen, MoreHorizontal,
+  ChevronRight, BarChart3, Award, BookOpen, MoreHorizontal, PhoneCall, MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -212,24 +212,24 @@ export default function PerfilMembroPage() {
   const diasMembro = daysSince(member.memberSince);
 
   const infoCards = [
-    { icon: <Mail size={16} strokeWidth={1.5} />, label: "Email", value: member.email, color: "#2563EB" },
-    { icon: <Phone size={16} strokeWidth={1.5} />, label: "Telefone", value: member.phone, color: "#7C3AED" },
-    { icon: <Smartphone size={16} strokeWidth={1.5} />, label: "WhatsApp", value: member.whatsapp, color: "#16A34A" },
-    { icon: <Calendar size={16} strokeWidth={1.5} />, label: "Nascimento", value: formatDate(member.birthDate), color: "#D97706" },
-    { icon: <Heart size={16} strokeWidth={1.5} />, label: "Estado Civil", value: member.estadoCivil, color: "#EC4899" },
-    { icon: <UserCheck size={16} strokeWidth={1.5} />, label: "Cargo", value: member.role, color: "#1B2B4B" },
-    { icon: <Church size={16} strokeWidth={1.5} />, label: "Congregação", value: member.groupId ?? "Sede", color: "#0891B2" },
-    { icon: <Clock size={16} strokeWidth={1.5} />, label: "Membro desde", value: `${formatDate(member.memberSince)} (${diasMembro} dias)`, color: "#059669" },
-    { icon: <MapPin size={16} strokeWidth={1.5} />, label: "CEP", value: member.cep, color: "#DC2626" },
-    { icon: <MapPin size={16} strokeWidth={1.5} />, label: "Endereço", value: [member.address, member.number, member.complement].filter(Boolean).join(", "), color: "#DC2626" },
-    { icon: <MapPin size={16} strokeWidth={1.5} />, label: "Bairro", value: member.neighborhood, color: "#DC2626" },
-    { icon: <MapPin size={16} strokeWidth={1.5} />, label: "Cidade/UF", value: [member.city, member.state].filter(Boolean).join(" / "), color: "#DC2626" },
+    { icon: <Mail size={18} strokeWidth={1.5} />, label: "Email", value: member.email, color: "#3B82F6", bg: "#EFF6FF" },
+    { icon: <Phone size={18} strokeWidth={1.5} />, label: "Telefone", value: member.phone, color: "#10B981", bg: "#ECFDF5" },
+    { icon: <Smartphone size={18} strokeWidth={1.5} />, label: "WhatsApp", value: member.whatsapp, color: "#10B981", bg: "#ECFDF5", link: member.whatsapp ? `https://wa.me/${member.whatsapp.replace(/\D/g, "")}` : null },
+    { icon: <Calendar size={18} strokeWidth={1.5} />, label: "Nascimento", value: member.birthDate ? `${formatDate(member.birthDate)} (${Math.floor(daysSince(member.birthDate) / 365)} anos)` : null, color: "#F59E0B", bg: "#FFFBEB" },
+    { icon: <Heart size={18} strokeWidth={1.5} />, label: "Estado Civil", value: member.estadoCivil, color: "#EF4444", bg: "#FEF2F2" },
+    { icon: <UserCheck size={18} strokeWidth={1.5} />, label: "Cargo", value: member.role, color: "#6366F1", bg: "#EEF2FF" },
+    { icon: <Church size={18} strokeWidth={1.5} />, label: "Congregação", value: member.groupId ?? "Sede", color: "#8B5CF6", bg: "#F5F3FF" },
+    { icon: <Clock size={18} strokeWidth={1.5} />, label: "Membro desde", value: `${formatDate(member.memberSince)} (${diasMembro} dias)`, color: "#F59E0B", bg: "#FFFBEB" },
+    { icon: <MapPin size={18} strokeWidth={1.5} />, label: "CEP", value: member.cep, color: "#EC4899", bg: "#FDF2F8" },
+    { icon: <MapPin size={18} strokeWidth={1.5} />, label: "Endereço", value: [member.address, member.number, member.complement].filter(Boolean).join(", "), color: "#EC4899", bg: "#FDF2F8" },
+    { icon: <MapPin size={18} strokeWidth={1.5} />, label: "Bairro", value: member.neighborhood, color: "#EC4899", bg: "#FDF2F8" },
+    { icon: <MapPin size={18} strokeWidth={1.5} />, label: "Cidade/UF", value: [member.city, member.state].filter(Boolean).join(" / "), color: "#EC4899", bg: "#FDF2F8" },
   ];
 
   return (
-    <div style={{ padding: "1.75rem 2rem", maxWidth: "1200px", margin: "0 auto", fontFamily: "var(--font-nunito), sans-serif", background: BG, minHeight: "100vh" }}>
+    <div style={{ padding: "1.5rem 2rem", maxWidth: "1200px", margin: "0 auto", fontFamily: "var(--font-nunito), sans-serif", background: BG, minHeight: "100vh" }}>
       {/* Breadcrumb */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13, color: "#6B7280" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, fontSize: 13, color: "#6B7280" }}>
         <Link href="/pessoas" style={{ color: "#6B7280", textDecoration: "none", fontWeight: 500 }}>Pessoas</Link>
         <ChevronRight size={14} />
         <span style={{ color: "#111827", fontWeight: 600 }}>{member.name}</span>
@@ -240,7 +240,7 @@ export default function PerfilMembroPage() {
         <button onClick={() => router.push(`/pessoas/${member.id}/editar`)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "white", border: "1px solid #E5E7EB", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#374151" }}>
           <Pencil size={14} strokeWidth={1.5} /> Editar
         </button>
-        <button onClick={() => router.push(`/pessoas/${member.id}/cartao`)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: NAVY, color: "white", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+        <button onClick={() => router.push(`/pessoas/${member.id}/cartao`)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", background: "#2563EB", color: "white", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
           <CreditCard size={14} strokeWidth={1.5} /> Cartão do Membro
         </button>
         <button style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", background: "white", border: "1px solid #E5E7EB", borderRadius: 8, cursor: "pointer", color: "#6B7280" }}>
@@ -249,64 +249,64 @@ export default function PerfilMembroPage() {
       </div>
 
       {/* Two-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 20, alignItems: "start" }}>
         {/* LEFT SIDEBAR */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Profile Card */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            style={{ background: NAVY, borderRadius: 14, padding: 24, color: "white", textAlign: "center", position: "relative" }}>
-            <div style={{ width: 90, height: 90, borderRadius: "50%", background: member.photo ? `url(${member.photo}) center/cover` : av.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", fontWeight: 700, color: member.photo ? "transparent" : av.color, border: "3px solid rgba(255,255,255,0.3)", margin: "0 auto 12px", position: "relative" }}>
+            style={{ background: NAVY, borderRadius: 16, padding: 28, color: "white", textAlign: "center", position: "relative" }}>
+            <div style={{ width: 100, height: 100, borderRadius: "50%", background: member.photo ? `url(${member.photo}) center/cover` : av.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", fontWeight: 700, color: member.photo ? "transparent" : av.color, border: "3px solid rgba(255,255,255,0.25)", margin: "0 auto 14px", position: "relative" }}>
               {!member.photo && member.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
-              <div style={{ position: "absolute", bottom: 0, right: 0, width: 28, height: 28, borderRadius: "50%", background: GOLD, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid " + NAVY, cursor: "pointer" }}>
-                <Pencil size={12} strokeWidth={1.5} color="#fff" />
+              <div style={{ position: "absolute", bottom: 2, right: 2, width: 30, height: 30, borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid " + NAVY, cursor: "pointer" }}>
+                <Pencil size={14} strokeWidth={1.5} color={NAVY} />
               </div>
             </div>
-            <h2 style={{ fontSize: "1.15rem", fontWeight: 700, margin: "0 0 6px" }}>{member.name}</h2>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
-              <span style={{ background: st.bg, color: st.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: 10, padding: "2px 10px" }}>{st.label}</span>
-              {member.role && <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.8rem" }}>{member.role}</span>}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 4 }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>{member.name}</h2>
+              <span style={{ background: st.bg, color: st.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: 20, padding: "3px 10px" }}>{st.label}</span>
             </div>
-            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: "0 0 16px" }}>
+            <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>{member.role}</div>
+            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: "0 0 18px" }}>
               Membro desde {formatDate(member.memberSince)} ({diasMembro} dias)
             </p>
 
             {/* Quick actions */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-              <button style={{ padding: "8px 4px", background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, color: "white", cursor: "pointer", fontSize: 12, fontWeight: 500, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <Phone size={14} strokeWidth={1.5} /> Ligar
+              <button style={{ padding: "10px 4px", background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 10, color: "white", cursor: "pointer", fontSize: 12, fontWeight: 500, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <PhoneCall size={16} strokeWidth={1.5} /> Ligar
               </button>
-              <a href={member.whatsapp ? `https://wa.me/${member.whatsapp.replace(/\D/g, "")}` : "#"} target="_blank" rel="noopener noreferrer" style={{ padding: "8px 4px", background: "rgba(255,255,255,0.1)", borderRadius: 8, color: "white", textDecoration: "none", fontSize: 12, fontWeight: 500, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <Smartphone size={14} strokeWidth={1.5} /> WhatsApp
+              <a href={member.whatsapp ? `https://wa.me/${member.whatsapp.replace(/\D/g, "")}` : "#"} target="_blank" rel="noopener noreferrer" style={{ padding: "10px 4px", background: "rgba(255,255,255,0.12)", borderRadius: 10, color: "white", textDecoration: "none", fontSize: 12, fontWeight: 500, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <MessageCircle size={16} strokeWidth={1.5} /> WhatsApp
               </a>
-              <a href={member.email ? `mailto:${member.email}` : "#"} style={{ padding: "8px 4px", background: "rgba(255,255,255,0.1)", borderRadius: 8, color: "white", textDecoration: "none", fontSize: 12, fontWeight: 500, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                <Mail size={14} strokeWidth={1.5} /> Email
+              <a href={member.email ? `mailto:${member.email}` : "#"} style={{ padding: "10px 4px", background: "rgba(255,255,255,0.12)", borderRadius: 10, color: "white", textDecoration: "none", fontSize: 12, fontWeight: 500, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <Mail size={16} strokeWidth={1.5} /> Email
               </a>
             </div>
 
-            <button onClick={() => router.push(`/pessoas/${member.id}/cartao`)} style={{ width: "100%", padding: "10px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-              <CreditCard size={14} strokeWidth={1.5} /> Cartão do Membro
+            <button onClick={() => router.push(`/pessoas/${member.id}/cartao`)} style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 10, color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <CreditCard size={16} strokeWidth={1.5} /> Cartão do Membro
             </button>
           </motion.div>
 
           {/* Resumo do Membro */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 14px" }}>Resumo do Membro</h3>
+            style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: "0 0 14px" }}>Resumo do Membro</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <MiniStat icon={<Church size={16} strokeWidth={1.5} />} label="Cultos" value={`${checkins.length}`} sub="Presenças" color="#2563EB" />
-              <MiniStat icon={<Calendar size={16} strokeWidth={1.5} />} label="Eventos" value={`${inscricoes.length}`} sub="Participações" color="#7C3AED" />
-              <MiniStat icon={<Users size={16} strokeWidth={1.5} />} label="Grupos" value={`${gruposMembro.length}`} sub="Participando" color="#16A34A" />
-              <MiniStat icon={<DollarSign size={16} strokeWidth={1.5} />} label="Ofertas" value={`R$ ${totalFinancasAno.toLocaleString("pt-BR")}`} sub="Total em doações" color={GOLD} />
+              <MiniStat icon={<Users size={20} strokeWidth={1.5} />} value={`${checkins.length}`} label="Cultos" sub="Presenças" color="#3B82F6" bg="#EFF6FF" />
+              <MiniStat icon={<Calendar size={20} strokeWidth={1.5} />} value={`${inscricoes.length}`} label="Eventos" sub="Participações" color="#10B981" bg="#ECFDF5" />
+              <MiniStat icon={<Users size={20} strokeWidth={1.5} />} value={`${gruposMembro.length}`} label="Grupos" sub="Participando" color="#8B5CF6" bg="#F5F3FF" />
+              <MiniStat icon={<DollarSign size={20} strokeWidth={1.5} />} value={`R$ ${totalFinancasAno.toLocaleString("pt-BR")}`} label="Ofertas" sub="Total em doações" color="#F59E0B" bg="#FFFBEB" />
             </div>
-            <Link href={`/pessoas/${member.id}/frequencia`} style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 14, fontSize: 12, fontWeight: 600, color: NAVY, textDecoration: "none" }}>
-              <BarChart3 size={14} strokeWidth={1.5} /> Ver estatísticas completas <ChevronRight size={12} />
+            <Link href={`/pessoas/${member.id}/frequencia`} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 14, padding: "8px", background: "#F9FAFB", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#2563EB", textDecoration: "none" }}>
+              <BarChart3 size={14} strokeWidth={1.5} /> Ver estatísticas completas
             </Link>
           </motion.div>
 
           {/* Histórico Financeiro */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 14px" }}>Histórico Financeiro</h3>
+            style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: "0 0 14px" }}>Histórico Financeiro</h3>
             {loadingFinancas ? (
               <div style={{ color: "#9CA3AF", fontSize: 13 }}>Carregando...</div>
             ) : financas.length === 0 ? (
@@ -314,23 +314,36 @@ export default function PerfilMembroPage() {
             ) : (
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-                  <MiniStat icon={<DollarSign size={14} strokeWidth={1.5} />} label="Total" value={`R$ ${totalFinancasAno.toLocaleString("pt-BR")}`} sub="Soma de ofertas" color={GOLD} />
-                  <MiniStat icon={<TrendingUp size={14} strokeWidth={1.5} />} label="Ofertas" value={`${financas.filter((f: any) => f.type === "RECEITA").length}`} sub="Total de ofertas" color="#16A34A" />
+                  <MiniStat icon={<DollarSign size={16} strokeWidth={1.5} />} value={`R$ ${totalFinancasAno.toLocaleString("pt-BR")}`} label="Total" sub="Soma de ofertas" color="#F59E0B" bg="#FFFBEB" />
+                  <MiniStat icon={<TrendingUp size={16} strokeWidth={1.5} />} value={`${financas.filter((f: any) => f.type === "RECEITA").length}`} label="Ofertas" sub="Total de ofertas" color="#10B981" bg="#ECFDF5" />
+                  <MiniStat icon={<DollarSign size={16} strokeWidth={1.5} />} value={`R$ ${(totalFinancasAno / Math.max(1, financas.filter((f: any) => f.type === "RECEITA").length)).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`} label="Média" sub="Média por oferta" color="#8B5CF6" bg="#F5F3FF" />
+                  <MiniStat icon={<TrendingUp size={16} strokeWidth={1.5} />} value={`R$ ${(totalFinancasAno / 12).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`} label="Mensal" sub="Dízimos este mês" color="#EF4444" bg="#FEF2F2" />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+
+                {/* Table header */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 1fr 80px 1fr", gap: 4, padding: "6px 8px", fontSize: 10, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px solid #F3F4F6" }}>
+                  <span>Data</span>
+                  <span>Tipo</span>
+                  <span>Descrição</span>
+                  <span>Valor</span>
+                  <span>Forma</span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
                   {financas.slice(0, 3).map((f: any) => (
-                    <div key={f.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#F9FAFB", borderRadius: 6 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#9CA3AF" }}>{formatDate(f.date)}</span>
-                        <span style={{ fontSize: 12, color: "#374151", fontWeight: 500 }}>{f.category || f.type}</span>
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: f.type === "RECEITA" ? "#16A34A" : "#DC2626" }}>
+                    <div key={f.id} style={{ display: "grid", gridTemplateColumns: "1fr 80px 1fr 80px 1fr", gap: 4, padding: "8px", fontSize: 12, borderBottom: "1px solid #F9FAFB", alignItems: "center" }}>
+                      <span style={{ color: "#6B7280" }}>{formatDate(f.date)}</span>
+                      <span style={{ color: "#374151", fontWeight: 500 }}>{f.category || f.type}</span>
+                      <span style={{ color: "#374151" }}>{f.description || "—"}</span>
+                      <span style={{ fontWeight: 600, color: f.type === "RECEITA" ? "#16A34A" : "#DC2626" }}>
                         {f.type === "RECEITA" ? "+" : "-"} R$ {Number(f.amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </span>
+                      <span style={{ color: "#6B7280" }}>{f.paymentMethod || "—"}</span>
                     </div>
                   ))}
                 </div>
-                <Link href="/financeiro" style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 12, fontWeight: 600, color: NAVY, textDecoration: "none" }}>
+
+                <Link href="/financeiro" style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 12, fontWeight: 600, color: "#2563EB", textDecoration: "none" }}>
                   Ver histórico financeiro completo <ChevronRight size={12} />
                 </Link>
               </>
@@ -340,20 +353,23 @@ export default function PerfilMembroPage() {
 
         {/* RIGHT COLUMN */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Dados Pessoais Grid */}
+          {/* Dados Pessoais Grid — 4 colunas igual à imagem */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 16px" }}>Dados Pessoais</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+            style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
               {infoCards.map((c, i) =>
                 c.value && c.value !== "—" ? (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: 10, background: "#FAFAFA", borderRadius: 10, border: "1px solid #F3F4F6" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: `${c.color}14`, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, flexShrink: 0 }}>
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, flexShrink: 0 }}>
                       {c.icon}
                     </div>
-                    <div>
-                      <div style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.03em" }}>{c.label}</div>
-                      <div style={{ fontSize: 13, color: "#111827", fontWeight: 600, marginTop: 2 }}>{c.value}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 11, color: "#6B7280", fontWeight: 500, marginBottom: 2 }}>{c.label}</div>
+                      <div style={{ fontSize: 13, color: "#111827", fontWeight: 600, wordBreak: "break-word" }}>
+                        {c.link ? (
+                          <a href={c.link} target="_blank" rel="noopener noreferrer" style={{ color: "#111827", textDecoration: "none" }}>{c.value}</a>
+                        ) : c.value}
+                      </div>
                     </div>
                   </div>
                 ) : null
@@ -364,153 +380,47 @@ export default function PerfilMembroPage() {
           {/* Ministérios */}
           {member.ministerios && member.ministerios.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-              style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: 0 }}>Ministérios</h3>
-                <button style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "#F3F4F6", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}>
+                <h3 style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}>Ministérios</h3>
+                <button style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", background: "#F3F4F6", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#374151" }}>
                   <UserPlus size={12} strokeWidth={1.5} /> Adicionar
                 </button>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {member.ministerios.map((m, i) => (
-                  <span key={i} style={{ padding: "6px 14px", background: "#EFF6FF", color: NAVY, borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1px solid #DBEAFE" }}>{m}</span>
+                  <span key={i} style={{ padding: "6px 14px", background: "#EFF6FF", color: "#1E40AF", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1px solid #DBEAFE" }}>{m}</span>
                 ))}
               </div>
               {member.ministerios.includes("Ensino") && (
-                <div style={{ marginTop: 12, padding: 10, background: "#FEF3C7", borderRadius: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                  <Award size={14} color={GOLD} />
+                <div style={{ marginTop: 12, padding: 12, background: "#FFFBEB", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, border: "1px solid #FDE68A" }}>
+                  <Award size={16} color="#D97706" />
                   <span style={{ fontSize: 12, color: "#92400E", fontWeight: 500 }}>{member.name.split(" ")[0]} está servindo como líder no ministério de Ensino.</span>
                 </div>
               )}
             </motion.div>
           )}
 
-          {/* Seções de módulos reais */}
-          {/* Frequência nos Cultos */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 14px" }}>Frequência nos Cultos</h3>
-            {loadingCultos ? (
-              <div style={{ color: "#9CA3AF", fontSize: 13 }}>Carregando...</div>
-            ) : checkins.length === 0 ? (
-              <div style={{ color: "#6B7280", fontSize: 13 }}>Nenhuma presença registrada nos cultos.</div>
-            ) : (
-              <>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Última presença:</span>
-                  <span style={{ fontSize: 12, color: "#6B7280" }}>{formatDate(checkins[0]?.culto?.data || checkins[0]?.createdAt)}</span>
-                  {(() => {
-                    const pct = Math.min(100, Math.round((checkins.length / 12) * 100));
-                    let badge = { label: "Afastado", bg: "#FEE2E2", color: "#DC2626" };
-                    if (pct >= 75) badge = { label: "Regular", bg: "#DCFCE7", color: "#16A34A" };
-                    else if (pct >= 40) badge = { label: "Irregular", bg: "#FEF3C7", color: "#D97706" };
-                    return <span style={{ background: badge.bg, color: badge.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: 10, padding: "2px 8px" }}>{badge.label} ({pct}%)</span>;
-                  })()}
+          {/* Anotações */}
+          {member.notes && (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+              style={{ background: "#FFFBEB", borderRadius: 16, padding: 20, border: "1px solid #FDE68A" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <FileText size={16} strokeWidth={1.5} color="#D97706" />
+                  <span style={{ fontSize: 13, color: "#111827", fontWeight: 700 }}>Anotações</span>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {checkins.slice(0, 5).map((c: any, i: number) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#F9FAFB", borderRadius: 6 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <Church size={14} color="#6B7280" />
-                        <span style={{ fontSize: 12, color: "#374151", fontWeight: 500 }}>{c.culto?.titulo || "Culto"}</span>
-                      </div>
-                      <span style={{ fontSize: 11, color: "#9CA3AF" }}>{formatDate(c.culto?.data || c.createdAt)}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </motion.div>
-
-          {/* Escalas */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 14px" }}>Escalas</h3>
-            {loadingEscalas ? (
-              <div style={{ color: "#9CA3AF", fontSize: 13 }}>Carregando...</div>
-            ) : escalasMembro.length === 0 ? (
-              <div style={{ color: "#6B7280", fontSize: 13 }}>Nenhuma escala encontrada para este membro.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {escalasMembro.map((e: any) => {
-                  const funcao = e.membros?.find((m: any) => m.memberId === params.id)?.funcao || "Participante";
-                  return (
-                    <div key={e.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#F9FAFB", borderRadius: 6 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <Calendar size={14} color="#7C3AED" />
-                        <span style={{ fontSize: 12, color: "#374151", fontWeight: 500 }}>{e.titulo}</span>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#9CA3AF" }}>{formatDate(e.data)}</span>
-                        <span style={{ padding: "2px 8px", background: "#EDE9FE", color: "#5B21B6", borderRadius: 6, fontSize: 10, fontWeight: 500 }}>{e.ministerio}</span>
-                        <span style={{ padding: "2px 8px", background: "#EFF6FF", color: "#1E40AF", borderRadius: 6, fontSize: 10, fontWeight: 500 }}>{funcao}</span>
-                      </div>
-                    </div>
-                  );
-                })}
+                <button style={{ fontSize: 12, fontWeight: 600, color: "#2563EB", background: "none", border: "none", cursor: "pointer" }}>Editar</button>
               </div>
-            )}
-          </motion.div>
-
-          {/* Grupo / Célula */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 14px" }}>Grupo / Célula</h3>
-            {loadingGrupos ? (
-              <div style={{ color: "#9CA3AF", fontSize: 13 }}>Carregando...</div>
-            ) : gruposMembro.length === 0 ? (
-              <div style={{ color: "#6B7280", fontSize: 13 }}>Este membro não está vinculado a nenhum grupo ou célula como líder.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {gruposMembro.map((g: any) => (
-                  <div key={g.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#F9FAFB", borderRadius: 6 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <Users size={14} color="#16A34A" />
-                      <span style={{ fontSize: 13, color: "#374151", fontWeight: 600 }}>{g.name}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {g.leader && <span style={{ fontSize: 11, color: "#6B7280" }}>Líder: {g.leader.name}</span>}
-                      {g.meetingDay && <span style={{ padding: "2px 8px", background: "#DCFCE7", color: "#166534", borderRadius: 6, fontSize: 10, fontWeight: 500 }}>{g.meetingDay}</span>}
-                      {g._count?.members !== undefined && <span style={{ padding: "2px 8px", background: "#F3F4F6", color: "#374151", borderRadius: 6, fontSize: 10, fontWeight: 500 }}>{g._count.members} membros</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-
-          {/* Eventos */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 14px" }}>Eventos</h3>
-            {loadingEventos ? (
-              <div style={{ color: "#9CA3AF", fontSize: 13 }}>Carregando...</div>
-            ) : inscricoes.length === 0 ? (
-              <div style={{ color: "#6B7280", fontSize: 13 }}>Nenhuma inscrição em eventos encontrada.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {inscricoes.map((i: any) => (
-                  <div key={i.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "#F9FAFB", borderRadius: 6 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <Calendar size={14} color={GOLD} />
-                      <span style={{ fontSize: 13, color: "#374151", fontWeight: 600 }}>{i.event?.title || i.evento?.title || "Evento"}</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {i.pagamentoStatus && (
-                        <span style={{ padding: "2px 8px", background: i.pagamentoStatus === "PAGO" ? "#DCFCE7" : "#FEF3C7", color: i.pagamentoStatus === "PAGO" ? "#166534" : "#92400E", borderRadius: 6, fontSize: 10, fontWeight: 500 }}>{i.pagamentoStatus}</span>
-                      )}
-                      <span style={{ fontSize: 11, color: "#9CA3AF" }}>{formatDate(i.createdAt)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div>
+              <p style={{ fontSize: 13, color: "#78350F", margin: 0, lineHeight: 1.6 }}>{member.notes}</p>
+              <div style={{ marginTop: 10, fontSize: 11, color: "#B45309" }}>Última atualização: {formatDate(member.updatedAt)} por Administrador</div>
+            </motion.div>
+          )}
 
           {/* Observações Pastorais */}
           {member.observacoesPastorais && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              style={{ background: "#FEF2F2", borderRadius: 14, padding: 20, border: "1px solid #FECACA" }}>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              style={{ background: "#FEF2F2", borderRadius: 16, padding: 20, border: "1px solid #FECACA" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
                 <Lock size={14} strokeWidth={1.5} color="#991B1B" />
                 <span style={{ fontSize: 12, color: "#991B1B", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em" }}>Observações Pastorais — Confidencial</span>
@@ -519,24 +429,11 @@ export default function PerfilMembroPage() {
             </motion.div>
           )}
 
-          {/* Observações Gerais */}
-          {member.notes && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              style={{ background: "#FEF9C3", borderRadius: 14, padding: 20, border: "1px solid #FDE68A" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                <FileText size={14} strokeWidth={1.5} color="#92400E" />
-                <span style={{ fontSize: 12, color: "#92400E", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em" }}>Anotações</span>
-                <span style={{ marginLeft: "auto", fontSize: 11, color: "#B45309" }}>Última atualização: {formatDate(member.updatedAt)}</span>
-              </div>
-              <p style={{ fontSize: 13, color: "#78350F", margin: 0, lineHeight: 1.5 }}>{member.notes}</p>
-            </motion.div>
-          )}
-
           {/* Tags, Disponibilidade, Filhos (mantidos do original) */}
           {(member.disponibilidadeDias?.length > 0 || member.disponibilidadeTurnos?.length > 0) && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 12px" }}>Disponibilidade</h3>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+              style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: "0 0 12px" }}>Disponibilidade</h3>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {member.disponibilidadeDias.map((d, i) => (
                   <span key={i} style={{ padding: "4px 10px", background: "#FEF3C7", color: "#92400E", borderRadius: 6, fontSize: 11, fontWeight: 500 }}>{d}</span>
@@ -549,9 +446,9 @@ export default function PerfilMembroPage() {
           )}
 
           {member.tags && member.tags.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 12px" }}>Tags</h3>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+              style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: "0 0 12px" }}>Tags</h3>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {member.tags.map((t, i) => (
                   <span key={i} style={{ padding: "4px 10px", background: "#F3F4F6", color: "#374151", borderRadius: 20, fontSize: 11, fontWeight: 500 }}>{t}</span>
@@ -561,9 +458,9 @@ export default function PerfilMembroPage() {
           )}
 
           {member.filhos && member.filhos.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 12px" }}>Filhos</h3>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+              style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: "0 0 12px" }}>Filhos</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {member.filhos.map((f: any, i: number) => (
                   <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", padding: "6px 10px", background: "#FAFAFA", borderRadius: 6 }}>
@@ -581,12 +478,12 @@ export default function PerfilMembroPage() {
   );
 }
 
-function MiniStat({ icon, label, value, sub, color }: { icon: React.ReactNode; label: string; value: string; sub: string; color: string }) {
+function MiniStat({ icon, value, label, sub, color, bg }: { icon: React.ReactNode; value: string; label: string; sub: string; color: string; bg: string }) {
   return (
-    <div style={{ padding: 10, background: "#FAFAFA", borderRadius: 10, textAlign: "center", border: "1px solid #F3F4F6" }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}14`, display: "flex", alignItems: "center", justifyContent: "center", color, margin: "0 auto 6px" }}>{icon}</div>
-      <div style={{ fontSize: 16, fontWeight: 800, color: "#111827" }}>{value}</div>
-      <div style={{ fontSize: 10, fontWeight: 600, color: "#374151", textTransform: "uppercase" }}>{label}</div>
+    <div style={{ padding: 12, background: "#FAFAFA", borderRadius: 12, textAlign: "center", border: "1px solid #F3F4F6" }}>
+      <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: "flex", alignItems: "center", justifyContent: "center", color, margin: "0 auto 8px" }}>{icon}</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>{value}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginTop: 2 }}>{label}</div>
       <div style={{ fontSize: 10, color: "#9CA3AF" }}>{sub}</div>
     </div>
   );

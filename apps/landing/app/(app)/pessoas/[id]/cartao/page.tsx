@@ -204,73 +204,77 @@ export default function CartaoMembroPage() {
       </div>
 
       {/* Three-column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr 280px", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr 300px", gap: 24, alignItems: "start" }}>
         {/* LEFT — Personalização */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 4px" }}>Personalização</h3>
-            <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Edite as informações e o estilo do cartão</p>
+            style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: "0 0 2px" }}>Personalização</h3>
+            <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 20px" }}>Edite as informações e o estilo do cartão</p>
 
             {/* Modelo do cartão */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: 8, display: "block" }}>Modelo do cartão</label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 10, display: "block" }}>Modelo do cartão</label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {CARD_MODELS.slice(0, 4).map(m => (
-                  <button key={m.id} onClick={() => handleModelSelect(m)} style={{ padding: 6, borderRadius: 8, border: selectedModel.id === m.id ? "2px solid " + GOLD : "2px solid transparent", cursor: "pointer", background: "#F3F4F6" }}>
-                    <div style={{ height: 40, borderRadius: 6, background: m.bg }} />
+                  <button key={m.id} onClick={() => handleModelSelect(m)} style={{ position: "relative", padding: 4, borderRadius: 10, border: selectedModel.id === m.id ? "2px solid #2563EB" : "2px solid transparent", cursor: "pointer", background: "#F3F4F6" }}>
+                    <div style={{ height: 50, borderRadius: 8, background: m.bg }} />
+                    {selectedModel.id === m.id && (
+                      <div style={{ position: "absolute", top: 6, right: 6, width: 18, height: 18, borderRadius: "50%", background: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Check size={12} color="white" strokeWidth={2.5} />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Cores */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: 8, display: "block" }}>Cores do cartão</label>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 10, display: "block" }}>Cores do cartão</label>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 {COLOR_PALETTE.map(c => (
-                  <button key={c} onClick={() => setSelectedColor(c)} style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: selectedColor === c ? "2px solid #111827" : "2px solid transparent", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }} />
+                  <button key={c} onClick={() => setSelectedColor(c)} style={{ width: 32, height: 32, borderRadius: "50%", background: c, border: selectedColor === c ? "2px solid #111827" : "2px solid #E5E7EB", cursor: "pointer" }} />
                 ))}
               </div>
             </div>
 
             {/* Logo */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: 8, display: "block" }}>Logo da igreja</label>
-              <label style={{ display: "block", padding: "12px", border: "2px dashed #E5E7EB", borderRadius: 8, textAlign: "center", cursor: "pointer", color: "#6B7280", fontSize: 12 }}>
-                <Upload size={16} strokeWidth={1.5} style={{ margin: "0 auto 4px", display: "block" }} />
-                Enviar logo
-                <br />
-                <span style={{ fontSize: 10 }}>PNG ou JPG (máx. 2MB)</span>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 10, display: "block" }}>Logo da igreja</label>
+              <label style={{ display: "block", padding: "16px", border: "2px dashed #E5E7EB", borderRadius: 10, textAlign: "center", cursor: "pointer", color: "#6B7280", fontSize: 12 }}>
+                <Upload size={18} strokeWidth={1.5} style={{ margin: "0 auto 6px", display: "block" }} />
+                <div style={{ fontWeight: 500 }}>Enviar logo</div>
+                <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 2 }}>PNG ou JPG (máx. 2MB)</div>
                 <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: "none" }} />
               </label>
               {logoUrl && <img src={logoUrl} alt="Logo preview" style={{ width: "100%", maxHeight: 60, objectFit: "contain", marginTop: 8, borderRadius: 4 }} />}
             </div>
 
             {/* Toggle logo */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <span style={{ fontSize: 12, color: "#374151" }}>Exibir logo da igreja no cartão</span>
-              <button onClick={() => setShowLogo(!showLogo)} style={{ width: 40, height: 22, borderRadius: 11, background: showLogo ? NAVY : "#E5E7EB", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
-                <div style={{ width: 18, height: 18, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: showLogo ? 20 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
+              <button onClick={() => setShowLogo(!showLogo)} style={{ width: 44, height: 24, borderRadius: 12, background: showLogo ? "#2563EB" : "#E5E7EB", border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s" }}>
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "white", position: "absolute", top: 2, left: showLogo ? 22 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
               </button>
             </div>
 
             {/* Informações exibidas */}
             <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: 8, display: "block" }}>Informações exibidas</label>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", marginBottom: 10, display: "block" }}>Informações exibidas</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {fieldOrder.map(id => {
                   const f = INFO_FIELDS.find(x => x.id === id)!;
                   const active = activeFields.includes(id);
                   return (
                     <div key={id} draggable onDragStart={() => handleDragStart(id)} onDragOver={(e) => handleDragOver(e, id)} onDragEnd={() => setDraggingField(null)}
-                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: active ? "#F9FAFB" : "transparent", borderRadius: 6, cursor: "grab", opacity: draggingField === id ? 0.5 : 1 }}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: active ? "#F9FAFB" : "transparent", borderRadius: 8, cursor: "grab", opacity: draggingField === id ? 0.5 : 1 }}
                     >
-                      <GripVertical size={14} color="#9CA3AF" />
-                      <button onClick={() => toggleField(id)} style={{ width: 18, height: 18, borderRadius: 4, border: active ? "none" : "1.5px solid #D1D5DB", background: active ? NAVY : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                        {active && <Check size={12} color="white" strokeWidth={2.5} />}
+                      <GripVertical size={16} color="#9CA3AF" />
+                      <button onClick={() => toggleField(id)} style={{ width: 20, height: 20, borderRadius: 4, border: active ? "none" : "1.5px solid #D1D5DB", background: active ? "#2563EB" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                        {active && <Check size={14} color="white" strokeWidth={2.5} />}
                       </button>
-                      <span style={{ fontSize: 12, color: active ? "#374151" : "#9CA3AF", fontWeight: 500 }}>{f.label}</span>
+                      <span style={{ fontSize: 13, color: active ? "#374151" : "#9CA3AF", fontWeight: 500 }}>{f.label}</span>
                     </div>
                   );
                 })}
@@ -405,29 +409,29 @@ export default function CartaoMembroPage() {
         </div>
 
         {/* RIGHT — Modelos */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            style={{ background: "white", borderRadius: 14, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 4px" }}>Escolha um modelo</h3>
-            <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 16px" }}>Selecione o estilo do cartão</p>
+            style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827", margin: "0 0 2px" }}>Escolha um modelo</h3>
+            <p style={{ fontSize: 12, color: "#9CA3AF", margin: "0 0 20px" }}>Selecione o estilo do cartão</p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {CARD_MODELS.map(m => (
-                <button key={m.id} onClick={() => handleModelSelect(m)} style={{ display: "flex", alignItems: "center", gap: 10, padding: 10, borderRadius: 10, border: selectedModel.id === m.id ? "2px solid " + GOLD : "1.5px solid #F3F4F6", background: "white", cursor: "pointer", textAlign: "left" }}
+                <button key={m.id} onClick={() => handleModelSelect(m)} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, borderRadius: 12, border: selectedModel.id === m.id ? "2px solid #2563EB" : "1.5px solid #F3F4F6", background: "white", cursor: "pointer", textAlign: "left" }}
                 >
-                  <div style={{ width: 48, height: 32, borderRadius: 6, background: m.bg, flexShrink: 0 }} />
+                  <div style={{ width: 56, height: 40, borderRadius: 8, background: m.bg, flexShrink: 0 }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>{m.name}</span>
-                      <div style={{ width: 16, height: 16, borderRadius: "50%", border: selectedModel.id === m.id ? "4px solid " + GOLD : "1.5px solid #D1D5DB" }} />
+                      <div style={{ width: 18, height: 18, borderRadius: "50%", border: selectedModel.id === m.id ? "5px solid #2563EB" : "1.5px solid #D1D5DB", background: selectedModel.id === m.id ? "#2563EB" : "transparent" }} />
                     </div>
                     <span style={{ fontSize: 11, color: "#9CA3AF" }}>{m.desc}</span>
                   </div>
                 </button>
               ))}
 
-              <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 12px", borderRadius: 10, border: "1.5px dashed #D1D5DB", background: "white", cursor: "pointer", color: "#6B7280", fontSize: 13, fontWeight: 500 }}>
-                <PlusIcon size={16} /> Criar modelo personalizado
+              <button style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderRadius: 12, border: "1.5px dashed #D1D5DB", background: "white", cursor: "pointer", color: "#6B7280", fontSize: 13, fontWeight: 500 }}>
+                <PlusIcon size={18} /> Criar modelo personalizado
               </button>
             </div>
           </motion.div>
@@ -435,12 +439,12 @@ export default function CartaoMembroPage() {
       </div>
 
       {/* Footer tip + share */}
-      <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", background: "#FEF3C7", borderRadius: 10 }}>
-          <Info size={16} color="#D97706" />
+      <div style={{ marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "#FFFBEB", borderRadius: 12, border: "1px solid #FDE68A" }}>
+          <Info size={18} color="#D97706" />
           <span style={{ fontSize: 12, color: "#92400E" }}>Dica: Você pode compartilhar o cartão digital com o membro através do WhatsApp, email ou impresso.</span>
         </div>
-        <button onClick={handleShare} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "white", border: "1.5px solid " + NAVY, borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600, color: NAVY }}>
+        <button onClick={handleShare} style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "white", border: "1.5px solid " + NAVY, borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, color: NAVY }}>
           <Share2 size={14} strokeWidth={1.5} /> Compartilhar cartão
         </button>
       </div>
