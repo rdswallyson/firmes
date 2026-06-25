@@ -13,6 +13,7 @@ interface Discipulado {
   nome: string;
   cursoTitulo: string;
   cursoId: string;
+  memberId: string;
   percentual: number;
   responsavel?: string;
   dataInicio: string;
@@ -51,6 +52,7 @@ export default function DiscipuladosPage() {
                 nome: primeiroProgresso?.member?.name || `Membro ${memberId.slice(0, 6)}`,
                 cursoTitulo: curso.titulo,
                 cursoId: curso.id,
+                memberId,
                 percentual,
                 responsavel: curso.instrutor || undefined,
                 dataInicio: new Date(primeiroProgresso?.dataHora || Date.now()).toLocaleDateString("pt-BR"),
@@ -131,7 +133,7 @@ export default function DiscipuladosPage() {
                     <div style={{ fontWeight: 600, color: "#0D2545" }}>{d.nome}</div>
                   </td>
                   <td style={{ padding: "14px 16px" }}>
-                    <Link href={`/ensino/${d.cursoId}`} style={{ color: NAVY, fontWeight: 600, textDecoration: "none" }}>
+                    <Link href={`/ensino/discipulados/${d.cursoId}/${d.memberId}`} style={{ color: NAVY, fontWeight: 600, textDecoration: "none" }}>
                       {d.cursoTitulo} <ChevronRight size={14} style={{ verticalAlign: "middle" }} />
                     </Link>
                   </td>
