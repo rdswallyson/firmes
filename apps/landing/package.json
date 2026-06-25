@@ -21,6 +21,7 @@
     "canvas-confetti": "^1.9.4",
     "dotenv": "^16.0.3",
     "framer-motion": "^12.38.0",
+    "html-to-image": "^1.11.13",
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.7.0",

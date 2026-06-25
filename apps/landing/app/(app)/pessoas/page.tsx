@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Users, UserPlus, Search, Download, ChevronLeft, ChevronRight,
-  Eye, Pencil, UserX, Trash2, Link2, Filter, X,
+  Eye, Pencil, UserX, Trash2, Link2, Filter, X, Upload,
 } from "lucide-react";
 
 interface Member {
@@ -22,12 +22,21 @@ interface Member {
   memberSince: string;
 }
 
-const STATUS_LABEL: Record<string, { label: string; bg: string; color: string }> = {
-  ACTIVE: { label: "Ativo", bg: "#DCFCE7", color: "#16A34A" },
-  VISITOR: { label: "Visitante", bg: "#DBEAFE", color: "#2563EB" },
-  INACTIVE: { label: "Inativo", bg: "#FEE2E2", color: "#DC2626" },
-  PENDING: { label: "Pendente", bg: "#FEF3C7", color: "#D97706" },
+const NAVY = "#1B2B4B";
+const GOLD = "#C9993F";
+const BG = "#F5F0EB";
+
+const STATUS_LABEL: Record<string, { label: string; bg: string; color: string; dot: string }> = {
+  ACTIVE: { label: "Ativo", bg: "#DCFCE7", color: "#16A34A", dot: "#22C55E" },
+  VISITOR: { label: "Visitante", bg: "#DBEAFE", color: "#2563EB", dot: "#3B82F6" },
+  INACTIVE: { label: "Inativo", bg: "#FEE2E2", color: "#DC2626", dot: "#EF4444" },
+  PENDING: { label: "Pendente", bg: "#FEF3C7", color: "#D97706", dot: "#F59E0B" },
 };
+
+function avatarColor(name: string) {
+  const hue = name.charCodeAt(0) * 7 % 360;
+  return { bg: `hsl(${hue}, 55%, 88%)`, color: `hsl(${hue}, 45%, 32%)` };
+}
 
 export default function PessoasPage() {
   const router = useRouter();
@@ -57,7 +66,6 @@ export default function PessoasPage() {
       setMembers(data.members ?? []);
       setTotal(data.total ?? 0);
       setTotalPages(data.totalPages ?? 1);
-      // Buscar congregações para exibir nomes
       fetch("/api/congregacoes")
         .then(r => r.json())
         .then((d: { congregations?: { id: string; name: string }[] }) => {
@@ -96,22 +104,34 @@ export default function PessoasPage() {
     URL.revokeObjectURL(url);
   }
 
+  const ativos = members.filter(m => m.status === "ACTIVE").length;
+  const visitantes = members.filter(m => m.status === "VISITOR").length;
+  const pendentes = members.filter(m => m.status === "PENDING").length;
+
   const stats = [
-    { label: "Total", value: total, icon: <Users size={20} strokeWidth={1.5} />, color: "#1A3C6E" },
-    { label: "Ativos", value: members.filter(m => m.status === "ACTIVE").length, icon: <Users size={20} strokeWidth={1.5} />, color: "#16A34A" },
-    { label: "Visitantes", value: members.filter(m => m.status === "VISITOR").length, icon: <Users size={20} strokeWidth={1.5} />, color: "#2563EB" },
-    { label: "Pendentes", value: members.filter(m => m.status === "PENDING").length, icon: <Users size={20} strokeWidth={1.5} />, color: "#D97706" },
+    { label: "Total", sub: "Todos os membros", value: total, icon: <Users size={22} strokeWidth={1.5} />, color: NAVY, bg: "#E8EDF5" },
+    { label: "Ativos", sub: "Membros ativos", value: ativos, icon: <Users size={22} strokeWidth={1.5} />, color: "#16A34A", bg: "#DCFCE7" },
+    { label: "Visitantes", sub: "Visitantes recentes", value: visitantes, icon: <Users size={22} strokeWidth={1.5} />, color: "#2563EB", bg: "#DBEAFE" },
+    { label: "Pendentes", sub: "Aguardando aprovação", value: pendentes, icon: <Users size={22} strokeWidth={1.5} />, color: "#D97706", bg: "#FEF3C7" },
   ];
 
   return (
-    <div style={{ padding: "1.75rem 2rem", maxWidth: "1400px", margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+    <div style={{ padding: "1.75rem 2rem", maxWidth: "1400px", margin: "0 auto", fontFamily: "var(--font-nunito), sans-serif", background: BG, minHeight: "100vh" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0D2545", margin: 0 }}>Pessoas</h1>
-          <p style={{ color: "#6B7280", fontSize: "0.875rem", margin: "2px 0 0" }}>Gerencie os membros da sua igreja</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: NAVY, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+              <Users size={18} strokeWidth={1.5} />
+            </div>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: NAVY, margin: 0 }}>Gestão de Membros</h1>
+          </div>
+          <p style={{ color: "#6B7280", fontSize: "0.875rem", margin: "2px 0 0" }}>
+            {total} membros cadastrados &nbsp;&bull;&nbsp; {ativos} ativos
+          </p>
           {congregationIdFromUrl && congregationsMap[congregationIdFromUrl] && (
-            <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: "0.8rem", color: "#1A3C6E", background: "#EFF6FF", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>
+            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "0.8rem", color: NAVY, background: "#E8EDF5", padding: "3px 10px", borderRadius: 8, fontWeight: 600 }}>
                 Filtrando por: {congregationsMap[congregationIdFromUrl]}
               </span>
               <button onClick={() => router.push("/pessoas")} style={{ background: "none", border: "none", color: "#DC2626", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: 2 }}>
@@ -121,31 +141,35 @@ export default function PessoasPage() {
           )}
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", color: "#374151" }}>
-            <Download size={16} strokeWidth={1.5} /> Exportar CSV
+          <button onClick={() => {}} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", color: "#374151", fontWeight: 500 }}>
+            <Upload size={16} strokeWidth={1.5} /> Importar
           </button>
-          <button onClick={() => router.push("/pessoas/novo")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: "linear-gradient(135deg, #1A3C6E 0%, #1E4A84 100%)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", fontWeight: 600 }}>
+          <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: "white", border: "1px solid #E5E7EB", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", color: "#374151", fontWeight: 500 }}>
+            <Download size={16} strokeWidth={1.5} /> Exportar
+          </button>
+          <button onClick={() => router.push("/pessoas/novo")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: GOLD, color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", fontWeight: 700 }}>
             <UserPlus size={16} strokeWidth={1.5} /> Novo Membro
           </button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
         {stats.map((s, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-            style={{ flex: 1, background: "white", borderRadius: "10px", padding: "1rem 1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <div style={{ width: "38px", height: "38px", borderRadius: "8px", background: `${s.color}14`, display: "flex", alignItems: "center", justifyContent: "center", color: s.color }}>{s.icon}</div>
+          <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+            style={{ background: "white", borderRadius: "12px", padding: "1.1rem 1.25rem", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: "0.875rem", borderTop: `3px solid ${s.color}` }}>
+            <div style={{ width: "44px", height: "44px", borderRadius: "10px", background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", color: s.color }}>{s.icon}</div>
             <div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "#111827" }}>{s.value}</div>
-              <div style={{ fontSize: "0.75rem", color: "#6B7280" }}>{s.label}</div>
+              <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#111827" }}>{s.value}</div>
+              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#374151" }}>{s.label}</div>
+              <div style={{ fontSize: "0.7rem", color: "#9CA3AF" }}>{s.sub}</div>
             </div>
           </motion.div>
         ))}
       </div>
 
       {/* Search and filters */}
-      <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+      <div style={{ background: "white", borderRadius: "12px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden", marginBottom: "1.5rem" }}>
         <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid #F3F4F6", display: "flex", gap: "0.75rem", alignItems: "center" }}>
           <div style={{ flex: 1, position: "relative" }}>
             <Search size={16} strokeWidth={1.5} style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "#9CA3AF" }} />
@@ -154,11 +178,11 @@ export default function PessoasPage() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nome, email ou telefone..."
               style={{ width: "100%", padding: "0.6rem 0.75rem 0.6rem 2.25rem", border: "1.5px solid #E5E7EB", borderRadius: "8px", fontSize: "0.875rem", outline: "none", background: "#FAFAFA" }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "#1A3C6E"; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = NAVY; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "#E5E7EB"; }}
             />
           </div>
-          <button onClick={() => setShowFilters(!showFilters)} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.6rem 0.875rem", background: showFilters ? "#1A3C6E" : "#F3F4F6", color: showFilters ? "white" : "#374151", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem" }}>
+          <button onClick={() => setShowFilters(!showFilters)} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.6rem 0.875rem", background: showFilters ? NAVY : "#F3F4F6", color: showFilters ? "white" : "#374151", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "0.8375rem", fontWeight: 500 }}>
             <Filter size={15} strokeWidth={1.5} /> Filtros
           </button>
         </div>
@@ -182,11 +206,11 @@ export default function PessoasPage() {
 
         {/* Table */}
         <div style={{ overflowX: "auto" }}>
-          <table className="responsive-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8375rem" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8375rem" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #F3F4F6" }}>
-                {["Membro", "Telefone", "Cargo", "Congregação", "Status", "Membro desde", "Ações"].map((h) => (
-                  <th key={h} style={{ textAlign: "left", padding: "0.75rem 1rem", color: "#9CA3AF", fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</th>
+                {["Membro", "Contato", "Cargo", "Congregação", "Status", "Membro desde", "Ações"].map((h) => (
+                  <th key={h} style={{ textAlign: "left", padding: "0.85rem 1rem", color: "#9CA3AF", fontWeight: 600, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -196,50 +220,52 @@ export default function PessoasPage() {
               ) : members.length === 0 ? (
                 <tr><td colSpan={7} style={{ padding: "3rem", textAlign: "center", color: "#9CA3AF" }}>Nenhum membro encontrado</td></tr>
               ) : members.map((m) => {
-                const st = STATUS_LABEL[m.status] ?? { label: m.status, bg: "#F3F4F6", color: "#6B7280" };
+                const st = STATUS_LABEL[m.status] ?? { label: m.status, bg: "#F3F4F6", color: "#6B7280", dot: "#9CA3AF" };
+                const av = avatarColor(m.name);
                 return (
                   <tr key={m.id} style={{ borderBottom: "1px solid #F9FAFB", transition: "background 0.1s" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "#FAFAFA"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "transparent"; }}
                   >
-                    <td data-label="Membro" style={{ padding: "0.625rem 1rem" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                        <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: m.photo ? `url(${m.photo}) center/cover` : `hsl(${m.name.charCodeAt(0) * 7},55%,82%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700, color: `hsl(${m.name.charCodeAt(0) * 7},40%,30%)`, flexShrink: 0 }}>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: m.photo ? `url(${m.photo}) center/cover` : av.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700, color: m.photo ? "transparent" : av.color, flexShrink: 0 }}>
                           {!m.photo && m.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 500, color: "#111827" }}>{m.name}</div>
+                          <div style={{ fontWeight: 600, color: "#111827", fontSize: "0.875rem" }}>{m.name}</div>
                           <div style={{ fontSize: "0.75rem", color: "#9CA3AF" }}>{m.email ?? "—"}</div>
                         </div>
                       </div>
                     </td>
-                    <td data-label="Telefone" style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.phone ?? "—"}</td>
-                    <td data-label="Cargo" style={{ padding: "0.625rem 1rem", color: "#374151" }}>{m.role ?? "—"}</td>
-                    <td data-label="Congregação" style={{ padding: "0.625rem 1rem" }}>
-                      <span style={{ background: congregationsMap[m.congregationId || ""] ? "#E0E7FF" : "#F3F4F6", color: congregationsMap[m.congregationId || ""] ? "#4338CA" : "#9CA3AF", fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "2px 8px" }}>
+                    <td style={{ padding: "0.75rem 1rem", color: "#374151" }}>{m.phone ?? "—"}</td>
+                    <td style={{ padding: "0.75rem 1rem", color: "#374151" }}>{m.role ?? "—"}</td>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <span style={{ background: congregationsMap[m.congregationId || ""] ? "#E0E7FF" : "#F3F4F6", color: congregationsMap[m.congregationId || ""] ? "#4338CA" : "#9CA3AF", fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "3px 10px" }}>
                         {congregationsMap[m.congregationId || ""] ?? "Sede"}
                       </span>
                     </td>
-                    <td data-label="Status" style={{ padding: "0.625rem 1rem" }}>
-                      <span style={{ background: st.bg, color: st.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "2px 8px" }}>{st.label}</span>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: st.bg, color: st.color, fontSize: "0.7rem", fontWeight: 600, borderRadius: "10px", padding: "3px 10px" }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: st.dot }} />
+                        {st.label}
+                      </span>
                     </td>
-                    <td data-label="Desde" style={{ padding: "0.625rem 1rem", color: "#6B7280" }}>{new Date(m.memberSince).toLocaleDateString("pt-BR")}</td>
-                    <td data-label="Ações" style={{ padding: "0.625rem 1rem" }}>
+                    <td style={{ padding: "0.75rem 1rem", color: "#6B7280", fontSize: "0.8rem" }}>{new Date(m.memberSince).toLocaleDateString("pt-BR")}</td>
+                    <td style={{ padding: "0.75rem 1rem" }}>
                       <div style={{ display: "flex", gap: "0.25rem" }}>
-                        <button onClick={() => router.push(`/pessoas/${m.id}`)} title="Ver" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "4px", color: "#6B7280" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = "#F3F4F6"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}>
-                          <Eye size={15} strokeWidth={1.5} />
+                        <button onClick={() => router.push(`/pessoas/${m.id}`)} title="Ver" style={{ width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", background: "#F3F4F6", border: "none", cursor: "pointer", borderRadius: "6px", color: "#6B7280" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "#E5E7EB"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "#F3F4F6"; }}>
+                          <Eye size={14} strokeWidth={1.5} />
                         </button>
-                        <button onClick={() => router.push(`/pessoas/${m.id}/editar`)} title="Editar" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "4px", color: "#6B7280" }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = "#F3F4F6"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}>
-                          <Pencil size={15} strokeWidth={1.5} />
+                        <button onClick={() => router.push(`/pessoas/${m.id}/editar`)} title="Editar" style={{ width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", background: "#F3F4F6", border: "none", cursor: "pointer", borderRadius: "6px", color: "#6B7280" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "#E5E7EB"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "#F3F4F6"; }}>
+                          <Pencil size={14} strokeWidth={1.5} />
                         </button>
-                        {m.status !== "INACTIVE" && (
-                          <button onClick={() => { setDeleteConfirm(m.id); }} title="Inativar" style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", borderRadius: "4px", color: "#DC2626" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = "#FEF2F2"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "none"; }}>
-                            <UserX size={15} strokeWidth={1.5} />
-                          </button>
-                        )}
+                        <button onClick={() => { setDeleteConfirm(m.id); }} title="Inativar" style={{ width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", background: "#F3F4F6", border: "none", cursor: "pointer", borderRadius: "6px", color: "#DC2626" }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "#FEE2E2"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "#F3F4F6"; }}>
+                          <UserX size={14} strokeWidth={1.5} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -257,6 +283,11 @@ export default function PessoasPage() {
               <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} style={{ padding: "0.4rem", background: page <= 1 ? "#F3F4F6" : "white", border: "1px solid #E5E7EB", borderRadius: "6px", cursor: page <= 1 ? "default" : "pointer", display: "flex" }}>
                 <ChevronLeft size={16} />
               </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <button key={p} onClick={() => setPage(p)} style={{ padding: "0.35rem 0.65rem", background: page === p ? NAVY : "white", color: page === p ? "white" : "#374151", border: "1px solid #E5E7EB", borderRadius: "6px", cursor: "pointer", fontSize: "0.8rem", fontWeight: 600 }}>
+                  {p}
+                </button>
+              ))}
               <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} style={{ padding: "0.4rem", background: page >= totalPages ? "#F3F4F6" : "white", border: "1px solid #E5E7EB", borderRadius: "6px", cursor: page >= totalPages ? "default" : "pointer", display: "flex" }}>
                 <ChevronRight size={16} />
               </button>
