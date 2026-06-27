@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Users, BookOpen, TrendingUp, Award, Search, ChevronLeft, ChevronRight,
-  MoreVertical, FileBarChart, Download, Plus,
+  MoreVertical,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -102,22 +102,9 @@ export default function DiscipuladosPage() {
   return (
     <div style={{ padding: "1.75rem 2rem", maxWidth: 1200, margin: "0 auto", fontFamily: "var(--font-nunito), sans-serif", background: "#F8F9FC", minHeight: "100vh" }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: NAVY, margin: "0 0 4px" }}>Discipulados Ativos</h1>
-          <p style={{ color: "#6B7280", fontSize: 14, margin: 0 }}>Acompanhe o progresso dos membros em cursos e jornadas de crescimento.</p>
-        </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", background: NAVY, color: "white", border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-            <Plus size={16} strokeWidth={1.5} /> Novo Discipulado
-          </button>
-          <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", background: "white", border: "1px solid #E5E7EB", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#374151" }}>
-            <FileBarChart size={16} strokeWidth={1.5} /> Relatorios
-          </button>
-          <button style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", background: "white", border: "1px solid #E5E7EB", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#374151" }}>
-            <Download size={16} strokeWidth={1.5} /> Exportar
-          </button>
-        </div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: NAVY, margin: "0 0 4px" }}>Discipulados Ativos</h1>
+        <p style={{ color: "#6B7280", fontSize: 14, margin: 0 }}>Acompanhe o progresso dos membros em cursos e jornadas de crescimento.</p>
       </div>
 
       {/* Stats */}
