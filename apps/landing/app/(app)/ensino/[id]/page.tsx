@@ -118,9 +118,14 @@ export default function CursoDetalhePage() {
         <Link href="/ensino" style={{ color: NAVY }}><ArrowLeft size={20} /></Link>
         <h1 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#0D2545", margin: 0, flex: 1 }}>{curso.titulo}</h1>
         {isAdmin && (
-          <button onClick={handleDelete} disabled={deleting} style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", background: "#FEE2E2", color: "#DC2626", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-            <Trash2 size={14} /> Excluir
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => router.push(`/ensino/${cursoId}/editar`)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", background: "#EFF6FF", color: "#2563EB", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <Edit3 size={14} /> Editar
+            </button>
+            <button onClick={handleDelete} disabled={deleting} style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 14px", background: "#FEE2E2", color: "#DC2626", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <Trash2 size={14} /> Excluir
+            </button>
+          </div>
         )}
       </div>
 
