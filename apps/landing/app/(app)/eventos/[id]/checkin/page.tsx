@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, UserCheck, Users, Clock, CheckCircle, ArrowLeft, RefreshCw,
   Percent, X, DoorOpen, UtensilsCrossed, ShoppingBag, Phone, CreditCard,
-  AlertCircle, ScanLine,
+  AlertCircle, ScanLine, DollarSign,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -323,6 +323,8 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
   const [scanMsg, setScanMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const [confirmandoPagamento, setConfirmandoPagamento] = useState<string | null>(null);
+
   const fetchEvento = useCallback(async () => {
     try {
       const res = await fetch(`/api/eventos/${resolvedParams.id}`);
@@ -375,6 +377,33 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
       setScanMsg({ type: "error", text: e.message || "Erro ao processar QR Code" });
     }
     setTimeout(() => setScanMsg(null), 4000);
+  }
+
+  async function handleConfirmarPagamento(inscricaoId: string) {
+    setConfirmandoPagamento(inscricaoId);
+    try {
+      const res = await fetch(`/api/inscricoes/${inscricaoId}/confirmar-pagamento`, { method: "POST", body: JSON.stringify({}) });
+      if (res.ok) {
+        setEvento(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            inscricoes: prev.inscricoes.map(i =>
+              i.id === inscricaoId ? { ...i, pagamentoStatus: "CONFIRMADO" } : i
+            ),
+          };
+        });
+        setScanMsg({ type: "success", text: "Pagamento confirmado com sucesso!" });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setScanMsg({ type: "error", text: data.error || "Erro ao confirmar pagamento" });
+      }
+    } catch {
+      setScanMsg({ type: "error", text: "Erro ao confirmar pagamento" });
+    } finally {
+      setConfirmandoPagamento(null);
+      setTimeout(() => setScanMsg(null), 4000);
+    }
   }
 
   const inscricoes = evento?.inscricoes ?? [];
@@ -515,6 +544,18 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
                     </div>
 
                     <div style={{ textAlign: "center" }} onClick={e => e.stopPropagation()}>
+                      {/* Confirmar pagamento (apenas dinheiro pendente) */}
+                      {insc.formaPagamento === "DINHEIRO" && insc.pagamentoStatus !== "CONFIRMADO" && (
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                          disabled={confirmandoPagamento === insc.id}
+                          onClick={() => handleConfirmarPagamento(insc.id)}
+                          style={{ background: "#FEF3C7", color: "#92400E", border: "1px solid #FDE68A", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 700, fontFamily: FONT, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 6 }}>
+                          {confirmandoPagamento === insc.id ? (
+                            <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.7, ease: "linear" }}
+                              style={{ display: "inline-block", width: 10, height: 10, border: "2px solid rgba(146,64,14,0.3)", borderTopColor: "#92400E", borderRadius: "50%" }} />
+                          ) : <><DollarSign size={11} />Confirmar Pag.</>}
+                        </motion.button>
+                      )}
                       {done ? (
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#16A34A", fontSize: 12, fontWeight: 700 }}>
                           <CheckCircle size={14} />Presente

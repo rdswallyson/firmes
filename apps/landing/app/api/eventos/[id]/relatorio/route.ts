@@ -24,19 +24,17 @@ export async function GET(
         titulo: evento.title,
         data: evento.date,
         local: evento.location,
-        maxVagas: evento.maxVagas,
-        status: evento.status,
+        pago: !evento.isGratuito,
         valor: evento.valor,
-        isGratuito: evento.isGratuito,
       },
       stats: {
         totalInscritos: evento.inscricoes.length,
-        totalPresentes: presentes.length,
-        percentual: evento.inscricoes.length > 0 ? Math.round((presentes.length / evento.inscricoes.length) * 100) : 0,
+        presentes: presentes.length,
+        comparecimento: evento.inscricoes.length > 0 ? Math.round((presentes.length / evento.inscricoes.length) * 100) : 0,
         receita: !evento.isGratuito && evento.valor ? confirmados.length * evento.valor : null,
       },
-      visitantes: visitantes.map((v) => ({ nome: v.nome, email: v.email, telefone: v.telefone, checkinAt: v.checkinAt })),
-      membrosPresentes: membros.filter((m) => m.checkinAt).map((m) => ({ nome: m.nome, checkinAt: m.checkinAt })),
+      visitantes: visitantes.map((v) => ({ id: v.id, nome: v.nome, email: v.email, telefone: v.telefone, checkinAt: v.checkinAt })),
+      membrosPresentes: membros.filter((m) => m.checkinAt).map((m) => ({ id: m.id, nome: m.nome, checkinAt: m.checkinAt! })),
     });
   } catch (error) {
     console.error("[GET /api/eventos/id/relatorio]", error);
