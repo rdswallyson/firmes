@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, UserCheck, Users, Clock, CheckCircle, ArrowLeft, RefreshCw,
   Percent, X, DoorOpen, UtensilsCrossed, ShoppingBag, Phone, CreditCard,
-  AlertCircle,
+  AlertCircle, ScanLine,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -256,7 +256,61 @@ function FichaInscrito({ inscricao, evento, onClose, onUpdate }: {
   );
 }
 
-/* ── Main Page ── */
+/* ── QR Scanner Modal ── */
+function QRScannerModal({ onScan, onClose }: { onScan: (code: string) => void; onClose: () => void }) {
+  const scannerRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let html5QrCode: any = null;
+    async function start() {
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        if (!scannerRef.current) return;
+        html5QrCode = new Html5Qrcode("qr-scanner-div");
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText: string) => {
+            onScan(decodedText);
+            html5QrCode?.stop().catch(() => {});
+          },
+          () => {}
+        );
+      } catch (e: any) {
+        setError(e.message || "Erro ao iniciar câmera. Verifique as permissões.");
+      }
+    }
+    start();
+    return () => {
+      if (html5QrCode) {
+        html5QrCode.stop().catch(() => {});
+      }
+    };
+  }, [onScan]);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 60, padding: 16 }}
+      onClick={onClose}>
+      <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+        style={{ background: "#fff", borderRadius: 20, padding: 24, maxWidth: 420, width: "100%", textAlign: "center" }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: NAVY }}>Escanear QR Code</h3>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#999" }}><X size={20} /></button>
+        </div>
+        {error ? (
+          <div style={{ background: "#FEE2E2", borderRadius: 10, padding: 16, color: "#991B1B", fontSize: 13 }}>
+            <AlertCircle size={20} style={{ marginBottom: 8 }} /> {error}
+          </div>
+        ) : (
+          <div id="qr-scanner-div" ref={scannerRef} style={{ width: "100%", borderRadius: 12, overflow: "hidden" }} />
+        )}
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: "#888" }}>Posicione o QR Code dentro da área de leitura</p>
+      </motion.div>
+    </div>
+  );
+}
 export default function CheckinPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
   const [evento, setEvento] = useState<Evento | null>(null);
@@ -265,6 +319,8 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
   const [selectedInscricao, setSelectedInscricao] = useState<Inscricao | null>(null);
   const [checkingIn, setCheckingIn] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [showScanner, setShowScanner] = useState(false);
+  const [scanMsg, setScanMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchEvento = useCallback(async () => {
@@ -293,9 +349,32 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
           if (!prev) return prev;
           return { ...prev, inscricoes: prev.inscricoes.map(i => i.qrCode === qrCode ? { ...i, checkinAt: new Date().toISOString() } : i) };
         });
+        return true;
+      } else {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 409) throw new Error(data.error || "Check-in já realizado");
+        if (res.status === 404) throw new Error(data.error || "Inscrição não encontrada");
+        throw new Error(data.error || "Erro no check-in");
       }
-    } catch { /* ignore */ }
-    setCheckingIn(null);
+    } catch (e: any) {
+      throw e;
+    } finally {
+      setCheckingIn(null);
+    }
+  }
+
+  async function handleScan(code: string) {
+    setShowScanner(false);
+    try {
+      const ok = await handleCheckin(code);
+      if (ok) {
+        setScanMsg({ type: "success", text: "Check-in realizado com sucesso!" });
+        fetchEvento();
+      }
+    } catch (e: any) {
+      setScanMsg({ type: "error", text: e.message || "Erro ao processar QR Code" });
+    }
+    setTimeout(() => setScanMsg(null), 4000);
   }
 
   const inscricoes = evento?.inscricoes ?? [];
@@ -368,12 +447,33 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        {/* Search */}
-        <div style={{ position: "relative", marginBottom: 20 }}>
-          <Search size={16} color="#999" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }} />
-          <input type="text" placeholder="Buscar por nome, e-mail ou QR Code..." value={search} onChange={e => setSearch(e.target.value)}
-            style={{ width: "100%", padding: "12px 14px 12px 40px", border: "1.5px solid #DDD6CE", borderRadius: 12, fontSize: 14, fontFamily: FONT, outline: "none", background: "#fff", boxSizing: "border-box", color: "#222" }} />
+        {/* Search + Scanner */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 20, alignItems: "center" }}>
+          <div style={{ position: "relative", flex: 1 }}>
+            <Search size={16} color="#999" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }} />
+            <input type="text" placeholder="Buscar por nome, e-mail ou QR Code..." value={search} onChange={e => setSearch(e.target.value)}
+              style={{ width: "100%", padding: "12px 14px 12px 40px", border: "1.5px solid #DDD6CE", borderRadius: 12, fontSize: 14, fontFamily: FONT, outline: "none", background: "#fff", boxSizing: "border-box", color: "#222" }} />
+          </div>
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            onClick={() => setShowScanner(true)}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "12px 18px", background: NAVY, color: "#fff", border: "none", borderRadius: 12, fontSize: 13, fontWeight: 700, fontFamily: FONT, cursor: "pointer", flexShrink: 0 }}>
+            <ScanLine size={16} /> Escanear QR
+          </motion.button>
         </div>
+
+        {/* Scan message */}
+        {scanMsg && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            style={{
+              marginBottom: 16, padding: "10px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+              background: scanMsg.type === "success" ? "#DCFCE7" : "#FEE2E2",
+              color: scanMsg.type === "success" ? "#16A34A" : "#DC2626",
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+            {scanMsg.type === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+            {scanMsg.text}
+          </motion.div>
+        )}
 
         {/* Table */}
         <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 4px 20px rgba(26,60,110,0.08)", overflow: "hidden" }}>
@@ -451,6 +551,14 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
           evento={evento}
           onClose={() => setSelectedInscricao(null)}
           onUpdate={() => { fetchEvento(); setSelectedInscricao(null); }}
+        />
+      )}
+
+      {/* QR Scanner modal */}
+      {showScanner && (
+        <QRScannerModal
+          onScan={handleScan}
+          onClose={() => setShowScanner(false)}
         />
       )}
     </div>
