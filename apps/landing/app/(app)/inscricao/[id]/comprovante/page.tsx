@@ -8,6 +8,7 @@ import {
   Package, Ticket, ArrowLeft, Printer, Share2, AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { QRCodeCanvas } from "qrcode.react";
 
 const NAVY = "#1A3C6E";
 const GOLD = "#C8922A";
@@ -83,7 +84,7 @@ export default function ComprovantePage() {
   const params = useParams();
   const inscricaoId = typeof params.id === "string" ? params.id : "";
   const [data, setData] = useState<InscricaoData | null>(null);
-  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [qrValue, setQrValue] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -98,19 +99,9 @@ export default function ComprovantePage() {
           return;
         }
         setData(d);
-        // Generate QR Code with full URL for better scanning
-        try {
-          const QRCode = (await import("qrcode")).default;
-          const qrContent = `${window.location.origin}/checkin/${d.qrCode}`;
-          const url = await QRCode.toDataURL(qrContent, {
-            width: 320, margin: 3,
-            color: { dark: NAVY, light: "#ffffff" },
-            errorCorrectionLevel: "H",
-          });
-          setQrDataUrl(url);
-        } catch (e) {
-          console.error("QR generation error:", e);
-        }
+        // Generate QR Code value (full URL for better scanning)
+        const qrContent = `${window.location.origin}/checkin/${d.qrCode}`;
+        setQrValue(qrContent);
         setLoading(false);
       })
       .catch(() => {
@@ -237,10 +228,19 @@ export default function ComprovantePage() {
             {/* QR Code */}
             <div style={{ textAlign: "center", padding: "20px 0", borderTop: "1px dashed #E5E7EB", borderBottom: "1px dashed #E5E7EB" }}>
               <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6B7280", fontWeight: 600 }}>Apresente este QR Code na entrada do evento</p>
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="QR Code da inscrição" style={{ width: 200, height: 200, borderRadius: 12, border: "2px solid #E5E7EB" }} />
+              {qrValue ? (
+                <div style={{ display: "inline-block", padding: 16, background: "#ffffff", borderRadius: 12, border: "2px solid #E5E7EB" }}>
+                  <QRCodeCanvas
+                    value={qrValue}
+                    size={280}
+                    level="H"
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    includeMargin={true}
+                  />
+                </div>
               ) : (
-                <div style={{ width: 200, height: 200, borderRadius: 12, border: "2px dashed #E5E7EB", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF", fontSize: 13 }}>
+                <div style={{ width: 280, height: 280, borderRadius: 12, border: "2px dashed #E5E7EB", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF", fontSize: 13 }}>
                   Gerando QR Code...
                 </div>
               )}
