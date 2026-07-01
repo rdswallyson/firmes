@@ -8,7 +8,6 @@ import {
   Package, Ticket, ArrowLeft, Printer, Share2, AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { QRCodeCanvas } from "qrcode.react";
 
 const NAVY = "#1A3C6E";
 const GOLD = "#C8922A";
@@ -225,22 +224,21 @@ export default function ComprovantePage() {
               )}
             </div>
 
-            {/* QR Code */}
+            {/* QR Code — PNG externo, sem interferência de CSS local */}
             <div style={{ textAlign: "center", padding: "20px 0", borderTop: "1px dashed #E5E7EB", borderBottom: "1px dashed #E5E7EB" }}>
               <p style={{ margin: "0 0 12px", fontSize: 13, color: "#6B7280", fontWeight: 600 }}>Apresente este QR Code na entrada do evento</p>
               {qrValue ? (
-                <div style={{ display: "inline-block", padding: 16, background: "#ffffff", borderRadius: 12, border: "2px solid #E5E7EB" }}>
-                  <QRCodeCanvas
-                    value={qrValue}
-                    size={280}
-                    level="H"
-                    bgColor="#ffffff"
-                    fgColor="#000000"
-                    includeMargin={true}
+                <div style={{ display: "inline-block", padding: 20, background: "#ffffff", borderRadius: 12, border: "2px solid #E5E7EB", lineHeight: 0 }}>
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrValue)}&color=000000&bgcolor=ffffff&margin=10`}
+                    alt="QR Code da inscrição"
+                    width={300}
+                    height={300}
+                    style={{ display: "block" }}
                   />
                 </div>
               ) : (
-                <div style={{ width: 280, height: 280, borderRadius: 12, border: "2px dashed #E5E7EB", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF", fontSize: 13 }}>
+                <div style={{ width: 300, height: 300, borderRadius: 12, border: "2px dashed #E5E7EB", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#9CA3AF", fontSize: 13 }}>
                   Gerando QR Code...
                 </div>
               )}
