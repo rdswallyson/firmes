@@ -7,7 +7,7 @@ import {
   ArrowLeft, Calendar, MapPin, Users, Clock, CheckCircle, X,
   QrCode, Link as LinkIcon, Copy, Check, Share2, UserPlus,
   Settings2, FileText, DoorOpen, Trash2, Edit3, Download,
-  UtensilsCrossed, ShoppingBag, DollarSign,
+  UtensilsCrossed, ShoppingBag, DollarSign, ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -97,7 +97,8 @@ export default function EventoDetalhePage() {
       });
       if (res.ok) {
         const data = await res.json();
-        alert(`Inscricao criada! QR Code: ${data.qrCode}`);
+        // Redirecionar para comprovante após inscrição manual
+        router.push(`/inscricao/${data.id}/comprovante`);
         setShowInscModal(false);
         setInscForm({ nome: "", email: "", telefone: "", tipo: "VISITANTE", formaPagamento: "PIX" });
         fetchEvento();
@@ -320,7 +321,12 @@ export default function EventoDetalhePage() {
                     <td style={{ padding: "12px 16px" }}>
                       {i.checkinAt ? <span style={{ color: "#16A34A", fontWeight: 600 }}>✓ {formatDate(i.checkinAt)}</span> : <span style={{ color: "#9CA3AF" }}>Pendente</span>}
                     </td>
-                    <td style={{ padding: "12px 16px" }}>—</td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <Link href={`/inscricao/${i.id}/comprovante`} target="_blank"
+                        style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", background: "#EEF2FA", border: "1px solid #BFDBFE", borderRadius: 6, fontSize: 11, fontWeight: 700, color: NAVY, textDecoration: "none", cursor: "pointer" }}>
+                        <ExternalLink size={12} /> Ver Comprovante
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

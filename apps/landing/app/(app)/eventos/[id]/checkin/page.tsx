@@ -345,7 +345,11 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
   async function handleCheckin(qrCode: string) {
     setCheckingIn(qrCode);
     try {
-      const res = await fetch(`/api/inscricoes/${qrCode}/checkin`, { method: "POST" });
+      const res = await fetch(`/api/inscricoes-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: qrCode }),
+      });
       if (res.ok) {
         setEvento(prev => {
           if (!prev) return prev;
@@ -368,7 +372,13 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
   async function handleScan(code: string) {
     setShowScanner(false);
     try {
-      const ok = await handleCheckin(code);
+      // Extract UUID from QR code (supports both raw UUID and URL format)
+      let qrCode = code.trim();
+      if (qrCode.includes("/")) {
+        const parts = qrCode.split("/");
+        qrCode = parts[parts.length - 1] || qrCode;
+      }
+      const ok = await handleCheckin(qrCode);
       if (ok) {
         setScanMsg({ type: "success", text: "Check-in realizado com sucesso!" });
         fetchEvento();

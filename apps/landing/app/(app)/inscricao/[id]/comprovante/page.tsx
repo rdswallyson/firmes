@@ -98,12 +98,14 @@ export default function ComprovantePage() {
           return;
         }
         setData(d);
-        // Generate QR Code from the existing qrCode UUID
+        // Generate QR Code with full URL for better scanning
         try {
           const QRCode = (await import("qrcode")).default;
-          const url = await QRCode.toDataURL(d.qrCode, {
-            width: 280, margin: 2,
+          const qrContent = `${window.location.origin}/checkin/${d.qrCode}`;
+          const url = await QRCode.toDataURL(qrContent, {
+            width: 320, margin: 3,
             color: { dark: NAVY, light: "#ffffff" },
+            errorCorrectionLevel: "H",
           });
           setQrDataUrl(url);
         } catch (e) {
